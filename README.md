@@ -133,6 +133,9 @@ TODO
 Change Log
 ============
 
+### 0.0.8 - 31 Oct 2014
+  - published to npm
+
 ### 0.0.6 - 31 Oct 2014
   - tinypng.com service integrated
   - code cleanup
