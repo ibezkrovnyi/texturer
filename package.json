@@ -1,0 +1,25 @@
+{
+	"name": "texturer",
+	"version": "0.0.6",
+	"description": "Texture Map Generator in pure JavaScript (node.js, multithreading)",
+	"author": "Igor Bezkrovny",
+	"contributors": [],
+	"homepage": "https://github.com/igor-bezkrovny/texturer",
+	"keywords": [],
+	"engines": {
+		"node": "0.10.x"
+	},
+	"main": "./index.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/igor-bezkrovny/texturer"
+	},
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/igor-bezkrovny/texturer/issues"
+	},
+	"dependencies": {
+		"handlebars": "^2.0.0",
+		"jpeg-js": "0.0.4"
+	}
+}

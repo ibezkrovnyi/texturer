@@ -1,0 +1,13 @@
+../source/css/texturePool.css
+{{#each textures}}
+	.{{id}} : {
+		background-image: url("{{#if base64}}{{base64}}{{else}}{{url}}{{/if}}");
+		background-position : -{{x}}px - {{y}}px;
+		width      : {{width}}px;
+		height     : {{height}}px;
+		{{#if repeatX}}background-repeat : repeat-x;{{/if ~}}
+		{{#if repeatY}}background-repeat : repeat-y;{{/if ~}}
+		margin     : {{trimTop}} 0 0 {{trimLeft}};
+	}
+
+{{/each}}

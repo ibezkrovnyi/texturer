@@ -1,0 +1,52 @@
+{
+	"nameSpace": "MyGame",
+	"folders": {
+		"resources(in)": "./",
+		"images(out)": "../source/images",
+		"images(index.html)": "images"
+	},
+	"base64": true,
+	"tasks": [
+		{
+			"folder(in)": "lviv-ukraine-backgrounds",
+			"texture-map(out)": "lviv-ukraine-backgrounds",
+			"copy": true
+		},
+		{
+			"folder(in)": "creative-nerds-wooden-icons",
+			"texture-map(out)": "creative-nerds-wooden-icons.png",
+			"grid-step": 1,
+			"base64": false
+		},
+		{
+			"folder(in)": "woocons1",
+			"texture-map(out)": "woocons1.png"
+		},
+		{
+			"folder(in)": "zoom-eyed-creatures",
+			"texture-map(out)": "zoom-eyed-creatures.png",
+			"n-pass": 1,
+			"compression": {
+				//"tinypng" : true
+				"palette": {
+					"colors": 3068,
+					"method" : 2
+					//"ditheringKernel" : "FalseFloydSteinberg"
+				}
+			}
+		},
+		{
+			"folder(in)": "buttons",
+			"texture-map(out)": "buttons.png",
+			"repeat-x": true
+		}
+	],
+	"tinypng-api-keys": [
+		{
+			"used": 7,
+			"month": 10,
+			"year": 2014,
+			"key": "cFgtznynq3cE3aE1QGQp8B2z5lEiXRz-"
+		}
+	]
+}

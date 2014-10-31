@@ -1,0 +1,27 @@
+../source/js/texturePool.js
+var {{nameSpace}} = {{nameSpace}} || {};
+
+(function(config) {
+
+	var maps = [{{#each maps}}
+		{
+			url        : "{{#if base64}}{{base64}}{{else}}{{url}}{{/if}}",
+			width      : {{width}},
+			height     : {{height}},
+			repeatX    : {{repeat-x}},
+			repeatY    : {{repeat-y}}
+		}{{#unless is-last-item}}, {{/unless}}{{/each}}
+	];
+
+	config.texturePool = { {{#each textures}}
+		"{{id}}" : {
+			map        : maps[{{map-index}}],
+			x          : {{x}},
+			y          : {{y}},
+			width      : {{width}},
+			height     : {{height}},
+			trim       : { left : {{trim.left}}, right : {{trim.right}}, top : {{trim.top}}, bottom : {{trim.bottom}} }
+		}{{#unless is-last-item}}, {{/unless}}{{/each}}
+	};
+
+})({{nameSpace}}.config = {{nameSpace}}.config || {});
