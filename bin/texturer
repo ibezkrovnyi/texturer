@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+var Texturer = require("../src/index.js");
+
+var texturer = new Texturer();
+texturer.generate();

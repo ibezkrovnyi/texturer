@@ -18,14 +18,14 @@ var fs                  = require("fs"),
 	_startTime          = Date.now(),
 	ClusterQueue        = require("./modules/clusterQueue/clusterQueue.js");
 
-function Generator () {
+function Texturer () {
 	this._cq = new ClusterQueue({
 		file : path.resolve(__dirname, "cluster", "tasks.js")
 		//, maxSimultaneousTasks : 1
 	});
 }
 
-Generator.prototype = {
+Texturer.prototype = {
 	generate : function () {
 		try {
 			this._configParser = new ConfigParser("./config.json");
@@ -302,5 +302,4 @@ function logMemory (title) {
 	console.log(title + "\nheapUsed: " + (process.memoryUsage().heapUsed - __logMemoryUsage.heapUsed + ", heapTotal: " + process.memoryUsage().heapTotal));
 }
 
-var generator = new Generator();
-generator.generate();
+module.exports = Texturer;
