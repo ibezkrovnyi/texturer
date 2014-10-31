@@ -1,5 +1,5 @@
 /*
- * Project: textureMapGenerator
+ * Project: Texturer
  *
  * User: Igor Bezkrovny
  * Date: 18.10.2014
@@ -12,7 +12,6 @@ var pngEngine                = require("./modules/node-png").PNG,
 	bmpEngine                = require("./modules/bmp-js"),
 	fs                       = require("fs"),
 	path                     = require("path"),
-	zlib                     = require("zlib"),
 	supportedImageExtensions = ["jpg", "jpeg", "png", "bmp"];
 
 module.exports = {

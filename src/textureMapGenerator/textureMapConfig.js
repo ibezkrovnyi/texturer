@@ -1,5 +1,5 @@
 /*
- * Project: textureMapGenerator
+ * Project: Texturer
  *
  * User: Igor Bezkrovny
  * Date: 18.10.2014
