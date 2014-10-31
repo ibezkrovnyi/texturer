@@ -14,12 +14,15 @@
 		"type": "git",
 		"url": "https://github.com/igor-bezkrovny/texturer"
 	},
-	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/igor-bezkrovny/texturer/issues"
 	},
 	"dependencies": {
 		"handlebars": "^2.0.0",
 		"jpeg-js": "0.0.4"
-	}
+	},
+	"bin": {
+		"texturer" : "./index.js"
+	},
+	"license": "MIT"
 }

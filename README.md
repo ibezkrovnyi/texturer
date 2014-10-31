@@ -1,6 +1,5 @@
 Texturer
 ========
-
 Texture Map Generator in JavaScript (node.js, multithreading) is image processing tool that generates texture maps for image sets. It also generates javascript texture maps description file and is able to copy whole directory without processing, but fills texture map description file with image parameters.
 
 How To Install from GitHub
@@ -9,9 +8,13 @@ How To Install from GitHub
 
 2) run `npm install` in root folder of texturer (where package.json is located)
 
+How To Install from npm
+=======================
+run `npm install -g texturer` from command-line
+
 Usage
 =====
-run `node ./index.js` in folder with config.json (you may try `textureMapGenerator` from `example` folder
+run `texturer` or `node ./index.js` in folder with config.json (see `example` folder)
 
 Supported file formats
 ======================
