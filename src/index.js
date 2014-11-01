@@ -26,9 +26,18 @@ function Texturer () {
 }
 
 Texturer.prototype = {
-	generate : function () {
+	/**
+	 * @param configJSONString
+	 * @param {function(this:T) : string|null } callback Returns null if success, or error text in case error occurred
+	 * @param {T} thisArg
+	 * @template T
+	 */
+	generate : function (configJSONString, callback, thisArg) {
+		this._callback = callback;
+		this._thisArg = thisArg;
+
 		try {
-			this._configParser = new ConfigParser("./config.json");
+			this._configParser = new ConfigParser(configJSONString);
 			this._textureMapArray = [];
 			//this._loadedFileDataDictionary = {};
 
@@ -286,12 +295,11 @@ Texturer.prototype = {
 
 	_shutdown : function (error) {
 		if (error) {
-			console.trace("\x1B[91m" + error + "\x1B[39m");
 			this._cq.abort();
-			process.exit(42);
+			this._callback.call(this._thisArg, error);
 		} else {
 			this._cq.shutdown(function () {
-				process.exit(0);
+				this._callback.call(this._thisArg, null);
 			}, this);
 		}
 	}

@@ -16,15 +16,7 @@ var fs               = require("fs"),
  * @class ConfigParser
  * @constructor
  */
-function ConfigParser (configFileName) {
-	var configString;
-
-	try {
-		configString = fs.readFileSync(configFileName, "utf8");
-	} catch (e) {
-		throw new Error("CFG: Can't read config file \"" + configFileName + "\n");
-	}
-
+function ConfigParser (configJSONString) {
 /*
 	try {
 		jsonLint.parse(configString);
@@ -34,7 +26,7 @@ function ConfigParser (configFileName) {
 */
 
 		try {
-			this._config = eval('(' + configString + ')');
+			this._config = eval('(' + configJSONString + ')');
 		} catch (e) {
 			throw new Error("CFG: error in file " + configFileName + ": JSON invalid: \"" + e + "\n");
 		}

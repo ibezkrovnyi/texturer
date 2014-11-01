@@ -1,5 +1,20 @@
 #!/usr/bin/env node
-var Texturer = require("../src/index.js");
+var Texturer   = require("../src/index.js"),
+	configFile = "./config.json",
+	texturer   = new Texturer(),
+	configJSONString;
 
-var texturer = new Texturer();
-texturer.generate();
+try {
+	configJSONString = fs.readFileSync(configFile, "utf8");
+} catch (e) {
+	throw new Error("CFG: Can't read config file \"" + configFile + "\n");
+}
+
+texturer.generate(configJSONString, function (error) {
+	if (error) {
+		console.trace("\x1B[91m" + error + "\x1B[39m");
+		process.exit(42);
+	} else {
+		process.exit(0);
+	}
+}, null);
