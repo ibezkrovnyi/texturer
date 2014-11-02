@@ -63,6 +63,29 @@ Supported file formats
 
 **output:** png (or original image file if `copy` task parameter is set to `true`)
 
+TinyPNG.com Service
+===================
+[tinypng.com service](http://tinypng.com) does advanced lossy compression for PNG images that preserves full alpha transparency.
+
+To use it you will need to receive [API key](https://tinypng.com/developers).
+It is free of charge for convert up to 500 images per month. So, up to 500 texture maps, which is more than enough.
+
+> To enable tinypng vonversion you need to set `tinypng : true` in task for texture map generation:
+
+####License
+create (or edit) next section in `config.json`:
+```json
+"tinypng-api-keys": [
+	{
+		"used": 0,
+		"month": 0,
+		"year": 0,
+		"key": "fhdskaj89fdsfds8a7f89dsa78df7as-"
+	}
+]
+```
+> After first use of tinypng.com service this information will be updated with correct month/year/used values.
+
 config.json format
 ==================
 > _note: all folders described below are **relative to current working directory**_
@@ -105,7 +128,7 @@ compression                 | set compression options (see below) for texture ma
 
 compression
 ===========
-
+`tinypng` - `false` (default) or `true` - use tinypng.com service (see above)
 `palette` - `null` or `palette options object` (see below) (`default: null`)
 
 palette options object
