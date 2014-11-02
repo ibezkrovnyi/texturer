@@ -1,13 +1,15 @@
 #!/usr/bin/env node
-var Texturer   = require("../src/index.js"),
-	configFile = "./config.json",
+var fs = require("fs"),
+	Texturer   = require("../src/index.js");
+
+var configFile = "./config.json",
 	texturer   = new Texturer(),
 	configJSONString;
 
 try {
 	configJSONString = fs.readFileSync(configFile, "utf8");
 } catch (e) {
-	throw new Error("CFG: Can't read config file \"" + configFile + "\n");
+	throw new Error("CFG: Can't read config file \"" + configFile + "\nError: " + e);
 }
 
 texturer.generate(configJSONString, function (error) {
