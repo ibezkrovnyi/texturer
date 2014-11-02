@@ -129,6 +129,7 @@ compression                 | set compression options (see below) for texture ma
 compression
 ===========
 `tinypng` - `false` (default) or `true` - use tinypng.com service (see above)
+
 `palette` - `null` or `palette options object` (see below) (`default: null`)
 
 palette options object
