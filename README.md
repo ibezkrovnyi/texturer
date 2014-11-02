@@ -83,7 +83,9 @@ create (or edit) next section in `config.json`:
 ]
 ```
 > After first use of tinypng.com service this information will be updated with correct month/year/used values.
-> To enable tinypng conversion you need to set `tinypng : true` in task for texture map generation:
+
+####Usage
+To enable tinypng conversion you need to set `tinypng : true` in task for texture map generation
 
 config.json format
 ==================
