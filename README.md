@@ -204,6 +204,7 @@ Change Log
   - clusterQueue fixed
   - code cleanup
   - possibility to require `texturer` module from code
+  - fixed copy files task - now it copies files, not just creates links
 
 ### 0.0.9 - 31 Oct 2014
   - published to npm

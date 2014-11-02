@@ -130,7 +130,8 @@ Texturer.prototype = {
 					this._shutdown(new Error("COPY PREPARATION: " + e.toString()));
 				}
 
-				fs.link(fromFile, toFile, function (error) {
+				// fs.link(fromFile, toFile, function (error) {
+				this._cq.runTask("copyFile", { source : fromFile, target : toFile }, function(error) {
 					if (error) {
 						_this._shutdown(new Error("" +
 							"COPY: \n" +
@@ -168,7 +169,7 @@ Texturer.prototype = {
 					if (textureMapConfig.getFiles().length === copiedFilesCount) {
 						_this._onTextureMapGenerated();
 					}
-				});
+				}, this);
 			}, this);
 		} else {
 			// create size array (id/width/height)

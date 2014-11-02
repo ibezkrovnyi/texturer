@@ -10,7 +10,7 @@
 var BinPacker  = require('./../binPacker/binPackerAlgorithm.js'),
 	Dictionary = require("./../dictionary.js"),
 	pngEngine  = require("./../modules/node-png/lib/png").PNG,
-	tinypng = require('../tinypng/tinypng.js'),
+	tinypng    = require('../tinypng/tinypng.js'),
 	helper     = require("./../helper.js"),
 	path       = require("path"),
 	fs         = require("fs"),
@@ -50,10 +50,10 @@ cq.registerTask("writeFile", function (taskData) {
 		}
 
 		var data = new Buffer(taskData.content);
-		if(taskData.tinypng.enabled) {
+		if (taskData.tinypng.enabled) {
 			console.log("tinypng.com task...");
-			tinypng.compress(taskData.tinypng.configFile, data, function(error, data) {
-				if(!error) {
+			tinypng.compress(taskData.tinypng.configFile, data, function (error, data) {
+				if (!error) {
 					fs.writeFileSync(taskData.file, data);
 				}
 				cq.send(error, null);
@@ -97,6 +97,34 @@ cq.registerTask("compressPNG", function (taskData) {
 	stream.on("end", function () {
 		cq.send(null, {compressedPNG : Buffer.concat(chunks), filterType : options.filterType});
 	});
+}, null);
+
+cq.registerTask("copyFile", function (taskData) {
+	var source = taskData.source,
+		target = taskData.target,
+		finished = false;
+
+	function done (err) {
+		if (!finished) {
+			cq.send(!!err ? err : null, null);
+			finished = true;
+		}
+	}
+
+	var rd = fs.createReadStream(source);
+	rd.on("error", done);
+
+	var wr = fs.createWriteStream(target);
+	wr.on("error", done);
+	wr.on("close", function (ex) {
+		// restore original file's modified date/time
+		var stat = fs.statSync(source);
+		fs.utimesSync(target, stat.atime, stat.mtime);
+
+		// done
+		done();
+	});
+	rd.pipe(wr);
 }, null);
 
 /**
