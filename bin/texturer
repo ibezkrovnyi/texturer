@@ -16,10 +16,11 @@ function main () {
 
 	["version", "author", "homepage"].forEach(function (key) {
 		if(typeof packageJSON[key] === 'object') {
-			console.log(key + ":");
+			console.log(key + ": {");
 			Object.keys(packageJSON[key]).forEach(function(k) {
-				console.log("......" + k + ": \t" + packageJSON[key][k]);
+				console.log("\t" + k + ": \t" + packageJSON[key][k]);
 			})
+			console.log("}")
 		} else {
 			console.log(key + ": \t" + packageJSON[key]);
 		}
