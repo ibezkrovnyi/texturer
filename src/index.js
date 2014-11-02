@@ -10,7 +10,6 @@
 var fs                  = require("fs"),
 	path                = require('path'),
 	util                = require('util'),
-	packageJSON         = require('../package.json'),
 	helper              = require("./helper.js"),
 	ConfigParser        = require("./configParser.js"),
 	Dictionary          = require("./dictionary.js"),
@@ -49,12 +48,6 @@ Texturer.prototype = {
 			this._totalFilesCount = 0;
 			this._totalTexturMapsRequiredCount = 0;
 
-			["version", "author", "homepage"].forEach(function (key) {
-				console.log(key + ": \t" + packageJSON[key]);
-			});
-			var cwd = "current folder: " + process.cwd();
-			console.log(cwd);
-			console.log(new Array(cwd.length + 1).join("-"));
 			this._loadFiles();
 		} catch (e) {
 			this._shutdown(e);

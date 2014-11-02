@@ -1,22 +1,41 @@
 #!/usr/bin/env node
-var fs = require("fs"),
-	Texturer   = require("../src/index.js");
+var fs          = require("fs"),
+	packageJSON = require('../package.json'),
+	Texturer    = require("../src/index.js");
 
-var configFile = "./config.json",
-	texturer   = new Texturer(),
-	configJSONString;
+function main () {
+	var configFile = "./config.json",
+		texturer = new Texturer(),
+		configJSONString;
 
-try {
-	configJSONString = fs.readFileSync(configFile, "utf8");
-} catch (e) {
-	throw new Error("CFG: Can't read config file \"" + configFile + "\nError: " + e);
+	try {
+		configJSONString = fs.readFileSync(configFile, "utf8");
+	} catch (e) {
+		throw new Error("CFG: Can't read config file \"" + configFile + "\nError: " + e);
+	}
+
+	["version", "author", "homepage"].forEach(function (key) {
+		if(typeof packageJSON[key] === 'object') {
+			console.log(key + ":");
+			Object.keys(packageJSON[key]).forEach(function(k) {
+				console.log("......" + k + ": \t" + packageJSON[key][k]);
+			})
+		} else {
+			console.log(key + ": \t" + packageJSON[key]);
+		}
+	});
+	var cwd = "current folder: " + process.cwd();
+	console.log(cwd);
+	console.log(new Array(cwd.length + 1).join("-"));
+
+	texturer.generate(configJSONString, function (error) {
+		if (error) {
+			console.trace("\x1B[91m" + error + "\x1B[39m");
+			process.exit(42);
+		} else {
+			process.exit(0);
+		}
+	}, null);
 }
 
-texturer.generate(configJSONString, function (error) {
-	if (error) {
-		console.trace("\x1B[91m" + error + "\x1B[39m");
-		process.exit(42);
-	} else {
-		process.exit(0);
-	}
-}, null);
+main();
