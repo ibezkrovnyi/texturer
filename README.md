@@ -70,8 +70,6 @@ TinyPNG.com Service
 To use it you will need to receive [API key](https://tinypng.com/developers).
 It is free of charge for convert up to 500 images per month. So, up to 500 texture maps, which is more than enough.
 
-> To enable tinypng vonversion you need to set `tinypng : true` in task for texture map generation:
-
 ####License
 create (or edit) next section in `config.json`:
 ```json
@@ -85,6 +83,7 @@ create (or edit) next section in `config.json`:
 ]
 ```
 > After first use of tinypng.com service this information will be updated with correct month/year/used values.
+> To enable tinypng conversion you need to set `tinypng : true` in task for texture map generation:
 
 config.json format
 ==================
