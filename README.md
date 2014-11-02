@@ -43,7 +43,7 @@ texturer.generate(configJSONString, function (error) {
 
 Node-Webkit and Cluster Module
 ==============================
-Due to issues in node-webkit you will need to do some (additional steps)[https://groups.google.com/forum/#!topic/node-webkit/OEZxArpmLNo]:
+Due to issues in node-webkit you will need to do some [https://groups.google.com/forum/#!topic/node-webkit/OEZxArpmLNo](additional steps):
 * in some node file (which is required from web javascript file) you should set execPath to node.exe instead of nw.exe
 ```js
 var path = require("path");
