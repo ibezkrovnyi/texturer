@@ -49,7 +49,7 @@ Due to issues in node-webkit you will need to do some [additional steps](https:/
 var path = require("path");
 process.execPath = path.join(path.dirname(process.execPath), '..', 'folder_with_node_exe', 'node.exe');
 ```
-* on cluster initialization you will need to set `silent` attribute to true
+* on cluster initialization you will need to set `silent` attribute to `true`
 ```js
 cluster.setupMaster({
     'exec': __dirname + '/worker.js',
