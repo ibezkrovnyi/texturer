@@ -195,7 +195,7 @@ config.json example
 TODO
 ====
 1) interlaced jpeg decoding (?)
-2) ability to work only in memory without writing to file. usable for ui tools
+2) ability to work only in memory without writing image files to disk. usable for ui tools
 
 Change Log
 ============
