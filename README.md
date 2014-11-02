@@ -19,7 +19,8 @@ run `texturer` in folder with config.json (see `example` folder)
 Usage from Code
 ===============
 ```js
-var Texturer   = require("<path to texturer src/index.js>"),
+var fs         = require("fs"),
+	Texturer   = require("<path to texturer src/index.js>"),
 	configFile = "./config.json",
 	texturer   = new Texturer(),
 	configJSONString;
