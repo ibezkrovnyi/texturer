@@ -11,45 +11,39 @@ function WorkerDescription (callback, thisArg) {
 	this._worker = cluster.fork();
 
 	this._worker.on("message", function (data) {
-		if (_this._task) {
-			var task = _this._task;
+		var task = _this._task;
+		if (task !== null) {
 			_this._task = null;
 
-			//console.log("onmessage");
+			// on error kill worker
 			if (data.error) {
-				//console.log("onmessage error");
 				_this._worker.kill();
 				_this._online = false;
-				_this._worker = cluster.fork();
+				_this._worker = null;
 			}
-			//console.log("taks == null: " + (!task));
 			callback.call(thisArg, _this, task, data.error, data.taskResult);
 		}
 	});
 
 	this._worker.on("online", function (worker) {
-		//console.log("worker ONLINE: ");
+		// timeout is for debugging in JetBrains WebStorm. When running from command line, no delay is needed
 		setTimeout(function () {
 			_this._online = true;
 			if (_this._task) {
 				_this._startTask();
 			}
 		}, 500);
-		//if(_this._worker && !_this._online) {
-		//}
 	});
 
 	this._worker.on("exit", function (worker, code, signal) {
-		//console.log("onexit");
 		if (_this._worker) {
-			if (_this._task) {
-				var task = _this._task;
+			var task = _this._task;
+			if (task !== null) {
 				_this._task = null;
-				//console.log("taks2 == null: " + (!task));
 				callback.call(thisArg, _this, task, new Error("MP: worker died. restarting..."), null);
 			}
 			_this._online = false;
-			_this._worker = cluster.fork();
+			_this._worker = null;
 		}
 	});
 }
@@ -68,19 +62,14 @@ WorkerDescription.prototype = {
 
 	kill : function () {
 		var worker = this._worker;
+		this._online = false;
 		this._worker = null;
 
 		worker.kill();
 	},
 
 	_startTask : function () {
-		var _this = this;
-		//task = this._task;
-
-		//setTimeout(function() {
-		_this._worker.send(_this._task.data);
-		_this = null;
-		//}, 1000);
+		this._worker.send(this._task.data);
 	}
 };
 
@@ -91,21 +80,29 @@ function ClusterQueue (options) {
 	_this = this;
 
 	cluster.setupMaster({
-		exec : options.file
+		exec : options.file,
+		silent : true  // due to bug in node-webkit implementation silent=true is needed
 	});
 
 	this._shutdown = {callback : null, thisArg : null, scheduled : false};
-	this._tasks = [];
-	this._availableWorkerDescriptors = [];
-	this._busyWorkerDescriptors = [];
+	this._tasks = null;
+	this._availableWorkerDescriptors = null;
+	this._busyWorkerDescriptors = null;
 	this._maxSimultaneousTasks = options.maxSimultaneousTasks || ((os.cpus().length * 1.5) | 0);
-
-	for (var i = 0; i < this._maxSimultaneousTasks; i++) {
-		this._availableWorkerDescriptors.push(new WorkerDescription(this._onMessage, this));
-	}
+	this.restart();
 }
 
 ClusterQueue.prototype = {
+	restart : function() {
+		this._availableWorkerDescriptors = [];
+		this._busyWorkerDescriptors = [];
+		this._tasks = [];
+
+		while(this._availableWorkerDescriptors.length < this._maxSimultaneousTasks) {
+			this._availableWorkerDescriptors.push(new WorkerDescription(this._onMessage, this));
+		}
+	},
+
 	runTask : function (taskName, taskData, callback, thisArg) {
 		// if worker not found - add to tasks
 		this._tasks.push({
@@ -145,9 +142,14 @@ ClusterQueue.prototype = {
 				workerDescriptor.kill();
 			});
 			this._availableWorkerDescriptors = null;
+			this._busyWorkerDescriptors = null;
+			this._tasks = null;
 
 			if (this._shutdown.callback) {
 				this._shutdown.callback.call(this._shutdown.thisArg);
+				this._shutdown.callback = null;
+				this._shutdown.thisArg = null;
+				this._shutdown.scheduled = false;
 			}
 		}
 	},
@@ -163,26 +165,28 @@ ClusterQueue.prototype = {
 	},
 
 	_onMessage : function (workerDescriptor, task, error, taskResult) {
-		//console.log("callback!");
 		var index = this._busyWorkerDescriptors.indexOf(workerDescriptor);
 		if (index >= 0) {
-			this._availableWorkerDescriptors.push(this._busyWorkerDescriptors.splice(index, 1)[0]);
+			// reuse worker only if there was no error!
+			if(!error) {
+				this._availableWorkerDescriptors.push(this._busyWorkerDescriptors.splice(index, 1)[0]);
+			} else {
+				this._availableWorkerDescriptors.push(new WorkerDescription(this._onMessage, this));
+			}
 		} else {
 			console.log("ERROR: workerDescriptor not found in busy list. Very strange!");
-		}
-
-		if (task.callback) {
-			if (error) {
-				console.log(error);
-				console.log(error.toString());
-			}
-			task.callback.call(task.thisArg, error, taskResult);
 		}
 
 		if (this._tasks.length > 0) {
 			this._tryToRunTask();
 		} else if (this._shutdown.scheduled) {
 			this._tryToShutdown();
+		}
+
+		if (task.callback) {
+			// callback may call shutdown, which will set busyWorkers to null,
+			// so this line should the last in _onMessage method
+			task.callback.call(task.thisArg, error, taskResult);
 		}
 	},
 

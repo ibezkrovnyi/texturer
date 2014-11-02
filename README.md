@@ -14,7 +14,47 @@ run `npm install -g texturer` from command-line
 
 Usage
 =====
-run `texturer` or `node ./index.js` in folder with config.json (see `example` folder)
+run `texturer` in folder with config.json (see `example` folder)
+
+Usage from Code
+===============
+```js
+var Texturer   = require("<path to texturer src/index.js>"),
+	configFile = "./config.json",
+	texturer   = new Texturer(),
+	configJSONString;
+
+try {
+	configJSONString = fs.readFileSync(configFile, "utf8");
+} catch (e) {
+	throw new Error("CFG: Can't read config file \"" + configFile + "\n");
+}
+
+texturer.generate(configJSONString, function (error) {
+	if (error) {
+		console.trace("\x1B[91m" + error + "\x1B[39m");
+		process.exit(42);
+	} else {
+		process.exit(0);
+	}
+}, null);
+```
+
+Node-Webkit and Cluster Module
+==============================
+Due to issues in node-webkit you will need to do some (additional steps)[https://groups.google.com/forum/#!topic/node-webkit/OEZxArpmLNo]:
+* in some node file (which is required from web javascript file) you should set execPath to node.exe instead of nw.exe
+```js
+var path = require("path");
+process.execPath = path.join(path.dirname(process.execPath), '..', 'folder_with_node_exe', 'node.exe');
+```
+* on cluster initialization you will need to set `silent` attribute to true
+```js
+cluster.setupMaster({
+    'exec': __dirname + '/worker.js',
+    'silent': true
+});
+```
 
 Supported file formats
 ======================
@@ -129,9 +169,15 @@ config.json example
 TODO
 ====
 1) interlaced jpeg decoding (?)
+2) ability to work only in memory without writing to file. usable for ui tools
 
 Change Log
 ============
+
+### 0.0.10 - 2 Nov 2014
+  - clusterQueue fixed
+  - code cleanup
+  - possibility to require `texturer` module from code
 
 ### 0.0.9 - 31 Oct 2014
   - published to npm

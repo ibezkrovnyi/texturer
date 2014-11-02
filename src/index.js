@@ -33,6 +33,8 @@ Texturer.prototype = {
 	 * @template T
 	 */
 	generate : function (configJSONString, callback, thisArg) {
+		this._cq.restart();
+
 		this._callback = callback;
 		this._thisArg = thisArg;
 
