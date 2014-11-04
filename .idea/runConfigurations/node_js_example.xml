@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="node-js example" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="$PROJECT_DIR$/tools/node" path-to-js-file="$PROJECT_DIR$/src/index.js" working-dir="$PROJECT_DIR$/example/app/resources">
+  <configuration default="false" name="node-js example" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="$PROJECT_DIR$/tools/node" path-to-js-file="$PROJECT_DIR$/bin/texturer" working-dir="$PROJECT_DIR$/example/app/resources">
     <RunnerSettings RunnerId="Basic" />
     <RunnerSettings RunnerId="debuggableProgram" />
     <ConfigurationWrapper RunnerId="Basic" />

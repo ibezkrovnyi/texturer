@@ -1,1 +1,1 @@
-..\..\..\tools\node ../../../src/index.js
+..\..\..\tools\node ../../../bin/texturer

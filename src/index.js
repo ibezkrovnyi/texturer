@@ -75,7 +75,9 @@ Texturer.prototype = {
 					this._shutdown(error);
 				} else {
 					var loadedDataDictionary = new Dictionary(),
-						trim = {left : 0, right : 0, top : 0, bottom : 0};
+						trim = {left : 0, right : 0, top : 0, bottom : 0},
+						realWidth = instance.width,
+						realHeight = instance.height;
 
 					// trim image if it is part of sprite
 					if (!textureMapConfig.getJustCopy()) {
@@ -85,6 +87,8 @@ Texturer.prototype = {
 						instance = trimResult.png;
 						trim = trimResult.trim;
 					}
+					loadedDataDictionary.setValue("realWidth", realWidth);
+					loadedDataDictionary.setValue("realHeight", realHeight);
 					loadedDataDictionary.setValue("width", instance.width);
 					loadedDataDictionary.setValue("height", instance.height);
 					loadedDataDictionary.setValue("bitmap", instance.data);
@@ -131,7 +135,7 @@ Texturer.prototype = {
 				}
 
 				// fs.link(fromFile, toFile, function (error) {
-				this._cq.runTask("copyFile", { source : fromFile, target : toFile }, function(error) {
+				this._cq.runTask("copyFile", {source : fromFile, target : toFile}, function (error) {
 					if (error) {
 						_this._shutdown(new Error("" +
 							"COPY: \n" +
@@ -154,13 +158,15 @@ Texturer.prototype = {
 					textureMapDictionary.setValue("file", file);
 
 					textureMapDictionary.addValue("textures", {
-						id     : file,
-						x      : 0,
-						y      : 0,
-						width  : width,
-						height : height,
-						bitmap : loadedFileDictionary.getValue("bitmap"),
-						trim   : loadedFileDictionary.getValue("trim")
+						id         : file,
+						x          : 0,
+						y          : 0,
+						width      : width,
+						height     : height,
+						realWidth  : loadedFileDictionary.getValue("realWidth"),
+						realHeight : loadedFileDictionary.getValue("realHeight"),
+						bitmap     : loadedFileDictionary.getValue("bitmap"),
+						trim       : loadedFileDictionary.getValue("trim")
 					});
 
 					_this._textureMapArray.push(textureMapDictionary);
@@ -211,6 +217,8 @@ Texturer.prototype = {
 				y                : texture.y,
 				width            : texture.width,
 				height           : texture.height,
+				realWidth        : loadedFileDictionary.getValue("realWidth"),
+				realHeight       : loadedFileDictionary.getValue("realHeight"),
 				bitmapSerialized : loadedFileDictionary.getValue("bitmap")//texture.data.png.data
 			});
 		}, this);

@@ -292,6 +292,8 @@ module.exports = {
 							"y"            : texture.y,
 							"width"        : texture.width,
 							"height"       : texture.height,
+							"real-width" : loadedFileDictionary.getValue("realWidth"),
+							"real-height" : loadedFileDictionary.getValue("realHeight"),
 							"trim"         : trim,
 							"repeat-x"     : map.getValue("repeat-x"),
 							"repeat-y"     : map.getValue("repeat-y"),
