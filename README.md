@@ -203,6 +203,12 @@ TODO
 Change Log
 ============
 
+### 0.0.11 - 2 Nov 2014
+  - templates updated: now width in template is real-width, not trimmed width. the same for height.
+  - format of config.json changed. see updated example/resources/config.json
+  - issues running from node-webkit fixed
+  - issues running node from node-webkit fixed
+
 ### 0.0.10 - 2 Nov 2014
   - clusterQueue fixed
   - code cleanup

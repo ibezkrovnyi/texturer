@@ -1,6 +1,6 @@
 {
 	"name": "texturer",
-	"version": "0.0.10",
+	"version": "0.0.11",
 	"description": "Texture Map Generator in pure JavaScript (node.js, multithreading)",
 	"author": "Igor Bezkrovny",
 	"contributors": [],
