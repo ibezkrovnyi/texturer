@@ -114,7 +114,7 @@ Texturer.prototype = {
 		if (textureMapConfig.getJustCopy()) {
 			textureMapConfig.getFiles().forEach(function (file) {
 				var fromFile = path.join(this._configParser.getFolderRootFrom(), file),
-					toFile = path.join(this._configParser.getFolderRootTo(), file),
+					toFile = path.join(this._configParser.getFolderRootToImagesServer(), file),
 					loadedFileDictionary = this._loadedFilesDictionary.getValue(file),
 					_this = this,
 					copiedFilesCount = 0;
@@ -269,7 +269,7 @@ Texturer.prototype = {
 		textureMapDictionary.setValue("file", textureMapConfig.getPNGFileName());
 
 		// write png
-		var file = path.join(this._configParser.getFolderRootTo(), textureMapConfig.getPNGFileName()),
+		var file = path.join(this._configParser.getFolderRootToImagesServer(), textureMapConfig.getPNGFileName()),
 			data = {
 				file    : file,
 				content : Array.prototype.slice.call(compressedImage, 0),

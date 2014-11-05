@@ -317,11 +317,11 @@ module.exports = {
 			files = fs.readdirSync(folder);
 
 		files.forEach(function (file) {
-			this._exportTexturePoolViaHandlebarsTemplate(file, folder, data);
+			this._exportTexturePoolViaHandlebarsTemplate(configParser, file, folder, data);
 		}, this);
 	},
 
-	_exportTexturePoolViaHandlebarsTemplate : function (file, folder, data) {
+	_exportTexturePoolViaHandlebarsTemplate : function (configParser, file, folder, data) {
 		var Handlebars = require("Handlebars");
 
 		if (this.getExtension(file).toLowerCase() === "hbs") {
@@ -333,15 +333,15 @@ module.exports = {
 					template;
 
 				if (lines.length > 1 && lines[0]) {
-					file = lines[0];
+					var resultFile = path.join(configParser.getFolderRootTo(), lines[0]);
 					text = lines.slice(1).join("\n");
 
 					template = Handlebars.compile(text);
 					if (template) {
-						this.createDirectory(path.dirname(file));
-						fs.writeFileSync(file, template(data));
+						this.createDirectory(path.dirname(resultFile));
+						fs.writeFileSync(resultFile, template(data));
 					} else {
-						console.log("template error in " + file);
+						console.log("template error in " + resultFile);
 					}
 				}
 			}

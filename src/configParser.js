@@ -34,15 +34,15 @@ function ConfigParser (configJSONString) {
 	this._textureMapConfigArray = [];
 	this._folders = {
 		root : process.cwd(),
-		from : this._config["folders"]["resources(in)"],
-		to   : this._config["folders"]["images(out)"]
+		from : this._config["folders"]["source(in)"],
+		to   : this._config["folders"]["target(out)"]
 	};
 	this._validate();
 }
 
 ConfigParser.prototype = {
 	_validate : function () {
-		helper.createDirectory(this.getFolderRootTo());
+		helper.createDirectory(this.getFolderRootToImagesServer());
 		this._config["tasks"].forEach(function (resourceTextureMapConfig) {
 			this._textureMapConfigArray.push(new TextureMapConfig(
 				this,
@@ -57,6 +57,10 @@ ConfigParser.prototype = {
 
 	getFolderRootTo : function () {
 		return path.join(this.getFolderRoot(), this.getFolderTo());
+	},
+
+	getFolderRootToImagesServer : function () {
+		return path.join(this.getFolderRoot(), this.getFolderTo(), this.getFolderImagesServer());
 	},
 
 	getFolderRoot : function () {

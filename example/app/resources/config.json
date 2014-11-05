@@ -1,8 +1,8 @@
 {
 	"nameSpace": "MyGame",
 	"folders": {
-		"resources(in)": "./",
-		"images(out)": "../source/images",
+		"source(in)": "./",
+		"target(out)": "../source",
 		"images(index.html)": "images"
 	},
 	"base64": true,

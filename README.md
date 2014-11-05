@@ -95,9 +95,9 @@ property                    | value
 --------------------------- | -----------
 nameSpace                   | is just a javascript namespace to which array that represents all textures will be appended. See first line of generated texturePool.js for understanding
 folders                     | specifies folders configuration
-folders.resources(in)       | resources folder from which all input folders with images taken
-folders.images(out)         | folder to which all generated textureMap files put. Also it receives folders with images that are just copied
-folders.images(index.html)  | path to `folders.images(out)` relative to index.html (server's root)
+folders.source(in)          | resources folder from which all input folders with images taken
+folders.target(out)         | folder to which all generated textureMap files put. Also it receives folders with images that are just copied
+folders.images(index.html)  | path to `folders.target(out)` relative to index.html (server's root)
 base64                      | encode image files (just copied and textureMaps) using dataURI scheme if base64 size < 32K (global)
 compression                 | set compression options (see below) for texture map images (global)
 tasks                       | array of tasks to perform
@@ -107,7 +107,7 @@ tasks                       | array of tasks to perform
 property                    | value
 --------------------------- | -----------
 copy                        | `true` means _"turn copy-only mode ON"_, `false or omitted` - _"turn copy-only mode OFF"_ (`default: false`).
-folder(in)                  | folder with images. all images will be copied to the `folders.resources(in)/folder(in)` folder
+folder(in)                  | folder with images. all images will be copied to the `folders.source(in)/folder(in)` folder
 
 > Each image in `folder(in)` will be loaded, image width and height will be added to `description file`
 
@@ -115,10 +115,10 @@ folder(in)                  | folder with images. all images will be copied to t
 
 property                    | value
 --------------------------- | -----------
-folder(in)                  | folder with images. all images will be used to generate `folders.images(out)/folder(in)` folder
+folder(in)                  | folder with images. all images will be used to generate `folders.target(out)/folder(in)` folder
 texture-map(out)            | file path and name to destination file for texture map image (`output format: png`)
-repeat-x                    | `true` means images will be combined into **vertical** texture map to enable application to use _backgroundRepeat: repeatX_ for any of textures generated from `folders.resources(in)/folder(in)`
-repeat-y                    | `true` means images will be combined into **horizontal** texture map to enable application to use _backgroundRepeat: repeatY_ for any of textures generated from `folders.resources(in)/folder(in)`.
+repeat-x                    | `true` means images will be combined into **vertical** texture map to enable application to use _backgroundRepeat: repeatX_ for any of textures generated from `folders.source(in)/folder(in)`
+repeat-y                    | `true` means images will be combined into **horizontal** texture map to enable application to use _backgroundRepeat: repeatY_ for any of textures generated from `folders.source(in)/folder(in)`.
 n-pass                      | number of approaches to try for texture map after default algorithm is finished. `0 or omitted` means do not try non-default approaches. `positive value (1 - ∞)` will trigger additional passes with goal to find most optimal textures positioning on texture map.
 base64                      | encode all copied image files (in case `copy : true;`) or texture map image using dataURI scheme (only if base64 size < 32K)
 compression                 | set compression options (see below) for texture map image
@@ -161,8 +161,8 @@ config.json example
 {
   "nameSpace"      : "MyGame",
   "folders"        : {
-	"resources(in)"     : "app/resources",
-  	"images(out)"       : "app/source/images"
+	"source(in)"     : "app/resources",
+  	"target(out)"       : "app/source/images"
   },
   "texturePool.js" : "app/source/js/texturePool.js",
   "tasks" : [
