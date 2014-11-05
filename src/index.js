@@ -272,7 +272,7 @@ Texturer.prototype = {
 		var file = path.join(this._configParser.getFolderRootTo(), textureMapConfig.getPNGFileName()),
 			data = {
 				file    : file,
-				content : compressedImage,
+				content : Array.prototype.slice.call(compressedImage, 0),
 				tinypng : {
 					enabled    : !!textureMapConfig.getCompressionOptions()["tinypng"] && !textureMapConfig.getJustCopy(),
 					configFile : "./config.json"

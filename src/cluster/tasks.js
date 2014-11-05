@@ -95,7 +95,7 @@ cq.registerTask("compressPNG", function (taskData) {
 	});
 
 	stream.on("end", function () {
-		cq.send(null, {compressedPNG : Buffer.concat(chunks), filterType : options.filterType});
+		cq.send(null, {compressedPNG : Array.prototype.slice.call(Buffer.concat(chunks), 0), filterType : options.filterType});
 	});
 }, null);
 
