@@ -6,6 +6,7 @@
 		"images(index.html)": "images"
 	},
 	"base64": true,
+	"filter" : ".*wl.*",
 	"tasks": [
 		{
 			"folder(in)": "lviv-ukraine-backgrounds",
@@ -19,19 +20,15 @@
 			"base64": false
 		},
 		{
-			"folder(in)": "woocons1",
-			"texture-map(out)": "woocons1.png"
-		},
-		{
-			"folder(in)": "zoom-eyed-creatures",
-			"texture-map(out)": "zoom-eyed-creatures.png",
+			"folder(in)": "recursive",
+			"texture-map(out)": "recursive.png",
 			"n-pass": 1,
 			"compression": {
-				//"tinypng" : true
+				"tinypng" : true
 				"palette": {
 					"colors": 3068,
 					"method" : 2
-					//"ditheringKernel" : "FalseFloydSteinberg"
+					"ditheringKernel" : "FalseFloydSteinberg"
 				}
 			}
 		},
@@ -46,7 +43,7 @@
 			"used": 7,
 			"month": 10,
 			"year": 2014,
-			"key": "cFgtznynq3cE3aE1QGQp8B2z5lEiXRz-"
+			"key": "fdshfksdhakjQGQp8B2z5lEdsafdsadfdsfdsaz-"
 		}
 	]
 }

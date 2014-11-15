@@ -99,6 +99,7 @@ folders.source(in)          | resources folder from which all input folders with
 folders.target(out)         | folder to which all generated textureMap files put. Also it receives folders with images that are just copied
 folders.images(index.html)  | path to `folders.target(out)` relative to index.html (server's root)
 base64                      | encode image files (just copied and textureMaps) using dataURI scheme if base64 size < 32K (global)
+filter                      | filter regular expression. all matching files and folders will be excluded. global and case insensitive (flags "gi" are set). see [Regular Expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions)
 compression                 | set compression options (see below) for texture map images (global)
 tasks                       | array of tasks to perform
 
@@ -161,10 +162,12 @@ config.json example
 {
   "nameSpace"      : "MyGame",
   "folders"        : {
-	"source(in)"     : "app/resources",
-  	"target(out)"       : "app/source/images"
+	"source(in)"     : "./",
+  	"target(out)"       : "../source",
+  	"images(index.html)" : "images"
   },
-  "texturePool.js" : "app/source/js/texturePool.js",
+  "base64" : true,
+  "filter" : ".*_BACKUP.*",
   "tasks" : [
     {
       "folder(in)"       : "lviv-ukraine-backgrounds",
@@ -202,6 +205,11 @@ TODO
 
 Change Log
 ============
+
+### 0.0.12 - 15 Nov 2014
+  - filtering file/folder names is now possible (via global "filter" regex)
+  - recursive folders support
+  - it is now possible to have duplicate texture id because of recursive folders. error handling added in this case
 
 ### 0.0.11 - 2 Nov 2014
   - templates updated: now width in template is real-width, not trimmed width. the same for height.

@@ -93,6 +93,10 @@ ConfigParser.prototype = {
 
 	getCompressionOptions : function () {
 		return typeof this._config["compression"] !== 'undefined' ? this._config["compression"] : {};
+	},
+
+	getFileAndFolderNameIgnoreRegEx : function() {
+		return typeof this._config["filter"] !== 'undefined' ? this._config["filter"] : null;
 	}
 };
 module.exports = ConfigParser;

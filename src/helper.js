@@ -247,7 +247,7 @@ module.exports = {
 		}
 	},
 
-	writeTexturePoolFile : function (configParser, loadedFilesDictionary, TextureMapArray) {
+	writeTexturePoolFile : function (configParser, loadedFilesDictionary, TextureMapArray, onError) {
 		var templateTexturesArray = [],
 			templateMapsArray = [],
 			usedPixels = 0,
@@ -285,6 +285,7 @@ module.exports = {
 					templateTexturesArray.push({
 							//							"css-id"    : this.getFileNameWithoutExtension(texture.id).replace(/^[(\d+)`~\| !@#\$%\^&\*\(\)\-=\+\?\.,<>]+|[`~\|!@#\$%\^&\*\(\)\-=\+\? \.,<>]/g, ""),
 							"id"           : this.getFileNameWithoutExtension(texture.id),
+							"file"         : texture.id,
 							"map-index"    : mapIndex,
 							"url"          : url,
 							"base64"       : base64,
@@ -292,8 +293,8 @@ module.exports = {
 							"y"            : texture.y,
 							"width"        : texture.width,
 							"height"       : texture.height,
-							"real-width" : loadedFileDictionary.getValue("realWidth"),
-							"real-height" : loadedFileDictionary.getValue("realHeight"),
+							"real-width"   : loadedFileDictionary.getValue("realWidth"),
+							"real-height"  : loadedFileDictionary.getValue("realHeight"),
 							"trim"         : trim,
 							"repeat-x"     : map.getValue("repeat-x"),
 							"repeat-y"     : map.getValue("repeat-y"),
@@ -303,6 +304,15 @@ module.exports = {
 				}, this);
 			}, this
 		);
+
+		var duplicateFileNamesArray = [];
+		templateTexturesArray.forEach(function (d1, i1) {
+			templateTexturesArray.forEach(function (d2, i2) {
+				if (d1["id"] === d2["id"] && i1 !== i2) {
+					duplicateFileNamesArray.push(d1["file"]);
+				}
+			}, this);
+		}, this);
 
 		console.log("used pixels: " + usedPixels);
 		console.log("trimmed pixels: " + trimmedPixels);
@@ -319,6 +329,8 @@ module.exports = {
 		files.forEach(function (file) {
 			this._exportTexturePoolViaHandlebarsTemplate(configParser, file, folder, data);
 		}, this);
+
+		return duplicateFileNamesArray;
 	},
 
 	_exportTexturePoolViaHandlebarsTemplate : function (configParser, file, folder, data) {
@@ -419,6 +431,32 @@ module.exports = {
 		}
 
 		return result;
+	},
+
+	getFilesInFolderRecursive : function (folder, filter, subFolder) {
+		var fullFolder = typeof subFolder === 'undefined' ? folder : path.join(folder, subFolder),
+			folderFiles = fs.readdirSync(fullFolder),
+			files = [];
+
+		folderFiles.forEach(function (file) {
+			if (filter && filter(file)) {
+				console.log(path.join(fullFolder, file) + " removed by filter");
+				return;
+			}
+
+			var stat = fs.statSync(path.join(fullFolder, file)),
+				subFolderFileName = typeof subFolder === 'undefined' ? file : path.join(subFolder, file);
+
+			if (stat.isFile()) {
+				files.push(subFolderFileName);
+			} else if (stat.isDirectory()) {
+				files = files.concat(this.getFilesInFolderRecursive(folder, filter, subFolderFileName));
+			}
+		}, this);
+
+		return files.map(function (file) {
+			return file.replace(/\\/g, "/");
+		});
 	}
 };
 

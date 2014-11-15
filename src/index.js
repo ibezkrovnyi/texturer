@@ -70,6 +70,7 @@ Texturer.prototype = {
 	/** @param {TextureMapConfig} textureMapConfig */
 	_loadFilesForTextureMap : function (textureMapConfig) {
 		textureMapConfig.getFiles().forEach(function (file) {
+			//console.log(path.join(this._configParser.getFolderRootFrom(), file));
 			helper.readImageFile(path.join(this._configParser.getFolderRootFrom(), file), function (error, instance) {
 				if (error) {
 					this._shutdown(error);
@@ -291,9 +292,8 @@ Texturer.prototype = {
 	_onTextureMapGenerated : function () {
 		if (this._textureMapArray.length === this._totalTexturMapsRequiredCount) {
 			logMemory('build time: ' + (Date.now() - _startTime) + ' ms');
-			helper.writeTexturePoolFile(this._configParser, this._loadedFilesDictionary, this._textureMapArray);
-
-			this._shutdown(null);
+			var duplicateFileNamesArray = helper.writeTexturePoolFile(this._configParser, this._loadedFilesDictionary, this._textureMapArray);
+			this._shutdown(duplicateFileNamesArray.length > 0 ? new Error("Found duplicate file names:\n" + duplicateFileNamesArray.join("\n")) : null);
 		}
 	},
 
