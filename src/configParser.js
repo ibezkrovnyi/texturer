@@ -96,7 +96,7 @@ ConfigParser.prototype = {
 	},
 
 	getFileAndFolderNameIgnoreRegEx : function() {
-		return typeof this._config["filter"] !== 'undefined' ? this._config["filter"] : null;
+		return (typeof this._config["filter"] === 'string' && this._config["filter"].length > 0) ? this._config["filter"] : null;
 	}
 };
 module.exports = ConfigParser;

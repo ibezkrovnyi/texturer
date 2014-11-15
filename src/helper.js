@@ -433,7 +433,7 @@ module.exports = {
 		return result;
 	},
 
-	getFilesInFolderRecursive : function (folder, filter, subFolder) {
+	getFilesInFolderRecursive : function (folder, filter, recursive, subFolder) {
 		var fullFolder = typeof subFolder === 'undefined' ? folder : path.join(folder, subFolder),
 			folderFiles = fs.readdirSync(fullFolder),
 			files = [];
@@ -450,7 +450,9 @@ module.exports = {
 			if (stat.isFile()) {
 				files.push(subFolderFileName);
 			} else if (stat.isDirectory()) {
-				files = files.concat(this.getFilesInFolderRecursive(folder, filter, subFolderFileName));
+				if(recursive) {
+					files = files.concat(this.getFilesInFolderRecursive(folder, filter, recursive, subFolderFileName));
+				}
 			}
 		}, this);
 

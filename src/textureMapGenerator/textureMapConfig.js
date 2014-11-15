@@ -26,7 +26,7 @@ function TextureMapConfig (configParser, resourceTextureMapConfig) {
 	var regex = configParser.getFileAndFolderNameIgnoreRegEx() ? new RegExp(configParser.getFileAndFolderNameIgnoreRegEx(), "gi") : null,
 		filter = regex ? function(name) {return regex.test(name)} : null;
 
-	var files = helper.getFilesInFolderRecursive(fullFolder, filter).map(function(file) {
+	var files = helper.getFilesInFolderRecursive(fullFolder, filter, true).map(function(file) {
 		return path.join(folder, file).replace(/\\/g, "/");
 	});
 
