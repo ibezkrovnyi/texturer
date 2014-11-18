@@ -24,33 +24,36 @@ function TextureMapConfig (configParser, resourceTextureMapConfig) {
 	helper.checkDirectoryExistsSync(fullFolder);
 
 	var regex = configParser.getFileAndFolderNameIgnoreRegEx() ? new RegExp(configParser.getFileAndFolderNameIgnoreRegEx(), "gi") : null,
-		filter = regex ? function(name) {return regex.test(name)} : null;
+		filter = regex ? function (name) {
+			regex.lastIndex = 0;
+			return regex.test(name);
+		} : null;
 
-	var files = helper.getFilesInFolderRecursive(fullFolder, filter, true).map(function(file) {
+	var files = helper.getFilesInFolder(fullFolder, filter, true).map(function (file) {
 		return path.join(folder, file).replace(/\\/g, "/");
 	});
 
 	//var files = fs.readdirSync(fullFolder);
-/*
-	if (files === null || typeof files !== "object") {
-		throw "files = null";
-	}
-*/
+	/*
+		if (files === null || typeof files !== "object") {
+			throw "files = null";
+		}
+	*/
 
-/*
-	files.forEach(function (file, index, theArray) {
-		theArray[index] = path.join(folder, file).replace(/\\/g, "/");
-	});
-*/
+	/*
+		files.forEach(function (file, index, theArray) {
+			theArray[index] = path.join(folder, file).replace(/\\/g, "/");
+		});
+	*/
 
 	// filter only files
-/*
-	files = files.filter(function (file) {
-		//return helper.isImageFileSupported(path.join(rootFolder, fromFolder, file));
-		return fs.statSync(path.join(rootFolder, fromFolder, file)).isFile();
-	});
+	/*
+		files = files.filter(function (file) {
+			//return helper.isImageFileSupported(path.join(rootFolder, fromFolder, file));
+			return fs.statSync(path.join(rootFolder, fromFolder, file)).isFile();
+		});
 
-*/
+	*/
 	if (files.length <= 0) {
 		throw "no files in fullfolder " + folder;
 	}

@@ -206,6 +206,9 @@ TODO
 Change Log
 ============
 
+### 0.0.13 - 18 Nov 2014
+  - regexp restart fix for file name filtering
+
 ### 0.0.12 - 15 Nov 2014
   - filtering file/folder names is now possible (via global "filter" regex)
   - recursive folders support

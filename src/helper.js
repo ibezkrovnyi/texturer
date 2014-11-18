@@ -433,7 +433,7 @@ module.exports = {
 		return result;
 	},
 
-	getFilesInFolderRecursive : function (folder, filter, recursive, subFolder) {
+	getFilesInFolder : function (folder, filter, recursive, subFolder) {
 		var fullFolder = typeof subFolder === 'undefined' ? folder : path.join(folder, subFolder),
 			folderFiles = fs.readdirSync(fullFolder),
 			files = [];
@@ -451,13 +451,40 @@ module.exports = {
 				files.push(subFolderFileName);
 			} else if (stat.isDirectory()) {
 				if(recursive) {
-					files = files.concat(this.getFilesInFolderRecursive(folder, filter, recursive, subFolderFileName));
+					files = files.concat(this.getFilesInFolder(folder, filter, recursive, subFolderFileName));
 				}
 			}
 		}, this);
 
 		return files.map(function (file) {
 			return file.replace(/\\/g, "/");
+		});
+	},
+
+	getFoldersInFolder : function (folder, filter, recursive, subFolder) {
+		var fullFolder = typeof subFolder === 'undefined' ? folder : path.join(folder, subFolder),
+			folderFiles = fs.readdirSync(fullFolder),
+			folders = [];
+
+		folderFiles.forEach(function (file) {
+			if (filter && filter(file)) {
+				console.log(path.join(fullFolder, file) + " removed by filter");
+				return;
+			}
+
+			var stat = fs.statSync(path.join(fullFolder, file)),
+				subFolderFileName = typeof subFolder === 'undefined' ? file : path.join(subFolder, file);
+
+			if (stat.isDirectory()) {
+				folders.push(subFolderFileName);
+				if(recursive) {
+					folders = folders.concat(this.getFilesInFolder(folder, filter, recursive, subFolderFileName));
+				}
+			}
+		}, this);
+
+		return folders.map(function (folder) {
+			return folder.replace(/\\/g, "/");
 		});
 	}
 };
