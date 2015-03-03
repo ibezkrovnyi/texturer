@@ -130,6 +130,10 @@ compression                 | set compression options (see below) for texture ma
 
 compression
 ===========
+
+property                    | value
+--------------------------- | -----------
+disable-trim                | `true` - disable image trimming. For example, export to css should be done without image trimming. Default: `false`
 `tinypng` - `false` (default) or `true` - use tinypng.com service (see above)
 
 `palette` - `null` or `palette options object` (see below) (`default: null`)

@@ -81,7 +81,7 @@ Texturer.prototype = {
 						realHeight = instance.height;
 
 					// trim image if it is part of sprite
-					if (!textureMapConfig.getJustCopy()) {
+					if (!textureMapConfig.getJustCopy() && !textureMapConfig.getCompressionOptions()["disable-trim"]) {
 						var trimResult = helper.trimImage(instance);
 
 						// new trimmed png instance and trim parameters
