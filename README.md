@@ -73,14 +73,12 @@ It is free of charge for convert up to 500 images per month. So, up to 500 textu
 ####License
 create (or edit) next section in `config.json`:
 ```json
-"tinypng-api-keys": [
-	{
-		"used": 0,
-		"month": 0,
-		"year": 0,
-		"key": "fhdskaj89fdsfds8a7f89dsa78df7as-"
-	}
-]
+"tinypng-api-keys": [{
+	"used" : 0,
+	"month": 0,
+	"year" : 0,
+	"key"  : "fhdskaj89fdsfds8a7f89dsa78df7as-"
+}]
 ```
 > After first use of tinypng.com service this information will be updated with correct month/year/used values.
 
@@ -139,12 +137,13 @@ palette                     | `null` or `palette options object` (see below). De
 
 palette options object
 ======================
+
 option                          | description
 --------------------------------|------------
 `colors`                        | # of colors in desired palette. colors number <= 256 will result in 8bit indexed png.
-`quantizationMethod`            | histogram method, `2`: min-population threshold within sub-regions; `1`: global top-population (`default: 2`)
-`ditheringKernel`               | dithering kernel name, see available kernels below (`default: null`),
-`useSerpentineDitheringPattern` | use serpentine dithering (`true` or `false`) (`default: false`)
+`quantizationMethod`            | histogram method, `2`: min-population threshold within sub-regions; `1`: global top-population Default: `2`
+`ditheringKernel`               | dithering kernel name, see available kernels below. Default: `null`
+`useSerpentineDitheringPattern` | `true` - use serpentine dithering. Default: `false`
 `minimumHueColors`              | # of colors per hue group to evaluate regardless of counts, to retain low-count hues
 
 dithering kernels
