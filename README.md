@@ -105,8 +105,10 @@ tasks                       | array of tasks to perform
 
 property                    | value
 --------------------------- | -----------
-copy                        | `true` means _"turn copy-only mode ON"_, `false or omitted` - _"turn copy-only mode OFF"_ (`default: false`).
+copy                        | `true` means _"turn copy-only mode ON"_, `false or omitted` - _"turn copy-only mode OFF"_. Default: `false`.
 folder(in)                  | folder with images. all images will be copied to the `folders.source(in)/folder(in)` folder
+
+> copy-only mode means that images will be just copied to destination location
 
 > Each image in `folder(in)` will be loaded, image width and height will be added to `description file`
 
@@ -115,7 +117,7 @@ folder(in)                  | folder with images. all images will be copied to t
 property                    | value
 --------------------------- | -----------
 folder(in)                  | folder with images. all images will be used to generate `folders.target(out)/folder(in)` folder
-texture-map(out)            | file path and name to destination file for texture map image (`output format: png`)
+texture-map(out)            | file path and name to destination file for texture map image. Output format: `png`
 repeat-x                    | `true` means images will be combined into **vertical** texture map to enable application to use _backgroundRepeat: repeatX_ for any of textures generated from `folders.source(in)/folder(in)`
 repeat-y                    | `true` means images will be combined into **horizontal** texture map to enable application to use _backgroundRepeat: repeatY_ for any of textures generated from `folders.source(in)/folder(in)`.
 n-pass                      | number of approaches to try for texture map after default algorithm is finished. `0 or omitted` means do not try non-default approaches. `positive value (1 - ∞)` will trigger additional passes with goal to find most optimal textures positioning on texture map.
