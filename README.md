@@ -134,9 +134,8 @@ compression
 property                    | value
 --------------------------- | -----------
 disable-trim                | `true` - disable image trimming. For example, export to css should be done without image trimming. Default: `false`
-`tinypng` - `false` (default) or `true` - use tinypng.com service (see above)
-
-`palette` - `null` or `palette options object` (see below) (`default: null`)
+tinypng                     | `true` - use tinypng.com service (see above). Default: `false`
+palette                     | `null` or `palette options object` (see below). Default: `null`
 
 palette options object
 ======================
@@ -209,6 +208,9 @@ TODO
 
 Change Log
 ============
+
+### 0.0.14 - March 4, 2015
+  - `disable-trim` is added to compression options
 
 ### 0.0.13 - 18 Nov 2014
   - regexp restart fix for file name filtering
