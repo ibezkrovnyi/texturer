@@ -9,6 +9,13 @@ module Texturer {
 	 */
 
 	class _PackerNode {
+		public x : number;
+		public y : number;
+		public width : number;
+		public height : number;
+		public leftChild : _PackerNode;
+		public rightChild : _PackerNode;
+		public used : boolean;
 		constructor(x : number, y : number, width : number, height : number) {
 			this.x = x;
 			this.y = y;
@@ -21,6 +28,12 @@ module Texturer {
 	}
 
 	export class BinPacker {
+
+		private _node : _PackerNode;
+		private _multipleOf : number;
+		private _usedWidth : number;
+		private _usedHeight : number;
+
 		/**
 		 * @param {number} width - The containing rectangle width
 		 * @param {number} height - The containing rectangle height

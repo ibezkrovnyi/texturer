@@ -7,5 +7,7 @@
     <orderEntry type="library" name="texturer node_modules" level="project" />
     <orderEntry type="library" name="Node.js v0.11.14 Core Modules" level="application" />
     <orderEntry type="library" name="Node.js v0.11.14 Core Modules" level="application" />
+    <orderEntry type="library" name="Node.js v0.12.2 Core Modules" level="application" />
+    <orderEntry type="library" name="node-DefinitelyTyped" level="application" />
   </component>
 </module>

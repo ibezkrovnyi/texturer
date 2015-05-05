@@ -2,7 +2,7 @@ module Texturer {
 	export class Dictionary {
 		private _data : { [key : string] : any };
 
-		constructor(serializedData) {
+		constructor(serializedData?) {
 			this._data = {};
 
 			if (typeof serializedData !== 'undefined') {

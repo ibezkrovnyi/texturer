@@ -299,14 +299,14 @@ module Texturer {
 			return true;
 		},
 
-		writeTexturePoolFile : function (configParser, loadedFilesDictionary, TextureMapArray, onError) {
+		writeTexturePoolFile : function (configParser, loadedFilesDictionary, TextureMapArray) {
 			var templateTexturesArray = [],
 				templateMapsArray = [],
 				usedPixels = 0,
 				trimmedPixels = 0;
 
 			// for each Texture Map
-			TextureMapArray.forEach(function (map, mapIndex) {
+			TextureMapArray.forEach(function (map : Dictionary, mapIndex) {
 					var url = path.join(configParser.getFolderImagesServer(), map.getValue("file")).replace(/\\/g, "/"),
 						base64 = map.getValue("base64"),
 						textures = map.getValue("textures"),
@@ -326,7 +326,7 @@ module Texturer {
 					);
 
 					// for each Texture
-					textures.forEach(function (texture, textureIndex) {
+					textures.forEach(function (texture : any, textureIndex) {
 						var loadedFileDictionary = loadedFilesDictionary.getValue(texture.id),
 							trim = loadedFileDictionary.getValue("trim"),
 							isLastTexture = textureIndex + 1 === textures.length;

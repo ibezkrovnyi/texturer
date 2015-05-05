@@ -35,7 +35,7 @@ module Texturer {
 			try {
 				// calculate total pixels
 				var totalPixels = 0;
-				files.forEach(function (file) {
+				files.forEach(function (file : any) {
 					totalPixels += file.width * file.height;
 				});
 
@@ -47,15 +47,15 @@ module Texturer {
 				this._totalPixels = totalPixels;
 
 				// try different combinations
-				this._placeFiles(textureMapConfig, files.sort(function (a, b) {
+				this._placeFiles(textureMapConfig, files.sort(function (a : any, b : any) {
 					return (b.width * b.height - a.width * a.height) || (b.id > a.id ? 1 : -1);
 				}));
 
-				this._placeFiles(textureMapConfig, files.sort(function (a, b) {
+				this._placeFiles(textureMapConfig, files.sort(function (a : any, b : any) {
 					return (b.width - a.width) || (b.id > a.id ? 1 : -1);
 				}));
 
-				this._placeFiles(textureMapConfig, files.sort(function (a, b) {
+				this._placeFiles(textureMapConfig, files.sort(function (a : any, b : any) {
 					return (b.height - a.height) || (b.id > a.id ? 1 : -1);
 				}));
 
@@ -97,7 +97,7 @@ module Texturer {
 
 			if (textureMapConfig.getRepeatX()) {
 				targetSpriteWidth = files[0].width;
-				files.forEach(function (file) {
+				files.forEach(function (file : any) {
 					if (file.width !== targetSpriteWidth) {
 						throw "all images should have the same width to repeat by X axis";
 					}
@@ -106,7 +106,7 @@ module Texturer {
 
 			if (textureMapConfig.getRepeatY()) {
 				targetSpriteHeight = files[0].height;
-				files.forEach(function (file) {
+				files.forEach(function (file : any) {
 					if (file.height !== targetSpriteHeight) {
 						throw "all images should have the same width to repeat by Y axis";
 					}
@@ -137,7 +137,7 @@ module Texturer {
 					this._onPlaceFilesFinished(error, null);
 				} else {
 					if (result) {
-						var map = new Dictionary(result);
+						var map : Dictionary = new Dictionary(result);
 						map.setValue("repeat-x", textureMapConfig.getRepeatX());
 						map.setValue("repeat-y", textureMapConfig.getRepeatY());
 						/*
