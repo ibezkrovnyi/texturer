@@ -88,6 +88,7 @@ Texturer.prototype = {
 						instance = trimResult.png;
 						trim = trimResult.trim;
 					}
+					loadedDataDictionary.setValue("opaque", helper.isOpaque(instance));
 					loadedDataDictionary.setValue("realWidth", realWidth);
 					loadedDataDictionary.setValue("realHeight", realHeight);
 					loadedDataDictionary.setValue("width", instance.width);
@@ -148,14 +149,16 @@ Texturer.prototype = {
 
 					var textureMapDictionary = new Dictionary(),
 						width = loadedFileDictionary.getValue("width"),
-						height = loadedFileDictionary.getValue("height");
+						height = loadedFileDictionary.getValue("height"),
+						base64 = "data:image/png;base64," + fs.readFileSync(fromFile).toString('base64');
 
 					textureMapDictionary.setValue("width", width);
 					textureMapDictionary.setValue("height", height);
 					textureMapDictionary.setValue("area", width * height);
 					textureMapDictionary.setValue("repeat-x", false);
 					textureMapDictionary.setValue("repeat-y", false);
-					textureMapDictionary.setValue("base64", null);
+					textureMapDictionary.setValue("base64", textureMapConfig.encodeDataURI() && base64.length < 32 * 1024 - 256 ? base64 : null);
+					//textureMapDictionary.setValue("base64", null);
 					textureMapDictionary.setValue("file", file);
 
 					textureMapDictionary.addValue("textures", {
@@ -167,7 +170,8 @@ Texturer.prototype = {
 						realWidth  : loadedFileDictionary.getValue("realWidth"),
 						realHeight : loadedFileDictionary.getValue("realHeight"),
 						bitmap     : loadedFileDictionary.getValue("bitmap"),
-						trim       : loadedFileDictionary.getValue("trim")
+						trim       : loadedFileDictionary.getValue("trim"),
+						opaque     : loadedFileDictionary.getValue("opaque")
 					});
 
 					_this._textureMapArray.push(textureMapDictionary);

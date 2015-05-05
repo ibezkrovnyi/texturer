@@ -247,6 +247,26 @@ module.exports = {
 		}
 	},
 
+	isOpaque : function (png) {
+		var width = png.width,
+			height = png.height,
+			base,
+			x,
+			y;
+
+		// from left
+		for (x = 0; x < width; x++) {
+			// vertical test
+			for (y = 0; y < height; y++) {
+				base = (width * y + x) << 2;
+				if (png.data[base + 3] < 255) {
+					return false;
+				}
+			}
+		}
+		return true;
+	},
+
 	writeTexturePoolFile : function (configParser, loadedFilesDictionary, TextureMapArray, onError) {
 		var templateTexturesArray = [],
 			templateMapsArray = [],
@@ -296,6 +316,7 @@ module.exports = {
 							"real-width"   : loadedFileDictionary.getValue("realWidth"),
 							"real-height"  : loadedFileDictionary.getValue("realHeight"),
 							"trim"         : trim,
+							"opaque"       : loadedFileDictionary.getValue("opaque"),
 							"repeat-x"     : map.getValue("repeat-x"),
 							"repeat-y"     : map.getValue("repeat-y"),
 							"is-last-item" : isLastTexture && isLastTextureMap

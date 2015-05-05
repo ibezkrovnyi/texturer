@@ -208,6 +208,9 @@ TODO
 Change Log
 ============
 
+### 0.1.0 - May 5, 2015
+  - `opaque` property added to output templates (`true` if texture has no pixels with alpha)
+
 ### 0.0.14 - March 4, 2015
   - `disable-trim` is added to compression options
 
