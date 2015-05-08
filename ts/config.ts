@@ -1,24 +1,24 @@
+/*
+ * Project: Texturer
+ *
+ * User: Igor Bezkrovny
+ * Date: 18.10.2014
+ * Time: 19:36
+ * MIT LICENSE
+ */
+
 /// <reference path='./typings/node.d.ts' />
 /// <reference path='./helper' />
 /// <reference path='./textureMapGenerator.ts' />
 /// <reference path='./textureMapConfig' />
-
-var fs                = require("fs"),
-	path              = require("path");
-
 module Texturer {
+	var fs                = require("fs"),
+		path              = require("path");
+
+	// TODO: fill global config with options
 	export interface GlobalConfig {
 
 	}
-
-	/*
-	 * Project: Texturer
-	 *
-	 * User: Igor Bezkrovny
-	 * Date: 18.10.2014
-	 * Time: 19:36
-	 * MIT LICENSE
-	 */
 	export class ConfigParser {
 		private _config : GlobalConfig;
 		private _folders : { root : string; from : string; to : string };

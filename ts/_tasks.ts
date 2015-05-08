@@ -1,19 +1,19 @@
+/*
+ * Project: Texturer
+ *
+ * User: Igor Bezkrovny
+ * Date: 18.10.2014
+ * Time: 19:36
+ * MIT LICENSE
+ */
+
 /// <reference path='./helper.ts' />
 /// <reference path='./binPackerAlgorithm.ts' />
 /// <reference path='./dictionary.ts' />
 /// <reference path='./tinypng.ts' />
 /// <reference path='./clusterWorker.ts' />
 module Texturer {
-	/*
-	 * Project: Texturer
-	 *
-	 * User: Igor Bezkrovny
-	 * Date: 18.10.2014
-	 * Time: 19:36
-	 * MIT LICENSE
-	 */
-
-	var pngEngine = require("./modules/node-png/lib/png").PNG,
+	var pngEngine = require("../modules/node-png/lib/png").PNG,
 		path = require("path"),
 		fs = require("fs");
 

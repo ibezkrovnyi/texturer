@@ -1,12 +1,12 @@
+/*
+ * Project: Texturer
+ *
+ * User: Igor Bezkrovny
+ * Date: 18.10.2014
+ * Time: 19:36
+ * MIT LICENSE
+ */
 module Texturer {
-	/*
-	 * Project: Texturer
-	 *
-	 * User: Igor Bezkrovny
-	 * Date: 18.10.2014
-	 * Time: 19:36
-	 * MIT LICENSE
-	 */
 
 	class _PackerNode {
 		public x : number;
@@ -28,7 +28,6 @@ module Texturer {
 	}
 
 	export class BinPacker {
-
 		private _node : _PackerNode;
 		private _multipleOf : number;
 		private _usedWidth : number;

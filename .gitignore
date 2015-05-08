@@ -1,4 +1,4 @@
 .idea
 node_modules
 example/app/source
-src/*.js
+bin/*.js

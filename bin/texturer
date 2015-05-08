@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 var fs          = require("fs"),
 	packageJSON = require('../package.json'),
-	Texturer    = require("../src/texturer.js");
+	Texturer    = require("./texturer.js");
 
 function main () {
 	var configFile = "./config.json",

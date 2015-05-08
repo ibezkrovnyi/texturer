@@ -1,9 +1,3 @@
-/// <reference path='./helper.ts' />
-/// <reference path='./config.ts' />
-/// <reference path='./dictionary.ts' />
-/// <reference path='./textureMapGenerator.ts' />
-/// <reference path='./clusterMaster.ts' />
-
 /*
  * Project: Texturer
  *
@@ -13,6 +7,11 @@
  * MIT LICENSE
  */
 
+/// <reference path='./helper.ts' />
+/// <reference path='./config.ts' />
+/// <reference path='./dictionary.ts' />
+/// <reference path='./textureMapGenerator.ts' />
+/// <reference path='./clusterMaster.ts' />
 module Texturer {
 
 	var fs = require("fs"),

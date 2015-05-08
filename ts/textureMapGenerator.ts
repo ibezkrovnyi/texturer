@@ -1,5 +1,3 @@
-/// <reference path='./dictionary.ts' />
-
 /*
  * Project: Texturer
  *
@@ -9,14 +7,10 @@
  * MIT LICENSE
  */
 
-var path       = require("path");
-/*
-cluster.setupMaster({
-	exec : path.resolve(__dirname, "../binPacker", "tasks.js")
-});
-*/
-
+/// <reference path='./dictionary.ts' />
 module Texturer {
+
+	var path       = require("path");
 
 	export class TextureMapGenerator {
 		private _cq;

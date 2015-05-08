@@ -1,5 +1,3 @@
-/// <reference path='./typings/node.d.ts' />
-
 /*
  * Project: Texturer
  *
@@ -9,16 +7,18 @@
  * MIT LICENSE
  */
 
-var fs = require("fs"),
-	path = require("path");
-
-var pngModule = require("./modules/node-png");
-var jpegEngine = require("jpeg-js");
-var bmpEngine = require("./modules/bmp-js");
-var supportedImageExtensions = ["jpg", "jpeg", "png", "bmp"],
-	pngEngine = pngModule.PNG;
-
+/// <reference path='./typings/node.d.ts' />
 module Texturer {
+
+	var fs = require("fs"),
+		path = require("path");
+
+	var pngModule = require("../modules/node-png");
+	var jpegEngine = require("jpeg-js");
+	var bmpEngine = require("bmp-js");
+	var supportedImageExtensions = ["jpg", "jpeg", "png", "bmp"],
+		pngEngine = pngModule.PNG;
+
 	function _exportTexturePoolViaHandlebarsTemplate(configParser, file, folder, data) {
 		var Handlebars = require("Handlebars");
 
@@ -376,7 +376,7 @@ module Texturer {
 				nameSpace : configParser.getNameSpace()
 			};
 
-			var folder = path.join(__dirname, /*"..",*/ "templates"),
+			var folder = path.join(__dirname, "..", "templates"),
 				files = fs.readdirSync(folder);
 
 			files.forEach(function (file) {

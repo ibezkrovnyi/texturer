@@ -1,29 +1,33 @@
 {
-	"name": "texturer",
-	"version": "0.1.0",
-	"description": "Texture Map Generator in pure JavaScript (node.js, multithreading)",
-	"author": "Igor Bezkrovny",
-	"contributors": [],
-	"homepage": "https://github.com/igor-bezkrovny/texturer",
-	"keywords": [],
-	"engines": {
-		"node": "0.11.x"
-	},
-	"main": "./src/index.js",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/igor-bezkrovny/texturer"
-	},
-	"bugs": {
-		"url": "https://github.com/igor-bezkrovny/texturer/issues"
-	},
-	"dependencies": {
-		"handlebars": "^2.0.0",
-		"jpeg-js": "0.0.4"
-	},
-        "preferGlobal": "true",
-	"bin": {
-		"texturer" : "./bin/texturer"
-	},
-	"license": "MIT"
+  "name": "texturer",
+  "version": "0.1.0",
+  "description": "Texture Map Generator in pure JavaScript (node.js, multithreading)",
+  "author": "Igor Bezkrovny",
+  "contributors": [],
+  "homepage": "https://github.com/igor-bezkrovny/texturer",
+  "keywords": [],
+  "engines": {
+    "node": "0.11.x"
+  },
+  "main": "./src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/igor-bezkrovny/texturer"
+  },
+  "bugs": {
+    "url": "https://github.com/igor-bezkrovny/texturer/issues"
+  },
+  "dependencies": {
+    "bmp-js": "igor-bezkrovny/bmp-js",
+    "handlebars": "^2.0.0",
+    "jpeg-js": "0.0.4"
+  },
+  "preferGlobal": "true",
+  "bin": {
+    "texturer": "./bin/texturer"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^1.5.0-beta"
+  }
 }

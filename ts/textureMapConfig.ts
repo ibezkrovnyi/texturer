@@ -1,5 +1,3 @@
-/// <reference path='./helper' />
-
 /*
  * Project: Texturer
  *
@@ -9,10 +7,11 @@
  * MIT LICENSE
  */
 
-var fs     = require("fs"),
-	path   = require("path");
-
+/// <reference path='./helper' />
 module Texturer {
+	var fs     = require("fs"),
+		path   = require("path");
+
 	export class TextureMapConfig {
 		private _configParser;
 		private _files;
