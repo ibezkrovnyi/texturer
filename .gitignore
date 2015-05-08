@@ -1,4 +1,4 @@
-# Created by .gitignore support plugin (hsz.mobi)
-.idea/workspace.xml
+.idea
 node_modules
 example/app/source
+src/*.js

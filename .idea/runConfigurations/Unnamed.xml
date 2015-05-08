@@ -1,9 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Unnamed" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="C:/Program Files/nodejs/node" path-to-js-file="$PROJECT_DIR$/src/index.js" working-dir="$PROJECT_DIR$/example">
-    <RunnerSettings RunnerId="Basic" />
-    <RunnerSettings RunnerId="debuggableProgram" />
-    <ConfigurationWrapper RunnerId="Basic" />
-    <ConfigurationWrapper RunnerId="debuggableProgram" />
-    <method />
-  </configuration>
-</component>

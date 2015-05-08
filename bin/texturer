@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 var fs          = require("fs"),
 	packageJSON = require('../package.json'),
-	Texturer    = require("../src/index.js");
+	Texturer    = require("../src/texturer.js");
 
 function main () {
 	var configFile = "./config.json",
-		texturer = new Texturer(),
+		texturer = new Texturer.Texturer(),
 		configJSONString;
 
 	try {
@@ -19,7 +19,7 @@ function main () {
 			console.log(key + ": {");
 			Object.keys(packageJSON[key]).forEach(function(k) {
 				console.log("\t" + k + ": \t" + packageJSON[key][k]);
-			})
+			});
 			console.log("}")
 		} else {
 			console.log(key + ": \t" + packageJSON[key]);
