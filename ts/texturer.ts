@@ -125,12 +125,12 @@ module Texturer {
 
 		private _generateTextureMap(textureMapConfig) {
 			if (textureMapConfig.getJustCopy()) {
+			    var copiedFilesCount = 0;
 				textureMapConfig.getFiles().forEach(function (file) {
 					var fromFile = path.join(this._configParser.getFolderRootFrom(), file),
 						toFile = path.join(this._configParser.getFolderRootToImagesServer(), file),
 						loadedFileDictionary = this._loadedFilesDictionary.getValue(file),
-						_this = this,
-						copiedFilesCount = 0;
+						_this = this;
 
 					try {
 						helper.createDirectory(path.dirname(toFile));

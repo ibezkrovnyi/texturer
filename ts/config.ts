@@ -23,6 +23,7 @@ module Texturer {
 		private _config : GlobalConfig;
 		private _folders : { root : string; from : string; to : string };
 		private _textureMapConfigArray : TextureMapConfig[];
+		private _templates : string[];
 
 		constructor(configJSON : string) {
 			try {
@@ -43,6 +44,12 @@ module Texturer {
 				from : this._config["folders"]["source(in)"],
 				to   : this._config["folders"]["target(out)"]
 			};
+
+			if(Object.prototype.toString.call(this._config["templates"]) === "[object Array]") {
+				this._templates = this._config["templates"];
+			} else {
+				throw new Error("\"templates\" is not defined in configuration");
+			}
 
 			helper.createDirectory(this.getFolderRootToImagesServer());
 			this._config["tasks"].forEach(function (resourceTextureMapConfig) {
@@ -98,7 +105,11 @@ module Texturer {
 		}
 
 		public getFileAndFolderNameIgnoreRegEx() {
-			return (typeof this._config["filter"] === 'string' && this._config["filter"].length > 0) ? this._config["filter"] : null;
+			return (typeof this._config["exclude"] === 'string' && this._config["exclude"].length > 0) ? this._config["exclude"] : null;
+		}
+
+		public getTemplates() : string[] {
+			return this._templates;
 		}
 
 	}

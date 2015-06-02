@@ -97,7 +97,8 @@ folders.source(in)          | resources folder from which all input folders with
 folders.target(out)         | folder to which all generated textureMap files put. Also it receives folders with images that are just copied
 folders.images(index.html)  | path to `folders.target(out)` relative to index.html (server's root)
 base64                      | encode image files (just copied and textureMaps) using dataURI scheme if base64 size < 32K (global)
-filter                      | filter regular expression. all matching files and folders will be excluded. global and case insensitive (flags "gi" are set). see [Regular Expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions)
+exclude                     | exclude regular expression. all matching files and folders will be excluded. global and case insensitive (flags "gi" are set). see [Regular Expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions)
+templates                   | array of template files to use (w/o path, e.g. [ "css.hbs", "js.hbs" ]) 
 compression                 | set compression options (see below) for texture map images (global)
 tasks                       | array of tasks to perform
 
@@ -205,8 +206,16 @@ TODO
 
 2) ability to work only in memory without writing image files to disk. usable for ui tools
 
+3) integrate with [image-quantization-library](https://github.com/igor-bezkrovny/ImageQuantization)
+
 Change Log
 ============
+
+### 0.1.1 - June 2, 2015
+  - bug fix: no files copied w/o at least one texture map creation
+  - `filter` config.json property name changed to `exclude`
+  - added `templates` config.json property
+  - **typescript migration started**
 
 ### 0.1.0 - May 5, 2015
   - `opaque` property added to output templates (`true` if texture has no pixels with alpha)

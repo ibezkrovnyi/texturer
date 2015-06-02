@@ -376,11 +376,20 @@ module Texturer {
 				nameSpace : configParser.getNameSpace()
 			};
 
+/*
 			var folder = path.join(__dirname, "..", "templates"),
 				files = fs.readdirSync(folder);
 
 			files.forEach(function (file) {
 				_exportTexturePoolViaHandlebarsTemplate(configParser, file, folder, data);
+			});
+*/
+
+			var folder = path.join(__dirname, "..", "templates");
+			configParser.getTemplates().forEach( (templateFile : string) => {
+				if(fs.existsSync(path.join(folder, templateFile))) {
+					_exportTexturePoolViaHandlebarsTemplate(configParser, templateFile, folder, data);
+				}
 			});
 
 			return duplicateFileNamesArray;

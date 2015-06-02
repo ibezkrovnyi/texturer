@@ -6,7 +6,8 @@
 		"images(index.html)": "images"
 	},
 	"base64": true,
-	"filter": ".*wl.*",
+	"exclude": ".*wl.*",
+	"templates" : [ "ts.hbs" ],
 	"tasks": [
 		{
 			"folder(in)": "lviv-ukraine-backgrounds",

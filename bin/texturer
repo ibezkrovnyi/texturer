@@ -3,9 +3,8 @@ var fs          = require("fs"),
 	packageJSON = require('../package.json'),
 	Texturer    = require("./texturer.js");
 
-function main () {
-	var configFile = "./config.json",
-		texturer = new Texturer.Texturer(),
+function main (configFile) {
+    var texturer = new Texturer.Texturer(),
 		configJSONString;
 
 	try {
@@ -39,4 +38,13 @@ function main () {
 	}, null);
 }
 
-main();
+if(process.argv.length > 2) {
+    process.argv.forEach(function (file, index) {
+        if(index >= 2) {
+            main(file);
+        }
+    });
+
+} else {
+    main("./config.json");
+}
