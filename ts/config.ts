@@ -100,6 +100,10 @@ module Texturer {
 			return typeof this._config["base64"] === 'boolean' ? this._config["base64"] : false;
 		}
 
+		public getNPass() {
+			return typeof this._config["n-pass"] === 'number' ? this._config["n-pass"] : 0;
+		}
+
 		public getCompressionOptions() {
 			return typeof this._config["compression"] !== 'undefined' ? this._config["compression"] : {};
 		}
