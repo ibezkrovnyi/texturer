@@ -8,7 +8,6 @@
 	"base64": true,
 	"exclude": ".*wl.*",
 	"templates" : [ "ts.hbs" ],
-	"n-pass" : 10,
 	"alpha-threshold" : 10,
 	"tasks": [
 		{
@@ -25,7 +24,7 @@
 		{
 			"folder(in)": "recursive",
 			"texture-map(out)": "recursive.png",
-			"n-pass": 500,
+			"n-pass": 10,
 			"compression": {
 				"tinypng": false,
 				"palette": {
