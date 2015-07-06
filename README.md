@@ -206,7 +206,7 @@ TODO
 2) ability to work only in memory without writing image files to disk. usable for ui tools
 
 Change Log
-============
+==========
 
 ### 0.1.0 - May 5, 2015
   - `opaque` property added to output templates (`true` if texture has no pixels with alpha)
