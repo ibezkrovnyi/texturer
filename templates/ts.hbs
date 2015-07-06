@@ -1,6 +1,10 @@
 js/texturePool.ts
 module {{nameSpace}} {
 
+	// Statistics:
+	// - textures: {{textures.length}}
+	// - textureMaps: {{maps.length}}
+
 	var maps = [{{#each maps}}
 		{
 			url        : "{{#if base64}}{{base64}}{{else}}{{url}}{{/if}}",
@@ -11,8 +15,8 @@ module {{nameSpace}} {
 		}{{#unless is-last-item}}, {{/unless}}{{/each}}
 	];
 
-    appDesc.texturePool = { {{#each textures}}
-        "{{id}}" : {
+	appDesc.texturePool = { {{#each textures}}
+		"{{id}}" : {
 			map        : maps[{{map-index}}],
 			x          : {{x}},
 			y          : {{y}},

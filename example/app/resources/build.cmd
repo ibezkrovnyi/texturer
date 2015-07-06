@@ -1,1 +1,1 @@
-..\..\..\tools\node ../../../bin/texturer
+..\..\..\tools\node ../../../bin/texturer config.json

@@ -1,6 +1,7 @@
 Texturer
 ========
 Texture Map Generator in JavaScript (node.js, multithreading) is image processing tool that generates texture maps for image sets. It also generates javascript texture maps description file and is able to copy whole directory without processing, but fills texture map description file with image parameters.
+![Texture](https://raw.githubusercontent.com/igor-bezkrovny/texturer/master/example/texture_example.png "Texture")
 
 How To Install from GitHub
 ==========================
@@ -135,6 +136,7 @@ compression
 property                    | value
 --------------------------- | -----------
 disable-trim                | `true` - disable image trimming. For example, export to css should be done without image trimming. Default: `false`
+alpha-threshold				| if `disable-trim` enabled - set fully-transparent alpha (A from RGBA) value to trim transparent pixels out from image. Default: `0` (means that fully transparent pixels are only pixels with alpha = 0)  
 tinypng                     | `true` - use tinypng.com service (see above). Default: `false`
 palette                     | `null` or `palette options object` (see below). Default: `null`
 
@@ -209,7 +211,12 @@ TODO
 3) integrate with [image-quantization-library](https://github.com/igor-bezkrovny/ImageQuantization)
 
 Change Log
-============
+==========
+
+
+### 0.1.2 - July 6, 2015
+  - `bin/texturer` is now has optional parameter - config.json file name
+  - `alpha-threshold` property added to `compression` options
 
 ### 0.1.1 - June 2, 2015
   - bug fix: no files copied w/o at least one texture map creation

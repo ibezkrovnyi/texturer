@@ -1,4 +1,11 @@
 css/texturePool.css
+/*
+
+Statistics:
+   - textures: {{textures.length}}
+   - textureMaps: {{maps.length}}
+
+*/
 {{#each textures}}
 	.{{id}} : {
 		background-image: url("{{#if base64}}{{base64}}{{else}}{{url}}{{/if}}");
