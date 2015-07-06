@@ -3,7 +3,7 @@ Texturer
 Texture Map Generator in **TypeScript** _(MIT License)_
 
 [![github](https://img.shields.io/badge/github-.com-brightgreen.svg)](https://github.com/igor-bezkrovny/texturer)
-[![npm version](https://badge.fury.io/js/image-q.svg)](https://www.npmjs.com/package/texturer)
+[![npm version](https://badge.fury.io/js/texturer.svg)](https://www.npmjs.com/package/texturer)
 [![NPM License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ![Texture](https://raw.githubusercontent.com/igor-bezkrovny/texturer/master/example/texture_example.png "Texture")
