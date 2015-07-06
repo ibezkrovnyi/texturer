@@ -25,7 +25,7 @@ module Texturer {
 			this._cq = cq;
 		}
 
-		public generateTextureMap (files, textureMapConfig : TextureMapConfig, callback, thisArg) {
+		public generateTextureMap (files, textureMapConfig : TextureMapConfig, callback, thisArg?) {
 			try {
 				// calculate total pixels
 				var totalPixels = 0;

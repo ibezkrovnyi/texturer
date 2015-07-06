@@ -14,9 +14,9 @@
 /// <reference path='./clusterMaster.ts' />
 module Texturer {
 
-	var fs = require("fs"),
-		path = require('path'),
-		util = require('util'),
+	var fs         = require("fs"),
+		path       = require('path'),
+		util       = require('util'),
 		_startTime = Date.now();
 
 	export class Texturer {
@@ -47,17 +47,17 @@ module Texturer {
 			this._cq.restart();
 
 			this._callback = callback;
-			this._thisArg = thisArg;
+			this._thisArg  = thisArg;
 
 			try {
-				this._configParser = new ConfigParser(configJSONString);
+				this._configParser    = new ConfigParser(configJSONString);
 				this._textureMapArray = [];
 				//this._loadedFileDataDictionary = {};
 
 				this._loadedFilesDictionary = new Dictionary();
 
-				this._loadedFilesCount = 0;
-				this._totalFilesCount = 0;
+				this._loadedFilesCount             = 0;
+				this._totalFilesCount              = 0;
 				this._totalTexturMapsRequiredCount = 0;
 
 				this._loadFiles();
@@ -82,23 +82,23 @@ module Texturer {
 		private _loadFilesForTextureMap(textureMapConfig : TextureMapConfig) {
 			textureMapConfig.getFiles().forEach(function (file) {
 				//console.log(path.join(this._configParser.getFolderRootFrom(), file));
-				helper.readImageFile(path.join(this._configParser.getFolderRootFrom(), file), function (error, instance) {
+				helper.readImageFile(path.join(this._configParser.getFolderRootFrom(), file), (error, instance) => {
 					if (error) {
 						this._shutdown(error);
 					} else {
 						var loadedDataDictionary : Dictionary = new Dictionary(),
-							trim = {left : 0, right : 0, top : 0, bottom : 0},
-							realWidth = instance.width,
-							realHeight = instance.height;
+							trim                              = {left : 0, right : 0, top : 0, bottom : 0},
+							realWidth                         = instance.width,
+							realHeight                        = instance.height;
 
 						// trim image if it is part of sprite
 						if (!textureMapConfig.getJustCopy() && !textureMapConfig.getCompressionOptions()["disable-trim"]) {
 							var alphaThreshold = textureMapConfig.getCompressionOptions()["alpha-threshold"] || 0,
-								trimResult = helper.trimImage(instance, alphaThreshold);
+								trimResult     = helper.trimImage(instance, alphaThreshold);
 
 							// new trimmed png instance and trim parameters
 							instance = trimResult.png;
-							trim = trimResult.trim;
+							trim     = trimResult.trim;
 						}
 						loadedDataDictionary.setValue("opaque", helper.isOpaque(instance));
 						loadedDataDictionary.setValue("realWidth", realWidth);
@@ -126,12 +126,11 @@ module Texturer {
 
 		private _generateTextureMap(textureMapConfig) {
 			if (textureMapConfig.getJustCopy()) {
-			    var copiedFilesCount = 0;
+				var copiedFilesCount = 0;
 				textureMapConfig.getFiles().forEach(function (file) {
-					var fromFile = path.join(this._configParser.getFolderRootFrom(), file),
-						toFile = path.join(this._configParser.getFolderRootToImagesServer(), file),
-						loadedFileDictionary = this._loadedFilesDictionary.getValue(file),
-						_this = this;
+					var fromFile             = path.join(this._configParser.getFolderRootFrom(), file),
+						toFile               = path.join(this._configParser.getFolderRootToImagesServer(), file),
+						loadedFileDictionary = this._loadedFilesDictionary.getValue(file);
 
 					try {
 						helper.createDirectory(path.dirname(toFile));
@@ -149,9 +148,9 @@ module Texturer {
 					}
 
 					// fs.link(fromFile, toFile, function (error) {
-					this._cq.runTask("copyFile", {source : fromFile, target : toFile}, function (error) {
+					this._cq.runTask("copyFile", {source : fromFile, target : toFile}, error => {
 						if (error) {
-							_this._shutdown(new Error("" +
+							this._shutdown(new Error("" +
 								"COPY: \n" +
 								"src: " + fromFile + "\n" +
 								"dst: " + toFile + "\n" +
@@ -160,9 +159,9 @@ module Texturer {
 						}
 
 						var textureMapDictionary : Dictionary = new Dictionary(),
-							width = loadedFileDictionary.getValue("width"),
-							height = loadedFileDictionary.getValue("height"),
-							base64 = "data:image/png;base64," + fs.readFileSync(fromFile).toString('base64');
+							width                             = loadedFileDictionary.getValue("width"),
+							height                            = loadedFileDictionary.getValue("height"),
+							base64                            = "data:image/png;base64," + fs.readFileSync(fromFile).toString('base64');
 
 						textureMapDictionary.setValue("width", width);
 						textureMapDictionary.setValue("height", height);
@@ -186,11 +185,11 @@ module Texturer {
 							opaque     : loadedFileDictionary.getValue("opaque")
 						});
 
-						_this._textureMapArray.push(textureMapDictionary);
+						this._textureMapArray.push(textureMapDictionary);
 
 						copiedFilesCount++;
 						if (textureMapConfig.getFiles().length === copiedFilesCount) {
-							_this._onTextureMapGenerated();
+							this._onTextureMapGenerated();
 						}
 					}, this);
 				}, this);
@@ -207,7 +206,7 @@ module Texturer {
 				}, this);
 
 				var textureMapGenerator : TextureMapGenerator = new TextureMapGenerator(this._cq);
-				textureMapGenerator.generateTextureMap(sizeArray, textureMapConfig, function (error, textureMapDictionary) {
+				textureMapGenerator.generateTextureMap(sizeArray, textureMapConfig, (error, textureMapDictionary) => {
 					if (error) {
 						this._shutdown(new Error("Texture Generator: Can't pack texture map '" + textureMapConfig.getPNGFileName() + "'. " + error));
 					} else if (!textureMapDictionary) {
@@ -215,7 +214,7 @@ module Texturer {
 					} else {
 						this._compressTextureMapImage(textureMapConfig, textureMapDictionary);
 					}
-				}, this);
+				});
 			}
 		}
 
@@ -241,8 +240,8 @@ module Texturer {
 			}, this);
 
 			var bestCompressedImage : Buffer = null,
-				filterCount = 0,
-				filterTypes = [0, 1, 2, 3, 4];
+				filterCount                  = 0,
+				filterTypes                  = [0, 1, 2, 3, 4];
 
 			for (var i = 0; i < filterTypes.length; i++) {
 
@@ -254,7 +253,7 @@ module Texturer {
 					textureArray : textureArray
 				};
 
-				this._cq.runTask("compressPNG", data, function (error, result : any) {
+				this._cq.runTask("compressPNG", data, (error, result : any) => {
 					if (error) {
 						this._shutdown(new Error(error));
 					} else {
@@ -295,7 +294,7 @@ module Texturer {
 						configFile : "./config.json"
 					}
 				};
-			this._cq.runTask("writeFile", data, function (error, result) {
+			this._cq.runTask("writeFile", data, (error, result) => {
 				if (error) {
 					this._shutdown(error);
 				} else {
