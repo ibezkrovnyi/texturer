@@ -1,7 +1,17 @@
 Texturer
 ========
-Texture Map Generator in JavaScript (node.js, multithreading) is image processing tool that generates texture maps for image sets. It also generates javascript texture maps description file and is able to copy whole directory without processing, but fills texture map description file with image parameters.
+Texture Map Generator in **TypeScript** _(MIT License)_
+
+[![github](https://img.shields.io/badge/github-.com-brightgreen.svg)](https://github.com/igor-bezkrovny/texturer)
+[![npm version](https://badge.fury.io/js/image-q.svg)](https://www.npmjs.com/package/texturer)
+[![NPM License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 ![Texture](https://raw.githubusercontent.com/igor-bezkrovny/texturer/master/example/texture_example.png "Texture")
+
+Introduction
+============
+
+Texture Map Generator in pure JavaScript (typescript, node.js, multithreading) is image processing tool that generates texture maps for image sets. It also generates javascript/typescript/css texture maps description file and is able to copy whole directory without processing, filling texture map description file with image parameters.
 
 How To Install from GitHub
 ==========================
@@ -301,26 +311,6 @@ Credits
 * jpeg-js: https://github.com/eugeneware/jpeg-js
 
 License
-=========
+=======
 
-The MIT License (MIT)
-
-Copyright (c) 2014 Igor Bezkrovny
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+[MIT](LICENSE)
