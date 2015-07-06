@@ -11,7 +11,7 @@ Texture Map Generator in **TypeScript** _(MIT License)_
 Introduction
 ============
 
-Texture Map Generator in pure JavaScript (typescript, node.js, multithreading) is image processing tool that generates texture maps for image sets. It also generates javascript/typescript/css texture maps description file and is able to copy whole directory without processing, filling texture map description file with image parameters.
+Texture Map Generator in pure JavaScript (TypeScript, node.js, multithreading) is image processing tool that generates texture maps for image sets. It also generates javascript/typescript/css texture maps description file and is able to copy whole directory without processing, filling texture map description file with image parameters.
 
 How To Install from GitHub
 ==========================
