@@ -1,11 +1,11 @@
 js/texturePool.ts
-module {{nameSpace}} {
+namespace Game {
 
 	// Statistics:
 	// - textures: {{textures.length}}
 	// - textureMaps: {{maps.length}}
 
-	var maps = [{{#each maps}}
+	const maps = [{{#each maps}}
 		{
 			url        : "{{#if base64}}{{base64}}{{else}}{{url}}{{/if}}",
 			width      : {{width}},

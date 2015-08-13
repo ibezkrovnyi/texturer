@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "noImplicitAny": false,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "out": "../../bin/tasks/writeFileWorker.js",
+        "sourceMap": true
+    },
+    "files": [
+        "writeFileWorker.ts"
+    ]
+}

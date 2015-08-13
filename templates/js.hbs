@@ -2,8 +2,8 @@ js/texturePool.js
 // Statistics:
 // - textures: {{textures.length}}
 // - textureMaps: {{maps.length}}
-var {{nameSpace}} = {{nameSpace}} || {};
 
+var Game = Game || {};
 (function(config) {
 
 	var maps = [{{#each maps}}
@@ -28,4 +28,4 @@ var {{nameSpace}} = {{nameSpace}} || {};
 		}{{#unless is-last-item}}, {{/unless}}{{/each}}
 	};
 
-})({{nameSpace}}.config = {{nameSpace}}.config || {});
+})(Game.config = Game.config || {});

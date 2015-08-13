@@ -13,36 +13,50 @@ Introduction
 
 Texture Map Generator in pure JavaScript (TypeScript, node.js, multithreading) is image processing tool that generates texture maps for image sets. It also generates javascript/typescript/css texture maps description file and is able to copy whole directory without processing, filling texture map description file with image parameters.
 
-How To Install from GitHub
+How To Install
 ==========================
-1) click `Download ZIP`, download and unpack zip archive with Texturer
 
-2) run `npm install` in root folder of texturer (where package.json is located)
+### from NPM (https://www.npmjs.com/package/texturer)
 
-How To Install from npm
-=======================
-run `npm install -g texturer` from command-line
+Install this module locally(into your project only) with the following command:
+```shell
+npm install texturer
+```
+
+Install this module globally with the following command:
+```shell
+npm install texturer -g
+```
+
+### from GitHub (https://github.com/igor-bezkrovny/texturer) 
+
+```shell
+git clone https://github.com/igor-bezkrovny/texturer
+cd texturer
+npm install
+npm run build
+```
 
 Usage
 =====
-run `texturer` in folder with config.json (see `example` folder)
+
+Run in folder with config.json (see [example](example) folder)
+```shell
+texturer
+```
+
+Process specified configuration file
+```shell
+texturer example/app/resources/config.json
+```
 
 Usage from Code
 ===============
 ```js
-var fs         = require("fs"),
-	Texturer   = require("<path to texturer src/index.js>"),
-	configFile = "./config.json",
-	texturer   = new Texturer(),
-	configJSONString;
+var Texturer   = require("<path to texturer src/index.js>"),
+	config     = JSON.parse(require("fs").readFileSync("./config.json", "utf8"));
 
-try {
-	configJSONString = fs.readFileSync(configFile, "utf8");
-} catch (e) {
-	throw new Error("CFG: Can't read config file \"" + configFile + "\n");
-}
-
-texturer.generate(configJSONString, function (error) {
+new Texturer().generate(config, function (error) {
 	if (error) {
 		console.trace("\x1B[91m" + error + "\x1B[39m");
 		process.exit(42);
@@ -52,106 +66,111 @@ texturer.generate(configJSONString, function (error) {
 }, null);
 ```
 
-Node-Webkit and Cluster Module
-==============================
-Due to issues in node-webkit you will need to do some [additional steps](https://groups.google.com/forum/#!topic/node-webkit/OEZxArpmLNo):
-* in some node file (which is required from web javascript file) you should set execPath to node.exe instead of nw.exe
-```js
-var path = require("path");
-process.execPath = path.join(path.dirname(process.execPath), '..', 'folder_with_node_exe', 'node.exe');
-```
-* on cluster initialization you will need to set `silent` attribute to `true`
-```js
-cluster.setupMaster({
-    'exec': __dirname + '/worker.js',
-    'silent': true
-});
-```
-
-Supported file formats
+Supported File Formats
 ======================
-**input:** png, jpeg (.jpeg, .jpg), bmp
+* png
+* jpeg (.jpeg, .jpg)
+* bmp
 
-**output:** png (or original image file if `copy` task parameter is set to `true`)
+####Usage
+To enable TinyPNG conversion you need to set `"tiny-png" : true` compress option for appropriate texture-map-task (see below)
 
-TinyPNG.com Service
-===================
-[tinypng.com service](http://tinypng.com) does advanced lossy compression for PNG images that preserves full alpha transparency.
+config.json Format
+==================
+> _note: all folders described below are **relative to current working directory**_
 
-To use it you will need to receive [API key](https://tinypng.com/developers).
-It is free of charge for convert up to 500 images per month. So, up to 500 texture maps, which is more than enough.
+property                      | value
+----------------------------- | -----------
+folders                       | specifies folders configuration ([see below](#folders))
+templates                     | array of template files to use (w/o path, e.g. [ "css.hbs", "js.hbs" ]) 
+task&#8209;defaults           | `optional` object with default values for optional [copy options](#copy-task-format)/[texture-map options](#texture-map-task-format) as defaults  
+copy&#8209;tasks              | `optional` array of [copy tasks](#copy-task-format) to perform
+texture&#8209;map&#8209;tasks | `optional` array of [texture-map tasks](#texture-map-task-format) to perform
+exclude                       | `optional` exclude regular expression. all matching files and folders will be excluded. global and case insensitive (flags "gi" are set). see [Regular Expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions)
+                  
+#### Copy Task Format
+> Images will be copied to destination folder or encoded into data URI without any processing, their width/height will be written into description file using template
 
-####License
-create (or edit) next section in `config.json`:
+property                    | value
+--------------------------- | -----------
+folder                      | folder with images. all images will be copied to the `folders.source/folder` folder
+data&#8209;uri              | `optional` [see below](#data-uri)
+
+#### Texture Map Task Format
+> Images from appropriate folder will be packed into one "texture-map" image, trim and compress options will be applied 
+
+property                     | value
+---------------------------- | -----------
+folder                       | Folder with image files. All images from this folder recursively will be used to generate `folders.target/folder` folder
+texture&#8209;map&#8209;file | `optional, default: texture-map<incremental number>.png` Texture map image (.png) file path and name
+brute&#8209;force&#8209;time | `optional, default: 0` Additional time for finding best(smallest) texture map (ms)  
+repeat-x                     | `optional, default: false` Combine images into **vertical** texture map to allow application to use **background-repeat: repeat-x**
+repeat-y                     | `optional, default: false` Combine images into **horizontal** texture map to allow application to use **background-repeat: repeat-y**
+grid-step                    | `optional, default: 1` X and Y coordinate values of Images placed on texture map will be divisible by grid-step  
+padding-x                    | `optional, default: 0` Minimal horizontal distance between Images inside Texture Map Image
+padding-y                    | `optional, default: 0` Minimal vertical distance between Images inside Texture Map Image
+trim                         | `optional` [see below](#trim)
+data&#8209;uri               | `optional` [see below](#data-uri)
+compress                     | `optional` [see below](#compress)
+dimensions                   | `optional` [see below](#dimensions) 
+
+> `repeat-x` note: all images inside `folder` folder should have the **same width**  
+> `repeat-y` note: all images inside `folder` folder should have the **same height**
+
+#### Folders
+property            | value
+------------------- | -----------
+source              | resources folder from which all input folders with images taken
+target              | folder to which all generated textureMap files put. Also it receives folders with images that are just copied
+images(index.html)  | path to `folders.target` relative to index.html (server's root)
+> for example, if source folder is `app/resources` and target folder is `app/www/assets/images`, and index.html is located in `app/www`, images(index.html) will be `assets/images`  
+
+#### data URI
+property                                  | value
+----------------------------------------- | -----------
+enable                                    | `optional, default: true` Create [data URI](https://developer.mozilla.org/en-US/docs/Web/HTTP/data_URIs) by encoding image using base64 
+max-size                                  | `optional, default: 32512` Max data URI string length. If encoded data URI string length is longer, general url instead of data URI will not be created  
+create&#8209;image&#8209;file&#8209;anyway| `optional, default: false` Create output image file even in case data URI successfully created  
+
+#### Compress
+property                    | value
+--------------------------- | -----------
+tiny-png                    | `optional, default: false` Use [TinyPNG](https://TinyPNG.com) service ([see below](#tinypng.com-service))
+
+#### Trim
+property                    | value
+--------------------------- | -----------
+enable                      | `optional, default: true` Enable image trimming. Note: export to css should be done without image trimming
+alpha                       | `optional, default: 0` Set fully-transparent alpha (A from RGBA) value to trim transparent pixels out from image. For example, alpha = 15 means that pixels with alpha <= 15 will be trimmed out of image to reduce texture map size  
+
+#### Dimensions
+property    | value
+----------- | -----------
+max-x       | `optional, default: 1920` Max texture-map image width
+max-y       | `optional, default: 1080` Max texture-map image Height  
+
+#### TinyPNG.com Service
+[TinyPNG service](https://tinypng.com) does advanced lossy compression for PNG images that preserves full alpha transparency.
+
+It is free of charge for convert up to 500 images per month. So, up to 500 texture maps, which often is more than enough.
+
+#####Receive API key
+To use TinyPNG service you need to receive [API key](https://tinypng.com/developers).
+
+#####Add API key to your config.json
+create (or edit) following section in `config.json`:
 ```json
 "tinypng-api-keys": [{
 	"used" : 0,
 	"month": 0,
 	"year" : 0,
-	"key"  : "fhdskaj89fdsfds8a7f89dsa78df7as-"
+	"key"  : "YOUR-RECEIVED-KEY"
 }]
 ```
 > After first use of tinypng.com service this information will be updated with correct month/year/used values.
 
-####Usage
-To enable tinypng conversion you need to set `tinypng : true` compression option (see below)
-
-config.json format
-==================
-> _note: all folders described below are **relative to current working directory**_
-
-property                    | value
---------------------------- | -----------
-nameSpace                   | is just a javascript namespace to which array that represents all textures will be appended. See first line of generated texturePool.js for understanding
-folders                     | specifies folders configuration
-folders.source(in)          | resources folder from which all input folders with images taken
-folders.target(out)         | folder to which all generated textureMap files put. Also it receives folders with images that are just copied
-folders.images(index.html)  | path to `folders.target(out)` relative to index.html (server's root)
-base64                      | encode image files (just copied and textureMaps) using dataURI scheme if base64 size < 32K (global)
-exclude                     | exclude regular expression. all matching files and folders will be excluded. global and case insensitive (flags "gi" are set). see [Regular Expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions)
-templates                   | array of template files to use (w/o path, e.g. [ "css.hbs", "js.hbs" ]) 
-compression                 | set compression options (see below) for texture map images (global)
-tasks                       | array of tasks to perform
-
-## TASK FORMAT FOR COPYING FILES
-
-property                    | value
---------------------------- | -----------
-copy                        | `true` means _"turn copy-only mode ON"_, `false or omitted` - _"turn copy-only mode OFF"_. Default: `false`.
-folder(in)                  | folder with images. all images will be copied to the `folders.source(in)/folder(in)` folder
-
-> copy-only mode means that images will be just copied to destination location
-
-> Each image in `folder(in)` will be loaded, image width and height will be added to `description file`
-
-## TASK FORMAT FOR TEXTURE MAP GENERATION
-
-property                    | value
---------------------------- | -----------
-folder(in)                  | folder with images. all images will be used to generate `folders.target(out)/folder(in)` folder
-texture-map(out)            | file path and name to destination file for texture map image. Output format: `png`
-repeat-x                    | `true` means images will be combined into **vertical** texture map to enable application to use _backgroundRepeat: repeatX_ for any of textures generated from `folders.source(in)/folder(in)`
-repeat-y                    | `true` means images will be combined into **horizontal** texture map to enable application to use _backgroundRepeat: repeatY_ for any of textures generated from `folders.source(in)/folder(in)`.
-n-pass                      | number of approaches to try for texture map after default algorithm is finished. `0 or omitted` means do not try non-default approaches. `positive value (1 - ∞)` will trigger additional passes with goal to find most optimal textures positioning on texture map.
-base64                      | encode all copied image files (in case `copy : true;`) or texture map image using dataURI scheme (only if base64 size < 32K)
-compression                 | set compression options (see below) for texture map image
-
-> `repeat-x`: all images inside `folder(in)` folder should have the **same width**
-
-> `repeat-y`: all images inside `folder(in)` folder should have the **same height**
-
-compression
-===========
-
-property                    | value
---------------------------- | -----------
-disable-trim                | `true` - disable image trimming. For example, export to css should be done without image trimming. Default: `false`
-alpha-threshold				| if `disable-trim` enabled - set fully-transparent alpha (A from RGBA) value to trim transparent pixels out from image. Default: `0` (means that fully transparent pixels are only pixels with alpha = 0)  
-tinypng                     | `true` - use tinypng.com service (see above). Default: `false`
+#### palette options object (TODO-it was changed - implement and update README)
 palette                     | `null` or `palette options object` (see below). Default: `null`
-
-palette options object
-======================
 
 option                          | description
 --------------------------------|------------
@@ -161,7 +180,7 @@ option                          | description
 `useSerpentineDitheringPattern` | `true` - use serpentine dithering. Default: `false`
 `minimumHueColors`              | # of colors per hue group to evaluate regardless of counts, to retain low-count hues
 
-dithering kernels
+#### dithering kernels (TODO-it was changed - implement and update README)
 =================
 * `"FloydSteinberg"`
 * `"FalseFloydSteinberg"`
@@ -177,52 +196,104 @@ config.json example
 ===================
 ```json
 {
-  "nameSpace"      : "MyGame",
-  "folders"        : {
-	"source(in)"     : "./",
-  	"target(out)"       : "../source",
-  	"images(index.html)" : "images"
-  },
-  "base64" : true,
-  "filter" : ".*_BACKUP.*",
-  "tasks" : [
-    {
-      "folder(in)"       : "lviv-ukraine-backgrounds",
-      "copy"             : true
-    },
-    {
-      "folder(in)"       : "creative-nerds-wooden-icons",
-      "texture-map(out)" : "creative-nerds-wooden-icons.png"
-    },
-    {
-      "folder(in)"       : "woocons1",
-      "texture-map(out)" : "woocons1.png"
-    },
-    {
-      "folder(in)"       : "zoom-eyed-creatures",
-      "texture-map(out)" : "zoom-eyed-creatures.png",
-      "n-pass"           : 10
-    },
-    {
-      "folder(in)"       : "buttons",
-      "texture-map(out)" : "buttons.png",
-      "repeat-x"         : true
-    }
-  ]
+	"folders" : {
+		"source" : "./",
+		"target" : "../source",
+		"images(index.html)" : "images"
+	},
+	"exclude" : ".*wl.*",
+	"templates" : [
+		"ts.hbs"
+	],
+	"task-defaults" : {
+		"brute-force-time" : 0,
+		"trim" : {
+			"enable" : true,
+			"alpha" : 0
+		},
+		"data-uri" : {
+			"enable" : true,
+			"max-size" : 32512,
+			"create-image-file-anyway" : false
+		},
+		"grid-step" : 1,
+		"padding-x" : 0,
+		"padding-y" : 0,
+		"compress" : {
+			"tiny-png" : false
+		}
+	},
+	"copy-tasks" : [
+		{
+			"folder" : "lviv-ukraine-backgrounds",
+			"data-uri" : {
+				"enable" : true,
+				"max-size" : 32512,
+				"create-image-file-anyway" : false
+			}
+		}
+	],
+	"texture-map-tasks" : [
+		{
+			"folder" : "creative-nerds-wooden-icons",
+			"texture-map-file" : "creative-nerds-wooden-icons.png",
+			"brute-force-time" : 0,
+			"grid-step" : 1,
+			"padding-x" : 0,
+			"padding-y" : 0,
+			"repeat-x" : false,
+			"repeat-y" : false,
+			"compress" : {
+				"tiny-png" : false
+			},
+			"data-uri" : {
+				"enable" : true,
+				"max-size" : 32768,
+				"create-image-file-anyway" : false
+			},
+			"trim" : {
+				"enable" : true,
+				"alpha" : 0
+			}
+		},
+		{
+			"folder" : "recursive",
+			"compression" : {
+				"tinypng" : false
+			}
+		},
+		{
+			"folder" : "buttons",
+			"repeat-x" : true
+		}
+	],
+	"tinypng-api-keys" : [
+		{
+			"used" : 22,
+			"month" : 8,
+			"year" : 2015,
+			"key" : "fjhdsajkfjdsahjfkhdsajfhjdsakhfjkdshajkh-"
+		}
+	]
 }
 ```
 
 TODO
 ====
-1) interlaced jpeg decoding (?)
+1) integrate with [image-quantization-library](https://github.com/igor-bezkrovny/ImageQuantization)
 
-2) ability to work only in memory without writing image files to disk. usable for ui tools
+2) interlaced jpeg decoding (?)
 
-3) integrate with [image-quantization-library](https://github.com/igor-bezkrovny/ImageQuantization)
+3) ability to work only in memory without writing files to disk. usable for ui tools
+
 
 Change Log
 ==========
 
+### 0.2.0 - August 13, 2015 
+  - TypeScript migration finished
+  - Refactoring
+  - config.json format changed (see updated README.md above)
 
 ### 0.1.2 - July 6, 2015
   - `bin/texturer` is now has optional parameter - config.json file name
@@ -309,6 +380,27 @@ Credits
 * bmp-js: https://www.npmjs.org/package/bmp-js (fixed issues with 8bit indexed colorType read)
 
 * jpeg-js: https://github.com/eugeneware/jpeg-js
+
+
+Node-Webkit and Cluster Module
+==============================
+
+**TODO** texturer now use child_process.fork instead of cluster module
+**TODO** check current node-webkit version
+
+Due to issues in node-webkit you will need to do some [additional steps](https://groups.google.com/forum/#!topic/node-webkit/OEZxArpmLNo):
+* in some node file (which is required from web javascript file) you should set execPath to node.exe instead of nw.exe
+```js
+var path = require("path");
+process.execPath = path.join(path.dirname(process.execPath), '..', 'folder_with_node_exe', 'node.exe');
+```
+* on cluster initialization you will need to set `silent` attribute to `true`
+```js
+cluster.setupMaster({
+    'exec': __dirname + '/worker.js',
+    'silent': true
+});
+```
 
 License
 =======

@@ -4,7 +4,7 @@ var fs          = require("fs"),
 	Texturer    = require("./texturer.js");
 
 function main (configFile) {
-    var texturer = new Texturer.Texturer(),
+	var texturer = new Texturer(),
 		configJSONString;
 
 	try {
@@ -13,13 +13,11 @@ function main (configFile) {
 		throw new Error("CFG: Can't read config file \"" + configFile + "\nError: " + e);
 	}
 
-	["version", "author", "homepage"].forEach(function (key) {
-		if(typeof packageJSON[key] === 'object') {
-			console.log(key + ": {");
-			Object.keys(packageJSON[key]).forEach(function(k) {
-				console.log("\t" + k + ": \t" + packageJSON[key][k]);
+	["version", "author", "homepage", "engines", "bugs"].forEach(function (key) {
+		if (typeof packageJSON[key] === 'object') {
+			Object.keys(packageJSON[key]).forEach(function (k) {
+				console.log(key + "." + k + ": \t" + packageJSON[key][k]);
 			});
-			console.log("}")
 		} else {
 			console.log(key + ": \t" + packageJSON[key]);
 		}
@@ -28,7 +26,16 @@ function main (configFile) {
 	console.log(cwd);
 	console.log(new Array(cwd.length + 1).join("-"));
 
-	texturer.generate(configJSONString, function (error) {
+
+	var config = null;
+	try {
+		// eval is used to allow comments inside json
+		config = eval('(' + configJSONString + ')');
+	} catch (e) {
+		throw new Error("File: " + configFile + ", JSON parse error: \"" + e + "\n");
+	}
+
+	texturer.generate(config, function (error) {
 		if (error) {
 			console.trace("\x1B[91m" + error + "\x1B[39m");
 			process.exit(42);
@@ -38,13 +45,13 @@ function main (configFile) {
 	}, null);
 }
 
-if(process.argv.length > 2) {
-    process.argv.forEach(function (file, index) {
-        if(index >= 2) {
-            main(file);
-        }
-    });
+if (process.argv.length > 2) {
+	process.argv.forEach(function (file, index) {
+		if (index >= 2) {
+			main(file);
+		}
+	});
 
 } else {
-    main("./config.json");
+	main("./config.json");
 }

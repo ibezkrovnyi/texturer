@@ -1,51 +1,81 @@
 {
-	"nameSpace": "MyGame",
-	"folders": {
-		"source(in)": "./",
-		"target(out)": "../source",
-		"images(index.html)": "images"
+	"folders" : {
+		"source" : "./",
+		"target" : "../source",
+		"images(index.html)" : "images"
 	},
-	"base64": true,
-	"exclude": ".*wl.*",
-	"templates" : [ "ts.hbs" ],
-	"alpha-threshold" : 10,
-	"tasks": [
-		{
-			"folder(in)": "lviv-ukraine-backgrounds",
-			"texture-map(out)": "lviv-ukraine-backgrounds",
-			"copy": true
+	"exclude" : ".*wl.*",
+	"templates" : [
+		"ts.hbs"
+	],
+	"task-defaults" : {
+		"brute-force-time" : 0,
+		"trim" : {
+			"enable" : true,
+			"alpha" : 0
 		},
-		{
-			"folder(in)": "creative-nerds-wooden-icons",
-			"texture-map(out)": "creative-nerds-wooden-icons.png",
-			"grid-step": 1,
-			"base64": false
+		"data-uri" : {
+			"enable" : true,
+			"max-size" : 32512,
+			"create-image-file-anyway" : false
 		},
+		"grid-step" : 1,
+		"padding-x" : 0,
+		"padding-y" : 0,
+		"compress" : {
+			"tiny-png" : false
+		}
+	},
+	"copy-tasks" : [
 		{
-			"folder(in)": "recursive",
-			"texture-map(out)": "recursive.png",
-			"n-pass": 10,
-			"compression": {
-				"tinypng": false,
-				"palette": {
-					"colors": 3068,
-					"method": 2,
-					"ditheringKernel": "FalseFloydSteinberg"
-				}
+			"folder" : "lviv-ukraine-backgrounds",
+			"data-uri" : {
+				"enable" : true,
+				"max-size" : 32512,
+				"create-image-file-anyway" : false
+			}
+		}
+	],
+	"texture-map-tasks" : [
+		{
+			"folder" : "creative-nerds-wooden-icons",
+			"texture-map-file" : "creative-nerds-wooden-icons.png",
+			"brute-force-time" : 0,
+			"grid-step" : 1,
+			"padding-x" : 0,
+			"padding-y" : 0,
+			"repeat-x" : false,
+			"repeat-y" : false,
+			"compress" : {
+				"tiny-png" : false
+			},
+			"data-uri" : {
+				"enable" : true,
+				"max-size" : 32768,
+				"create-image-file-anyway" : false
+			},
+			"trim" : {
+				"enable" : true,
+				"alpha" : 0
 			}
 		},
 		{
-			"folder(in)": "buttons",
-			"texture-map(out)": "buttons.png",
-			"repeat-x": true
+			"folder" : "recursive",
+			"compression" : {
+				"tinypng" : false
+			}
+		},
+		{
+			"folder" : "buttons",
+			"repeat-x" : true
 		}
 	],
-	"tinypng-api-keys": [
+	"tinypng-api-keys" : [
 		{
-			"used": 19,
-			"month": 5,
-			"year": 2015,
-			"key": "fdshfksdhakjQGQp8B2z5lEdsafdsadfdsfdsaz-"
+			"used" : 22,
+			"month" : 8,
+			"year" : 2015,
+			"key" : "fjhdsajkfjdsahjfkhdsajfhjdsakhfjkdshajkh-"
 		}
 	]
 }
