@@ -6,12 +6,41 @@ Texture Map Generator in **TypeScript** _(MIT License)_
 [![npm version](https://badge.fury.io/js/texturer.svg)](https://www.npmjs.com/package/texturer "Texturer on NPM")
 [![NPM License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
+**images/textureMap0.png**
+
 ![Texture](https://raw.githubusercontent.com/igor-bezkrovny/texturer/master/example/texture_example.png "Texture")
+
+**texturePool.ts** (TypeScript template result. See all [templates](templates) or create your [own template](#own-template))
+```typescript
+namespace Game {
+
+	// Statistics:
+	// - textures: 244
+	// - textureMaps: 8
+
+	const maps = [
+		{
+			url     : "images/textureMap0.png",
+			width   : 1664,
+			height  : 512,
+			repeatX : false,
+			repeatY : false
+		}
+	];
+
+	export var texturePool = {
+		"star"  : { map : maps[ 0 ], x : 256, y : 384, width : 128, height : 128, opaque : false, trim : { left : 0, right : 0, top : 0, bottom : 0 } },
+		"music" : { map : maps[ 0 ], x : 384, y : 384, width : 128, height : 128, opaque : false, trim : { left : 0, right : 0, top : 0, bottom : 0 } }
+	};
+}
+```
 
 Introduction
 ============
-
-Texture Map Generator in pure JavaScript (TypeScript, node.js, multithreading) is image processing tool that generates texture maps for image sets. It also generates javascript/typescript/css texture maps description file and is able to copy whole directory without processing, filling texture map description file with image parameters.
+Texture Map Generator in pure JavaScript (TypeScript/NodeJS/Multi-threading) is image processing tool.
+* generates texture map images for image sets.
+* generates javascript/typescript/css texture map description file using *handlebars* templates
+* able to copy whole directory without processing, however width/height and other info will be written into texture map description file
 
 How To Install
 ==========================
@@ -277,6 +306,88 @@ config.json example
 	]
 }
 ```
+
+Own (Custom) Template
+=====================
+
+Texturer uses [Handlebars](http://handlebarsjs.com) as templating engine and exports next variables:
+* [maps](#maps-variable)
+* [textures](#textures-variable)
+
+
+#### `maps` variable
+
+Contains Array of Texture Map descriptions, each description is an object with following properties:
+
+property     | value
+------------ | -----------
+url          | relative **texture map image url**
+data-uri     | **data URI** of texture map image or **null**
+width        | texture map image **width**
+height       | texture map image **height**
+repeat-x     | all textures in texture map are repeatable by X axis
+repeat-y     | all textures in texture map are repeatable by Y axis
+is-last-item | decorative, used in templates to know if to/not to emit comma 
+
+
+#### `textures` variable
+
+Contains Array of Texture descriptions, each description is an object with following properties:
+
+property     | value
+------------ | -----------
+id           | original texture **file name without extension**
+file         | original texture **file name**
+map-index    | texture map image **index in [maps](#maps-variable)** array
+url          | relative **texture map image url** (it is better to emit [maps](#maps-variable) and use `map-index` instead of `url`)
+data-uri     | **data URI** of texture map image or **null**
+x            | **x** coordinate in texture map image
+y            | **y** coordinate in texture map image
+width        | **width** of image in texture map image
+height       | **height** of image in texture map image
+real-width   | **real width** (before trim applied) of original texture
+real-height  | **real height** (before trim applied) of original texture
+trim         | **trim** rectangle (left, right, top, bottom) - number of pixels trimmed from each side
+opaque       | is texture **opaque**
+repeat-x     | is texture **repeatable by X** axis
+repeat-y     | is texture **repeatable by Y** axis
+is-last-item | decorative, used in templates to know if to/not to emit comma 
+
+#### Template Example
+```javascript
+js/texturePool.js
+// Statistics:
+// - textures: {{textures.length}}
+// - textureMaps: {{maps.length}}
+
+var Game = Game || {};
+(function(config) {
+
+	var maps = [{{#each maps}}
+		{
+			url        : "{{#if data-uri}}{{data-uri}}{{else}}{{url}}{{/if}}",
+			width      : {{width}},
+			height     : {{height}},
+			repeatX    : {{repeat-x}},
+			repeatY    : {{repeat-y}}
+		}{{#unless is-last-item}}, {{/unless}}{{/each}}
+	];
+
+	config.texturePool = { {{#each textures}}
+		"{{id}}" : {
+			map        : maps[{{map-index}}],
+			x          : {{x}},
+			y          : {{y}},
+			width      : {{real-width}},
+			height     : {{real-height}},
+			opaque     : {{opaque}},
+			trim       : { left : {{trim.left}}, right : {{trim.right}}, top : {{trim.top}}, bottom : {{trim.bottom}} }
+		}{{#unless is-last-item}}, {{/unless}}{{/each}}
+	};
+
+})(Game.config = Game.config || {});
+```
+
 
 TODO
 ====
