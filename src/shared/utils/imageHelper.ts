@@ -8,7 +8,7 @@ namespace Texturer.Utils {
 		jpegEngine               = require("jpeg-js"),
 		bmpEngine                = require("bmp-js"),
 		supportedImageExtensions = [ "jpg", "jpeg", "png", "bmp" ],
-		pngEngine                = require("../custom_modules/node-png").PNG;
+		pngEngine                = require("../extern/node-png").PNG;
 
 	export class ImageHelper {
 		static isImageFileSupported(fileName) {

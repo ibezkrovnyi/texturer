@@ -7,7 +7,7 @@ namespace Game {
 
 	const maps = [{{#each maps}}
 		{
-			url        : "{{#if base64}}{{base64}}{{else}}{{url}}{{/if}}",
+			url        : "{{#if data-uri}}{{data-uri}}{{else}}{{url}}{{/if}}",
 			width      : {{width}},
 			height     : {{height}},
 			repeatX    : {{repeat-x}},

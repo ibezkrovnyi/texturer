@@ -1,7 +1,7 @@
 ///<reference path="../shared/multitask/types.ts"/>
 ///<reference path="../shared/multitask/worker.ts"/>
 
-var pngEngine = require("../../custom_modules/node-png").PNG;
+var pngEngine = require("../../extern/node-png").PNG;
 
 class CompressImageWorker extends MultiTask.Worker {
 

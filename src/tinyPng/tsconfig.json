@@ -3,7 +3,7 @@
         "noImplicitAny": false,
         "removeComments": true,
         "preserveConstEnums": true,
-        "out": "../../bin/tasks/tinyPngWorker.js",
+        "out": "../../dist/tasks/tinyPngWorker.js",
         "sourceMap": true
     },
     "files": [

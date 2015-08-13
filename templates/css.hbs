@@ -8,7 +8,7 @@ Statistics:
 */
 {{#each textures}}
 	.{{id}} : {
-		background-image: url("{{#if base64}}{{base64}}{{else}}{{url}}{{/if}}");
+		background-image: url("{{#if data-uri}}{{data-uri}}{{else}}{{url}}{{/if}}");
 		background-position : -{{x}}px - {{y}}px;
 		width      : {{width}}px;
 		height     : {{height}}px;
