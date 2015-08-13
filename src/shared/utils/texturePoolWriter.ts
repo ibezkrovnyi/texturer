@@ -4,8 +4,9 @@
 ///<reference path="../containers/textureMap.ts"/>
 namespace Texturer.Utils {
 
-	let fs = require("fs"),
-	path   = require("path");
+	let fs     = require("fs"),
+	path       = require("path"),
+	Handlebars = require("Handlebars");
 
 	export class TexturePoolWriter {
 
@@ -87,42 +88,55 @@ namespace Texturer.Utils {
 				textures : templateTexturesArray
 			};
 
-			var folder = path.join(__dirname, "..", "templates");
-			configParser.templates.forEach((templateFile : string) => {
-				if (fs.existsSync(path.join(folder, templateFile))) {
-					this._exportTexturePoolViaHandlebarsTemplate(folderRootTo, templateFile, folder, data);
+			console.log("");
+			console.log("Template Generation:");
+
+			var templatesFolder = path.join(__dirname, "..", "templates");
+			configParser.templates.forEach(templateFile => {
+				// check if template file exists relatively to config.json root folder
+				let templateFolderAndFile = path.resolve(configParser.folders.rootFolder, templateFile);
+				if (!fs.existsSync(templateFolderAndFile)) {
+
+					// check if template file exists relatively texturer/templates
+
+					templateFolderAndFile = path.resolve(templatesFolder, templateFile);
+					if (!fs.existsSync(templateFolderAndFile)) {
+						templateFolderAndFile = null;
+						console.log(`WARNING: Template ${templateFile} not found in ${configParser.folders.rootFolder} nor in ${templatesFolder}`);
+					}
+				}
+
+				// if template file is found, use it
+				if (templateFolderAndFile) {
+					this._exportTexturePoolViaHandlebarsTemplate(folderRootTo, templateFolderAndFile, data);
 				}
 			});
 
 			return duplicateFileNamesArray;
 		}
 
-		private _exportTexturePoolViaHandlebarsTemplate(folderRootTo : string, file, folder, data) : void {
-			var Handlebars = require("Handlebars");
+		private _exportTexturePoolViaHandlebarsTemplate(folderRootTo : string, templateFolderAndFile : string, data) : void {
+			let text = fs.readFileSync(templateFolderAndFile, 'utf8');
+			if (text && text.length > 0) {
+				text = text.replace(/\r/g, "");
 
-			if (Utils.FSHelper.getExtension(file).toLowerCase() === "hbs") {
-				var text = fs.readFileSync(path.join(folder, file), 'utf8');
-				if (text && text.length > 0) {
-					text = text.replace(/\r/g, "");
+				var lines = text.split("\n"),
+					template;
 
-					var lines = text.split("\n"),
-						template;
+				if (lines.length > 1 && lines[ 0 ]) {
+					let resultFile = path.resolve(folderRootTo, lines[ 0 ]);
+					text           = lines.slice(1).join("\n");
 
-					if (lines.length > 1 && lines[ 0 ]) {
-						var resultFile = path.join(folderRootTo, lines[ 0 ]);
-						text           = lines.slice(1).join("\n");
-
-						template = Handlebars.compile(text);
-						if (template) {
-							Utils.FSHelper.createDirectory(path.dirname(resultFile));
-							fs.writeFileSync(resultFile, template(data));
-						} else {
-							console.log("template error in " + resultFile);
-						}
+					console.log(`${templateFolderAndFile} => ${resultFile}`);
+					template = Handlebars.compile(text);
+					if (template) {
+						Utils.FSHelper.createDirectory(path.dirname(resultFile));
+						fs.writeFileSync(resultFile, template(data));
+					} else {
+						console.log("template error in " + resultFile);
 					}
 				}
 			}
 		}
-
 	}
 }

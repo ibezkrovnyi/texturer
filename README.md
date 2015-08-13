@@ -10,7 +10,7 @@ Texture Map Generator in **TypeScript** _(MIT License)_
 
 ![Texture](https://raw.githubusercontent.com/igor-bezkrovny/texturer/master/example/texture_example.png "Texture")
 
-**texturePool.ts** (TypeScript template result. See all [templates](templates) or create your [own template](#own-template))
+**texturePool.ts** (TypeScript template result. See all [templates](templates) or create your [own (custom) template](#own-custom-template))
 ```typescript
 namespace Game {
 
@@ -65,6 +65,8 @@ cd texturer
 npm install
 npm run build
 ```
+
+> to clean-up project run `npm run clean`
 
 Usage
 =====
@@ -353,7 +355,21 @@ repeat-x     | is texture **repeatable by X** axis
 repeat-y     | is texture **repeatable by Y** axis
 is-last-item | decorative, used in templates to know if to/not to emit comma 
 
+#### Enable Template Usage in config.json
+You need to add to config.json template file name as follows (see [config.json](#configjson-format) format):
+```json
+{
+	...
+	"templates" : [
+		"<path-to-template-file>/<template-file-name>.hbs"
+	]
+	...
+}
+```
+
 #### Template Example
+
+**templates/js.hbs**
 ```javascript
 js/texturePool.js
 // Statistics:
@@ -401,6 +417,13 @@ TODO
 Change Log
 ==========
 
+### 0.2.1 - August 13, 2015
+  - `templates` array may now contain **relative to config.json path** and **absolute path** to template file
+  - template file can have any extension, not only `.hbs`, however Handlebars is still used
+  - files moved to correct folders
+  - .npmignore created
+  - `npm run clean` - clean script added to package.json
+ 
 ### 0.2.0 - August 13, 2015 
   - TypeScript migration finished
   - Refactoring
