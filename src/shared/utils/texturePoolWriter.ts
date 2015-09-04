@@ -28,7 +28,7 @@ namespace Texturer.Utils {
 					templateMapsArray.push(
 						{
 							"url"          : url,
-							"dataURI"      : dataURI,
+							"data-uri"      : dataURI,
 							"is-last-item" : isLastTextureMap,
 							"width"        : map.getWidth(),
 							"height"       : map.getHeight(),
@@ -53,7 +53,7 @@ namespace Texturer.Utils {
 								"file"         : id,
 								"map-index"    : mapIndex,
 								"url"          : url,
-								"dataURI"      : dataURI,
+								"data-uri"      : dataURI,
 								"x"            : texture.getX(),
 								"y"            : texture.getY(),
 								"width"        : texture.getWidth(),
