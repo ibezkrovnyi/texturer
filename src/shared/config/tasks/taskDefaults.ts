@@ -27,7 +27,7 @@ namespace Texturer.Config {
 
 		constructor(config : Object) {
 
-			let taskDefaultsContainer = new TaskDefaultsContainer(config, null);
+			let taskDefaultsContainer = new TaskDefaultsContainer(config, null).getValue();
 
 			this.bruteForceTime = new BruteForceTime(taskDefaultsContainer).getValue();
 			this.gridStep       = new GridStep(taskDefaultsContainer).getValue();
