@@ -3,7 +3,7 @@
         "noImplicitAny": false,
         "removeComments": true,
         "preserveConstEnums": true,
-        "out": "../../dist/tasks/writeFileWorker.js",
+        "out": "./dist/tasks/writeFileWorker.js",
         "sourceMap": true
     },
     "files": [

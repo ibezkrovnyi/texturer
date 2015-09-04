@@ -3,7 +3,7 @@
         "noImplicitAny": false,
         "removeComments": true,
         "preserveConstEnums": true,
-        "out": "../../dist/texturer.js",
+        "out": "./dist/texturer.js",
         "sourceMap": true
     },
     "files": [

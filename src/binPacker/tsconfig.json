@@ -3,7 +3,7 @@
         "noImplicitAny": true,
         "removeComments": true,
         "preserveConstEnums": true,
-        "out": "../../dist/tasks/binPackerWorker.js",
+        "out": "./dist/tasks/binPackerWorker.js",
         "sourceMap": true
     },
     "files": [
