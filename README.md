@@ -417,7 +417,13 @@ TODO
 Change Log
 ==========
 
+### 0.2.2 - August 13, 2015
+  - config: `task-defaults` was not used 
+  - templates: templates supports for `data-uri` instead of `dataURI`
+  - build: Version 1.6.0-dev.20150905 of typescript is supported, package.json and tsconfig.json files updated
+
 ### 0.2.1 - August 13, 2015
+  - build: Version 1.6.0-dev.20150813 of typescript is supported
   - `templates` array may now contain **relative to config.json path** and **absolute path** to template file
   - template file can have any extension, not only `.hbs`, however Handlebars is still used
   - files moved to correct folders

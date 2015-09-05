@@ -1,39 +1,39 @@
 {
-	"name" : "texturer",
-	"version" : "0.2.1",
-	"description" : "Texture Map Generator in pure JavaScript (TypeScript/NodeJS/Multithreading)",
-	"author" : "Igor Bezkrovny",
-	"contributors" : [ ],
-	"homepage" : "https://github.com/igor-bezkrovny/texturer",
-	"keywords" : [ ],
-	"engines" : {
-		"node" : "0.12.x"
-	},
-	"main" : "./src/index.js",
-	"repository" : {
-		"type" : "git",
-		"url" : "https://github.com/igor-bezkrovny/texturer"
-	},
-	"scripts" : {
-		"clean" : "rimraf dist",
-		"build" : "tsc -p src/texturer & tsc -p src/binPacker & tsc -p src/compressImage & tsc -p src/tinyPng & tsc -p src/writeFile & tsc -p src/copyFile",
-		"prepublish" : "npm run build"
-	},
-	"bugs" : {
-		"url" : "https://github.com/igor-bezkrovny/texturer/issues"
-	},
-	"dependencies" : {
-		"bmp-js" : "igor-bezkrovny/bmp-js",
-		"handlebars" : "^2.0.0",
-		"jpeg-js" : "0.0.4"
-	},
-	"preferGlobal" : "true",
-	"bin" : {
-		"texturer" : "./bin/texturer"
-	},
-	"license" : "MIT",
-	"devDependencies" : {
-		"typescript" : "^1.6.0-dev.20150813",
-		"rimraf" : "latest"
-	}
+  "name": "texturer",
+  "version": "0.2.2",
+  "description": "Texture Map Generator in pure JavaScript (TypeScript/NodeJS/Multithreading)",
+  "author": "Igor Bezkrovny",
+  "contributors": [],
+  "homepage": "https://github.com/igor-bezkrovny/texturer",
+  "keywords": [],
+  "engines": {
+    "node": "0.12.x"
+  },
+  "main": "./src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/igor-bezkrovny/texturer"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "tsc -p src/texturer & tsc -p src/binPacker & tsc -p src/compressImage & tsc -p src/tinyPng & tsc -p src/writeFile & tsc -p src/copyFile",
+    "prepublish": "npm run build"
+  },
+  "bugs": {
+    "url": "https://github.com/igor-bezkrovny/texturer/issues"
+  },
+  "dependencies": {
+    "bmp-js": "igor-bezkrovny/bmp-js",
+    "handlebars": "^2.0.0",
+    "jpeg-js": "0.0.4"
+  },
+  "preferGlobal": "true",
+  "bin": {
+    "texturer": "./bin/texturer"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "rimraf": "latest",
+    "typescript": "^1.6.0-dev.20150905"
+  }
 }
