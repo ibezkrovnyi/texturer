@@ -1,20 +1,18 @@
-///<reference path="../shared/multitask/types.ts"/>
-///<reference path="../shared/multitask/worker.ts"/>
+import { MultiTaskWorker } from '../shared/multitask/worker';
+import { TinyPngService } from './tinypng';
 
-///<reference path="tinypng.ts"/>
+class TinyPngWorker extends MultiTaskWorker {
 
-class TinyPngWorker extends MultiTask.Worker {
-
-	protected _onData(data : any) : void {
-		//console.log("tinypng.com task...");
-		Texturer.TinyPngService.requestFile(data.configFile, new Buffer(data.content), (error, data) => {
-			if (!error) {
-				this._sendData(data);
-			} else {
-				this._sendError(error);
-			}
-		});
-	}
+  protected _onData(data: any): void {
+    //console.log("tinypng.com task...");
+    TinyPngService.requestFile(data.configFile, new Buffer(data.content), (error: any, data: any) => {
+      if (!error) {
+        this._sendData(data);
+      } else {
+        this._sendError(error);
+      }
+    });
+  }
 }
 
 new TinyPngWorker();

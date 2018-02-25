@@ -1,38 +1,35 @@
-///<reference path="../baseOption.ts"/>
-namespace Texturer.Config {
+import { BaseOption } from '../baseOption';
 
-	export class ProcessCompressTinyPng extends BaseOption<boolean> {
-		getValue() : boolean {
-			return this._getPropertyValue('tiny-png');
-		}
+export class ProcessCompressTinyPng extends BaseOption<boolean | null> {
+  getValue() {
+    return this._getPropertyValue('tiny-png');
+  }
 
-		protected _hasDefaultValue() : boolean {
-			return true;
-		}
+  protected _hasDefaultValue() {
+    return true;
+  }
 
-		protected _getDefaultValue() : boolean {
-			return false;
-		}
-	}
+  protected _getDefaultValue() {
+    return false;
+  }
+}
 
-	class ProcessCompressContainer extends BaseOption<Object> {
-		getValue() : Object {
-			return this._getPropertyValue('compression');
-		}
-	}
+class ProcessCompressContainer extends BaseOption<Object | null> {
+  getValue() {
+    return this._getPropertyValue('compression');
+  }
+}
 
-	export class ProcessCompress {
-		tinyPng : boolean;
+export class ProcessCompress {
+  tinyPng: boolean | null;
 
-		constructor(configObject : Object, inheritCompression : ProcessCompress = null) {
-			let compression = new ProcessCompressContainer(configObject, null).getValue();
+  constructor(configObject: Object | null, inheritCompression: ProcessCompress | null = null) {
+    let compression = new ProcessCompressContainer(configObject, null).getValue();
 
-			if (inheritCompression) {
-				this.tinyPng = new ProcessCompressTinyPng(compression, inheritCompression.tinyPng).getValue();
-			} else {
-				this.tinyPng = new ProcessCompressTinyPng(compression).getValue();
-			}
-		}
-	}
-
+    if (inheritCompression) {
+      this.tinyPng = new ProcessCompressTinyPng(compression, inheritCompression.tinyPng).getValue();
+    } else {
+      this.tinyPng = new ProcessCompressTinyPng(compression).getValue();
+    }
+  }
 }

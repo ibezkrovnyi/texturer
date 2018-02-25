@@ -1,112 +1,115 @@
-///<reference path="../containers/textureMap.ts"/>
-///<reference path="../node.d.ts"/>
-///<reference path="../config/globalConfig.ts"/>
-///<reference path="../multitask/master.ts"/>
-///<reference path="../containers/loadedFile.ts"/>
-///<reference path="dataURIEncoder.ts"/>
-///<reference path="../../texturer/tasks/copyFileMaster.ts"/>
-namespace Texturer.Utils {
+import { TextureMap } from '../containers/textureMap';
+import { CopyFileMaster } from '../../texturer/tasks/copyFileMaster';
+import { Texture } from '../containers/textureMap';
+import { TextureImage } from '../containers/textureMap';
+import { CopyTask } from '../config/tasks/copyTask';
+import { GlobalConfig } from '../config/globalConfig';
+import { LoadedFile } from '../containers/loadedFile';
+import { MultiTaskMaster } from '../multitask/master';
+import { DataURIEncoder } from './dataURIEncoder';
+import { FSHelper } from './fsHelper';
 
-	var path = require("path"),
-		fs   = require("fs");
+var path = require("path"),
+  fs = require("fs");
 
-	export class CopyTaskRunner {
-		private _globalConfig : Config.GlobalConfig;
-		private _copyTask : Config.CopyTask;
-		private _loadedFiles : { [fileName : string] : Containers.LoadedFile };
-		private _clusterQueue : MultiTask.Master;
-		private _callback : (error, result) => void;
-		private _textureMaps : Containers.TextureMap[];
+export class CopyTaskRunner {
+  private _globalConfig: GlobalConfig;
+  private _copyTask: CopyTask;
+  private _loadedFiles: { [fileName: string]: LoadedFile };
+  private _clusterQueue: MultiTaskMaster;
+  private _callback: (error: Error | null, result: any) => void;
+  private _textureMaps: TextureMap[];
 
-		constructor(globalConfig : Config.GlobalConfig, copyTask : Config.CopyTask, loadedFiles : { [fileName : string] : Containers.LoadedFile }, clusterQueue : MultiTask.Master, callback : (error, result) => void) {
-			this._globalConfig = globalConfig;
-			this._copyTask     = copyTask;
-			this._loadedFiles  = loadedFiles;
-			this._clusterQueue = clusterQueue;
-			this._textureMaps  = [];
-			this._callback     = callback;
-		}
+  constructor(globalConfig: GlobalConfig, copyTask: CopyTask, loadedFiles: { [fileName: string]: LoadedFile }, clusterQueue: MultiTaskMaster, callback: (error: Error | null, result: any) => void) {
+    this._globalConfig = globalConfig;
+    this._copyTask = copyTask;
+    this._loadedFiles = loadedFiles;
+    this._clusterQueue = clusterQueue;
+    this._textureMaps = [];
+    this._callback = callback;
+  }
 
-		run() : void {
-			this._copyTask.files.forEach((file : string) => {
-				var fromFile                           = path.join(this._globalConfig.getFolderRootFrom(), file),
-					toFile                             = path.join(this._globalConfig.getFolderRootToIndexHtml(), file),
-					loadedFile : Containers.LoadedFile = this._loadedFiles[ file ];
+  run(): void {
+    this._copyTask.files.forEach((file: string) => {
+      var fromFile = path.join(this._globalConfig.getFolderRootFrom(), file),
+        toFile = path.join(this._globalConfig.getFolderRootToIndexHtml(), file),
+        loadedFile: LoadedFile = this._loadedFiles[ file ];
 
-				// dataURI
-				let dataURI : string = null;
-				if (this._copyTask.dataURI.enable) {
-					dataURI = new Utils.DataURIEncoder().encodeFile(fromFile);
-					if (dataURI.length >= this._copyTask.dataURI.maxSize) {
-						dataURI = null;
-					}
-				}
+      // dataURI
+      let dataURI: string | null = null;
+      if (this._copyTask.dataURI.enable) {
+        dataURI = new DataURIEncoder().encodeFile(fromFile);
+        if (this._copyTask.dataURI.maxSize !== null) {
+          if (dataURI.length >= this._copyTask.dataURI.maxSize) {
+            dataURI = null;
+          }
+        }
+      }
 
-				var width  = loadedFile.getWidth(),
-					height = loadedFile.getHeight();
+      var width = loadedFile.getWidth(),
+        height = loadedFile.getHeight();
 
-				let textureImage = new Containers.TextureImage();
-				textureImage.setData(loadedFile.getRealWidth(), loadedFile.getRealHeight(), loadedFile.getBitmap(), loadedFile.getTrim(), loadedFile.isOpaque());
+      let textureImage = new TextureImage();
+      textureImage.setData(loadedFile.getRealWidth(), loadedFile.getRealHeight(), loadedFile.getBitmap(), loadedFile.getTrim(), loadedFile.isOpaque());
 
-				let texture = new Containers.Texture();
-				texture.setData(0, 0, width, height);
-				texture.setTextureImage(textureImage);
+      let texture = new Texture();
+      texture.setData(0, 0, width, height);
+      texture.setTextureImage(textureImage);
 
-				let textureMap : Containers.TextureMap = new Containers.TextureMap();
-				textureMap.setData(file, width, height, false, false);
-				textureMap.setDataURI(dataURI);
-				textureMap.setTexture(file, texture);
+      let textureMap: TextureMap = new TextureMap();
+      textureMap.setData(file, width, height, false, false);
+      textureMap.setDataURI(dataURI);
+      textureMap.setTexture(file, texture);
 
-				const skipFileWrite = dataURI && !this._copyTask.dataURI.createImageFileAnyway;
-				if (!skipFileWrite) {
-					// fs.link(fromFile, toFile, function (error) {
-					this._copyFile(fromFile, toFile, () => {
-						this._addTextureMap(textureMap);
-					});
-				} else {
-					this._addTextureMap(textureMap);
-				}
-			});
-		}
+      const skipFileWrite = dataURI && !this._copyTask.dataURI.createImageFileAnyway;
+      if (!skipFileWrite) {
+        // fs.link(fromFile, toFile, function (error) {
+        this._copyFile(fromFile, toFile, () => {
+          this._addTextureMap(textureMap);
+        });
+      } else {
+        this._addTextureMap(textureMap);
+      }
+    });
+  }
 
-		private _copyFile(fromFile : string, toFile : string, onCopyFinishedCallback : () => void) : void {
-			try {
-				Utils.FSHelper.createDirectory(path.dirname(toFile));
+  private _copyFile(fromFile: string, toFile: string, onCopyFinishedCallback: () => void): void {
+    try {
+      FSHelper.createDirectory(path.dirname(toFile));
 
-				// check if file exists
-				if (fs.existsSync(toFile)) {
-					// remove read-only and other attributes
-					fs.chmodSync(toFile, '0777');
+      // check if file exists
+      if (fs.existsSync(toFile)) {
+        // remove read-only and other attributes
+        fs.chmodSync(toFile, '0777');
 
-					// delete file
-					fs.unlinkSync(toFile);
-				}
-			} catch (e) {
-				this._callback(new Error("COPY PREPARATION: " + e.toString()), null);
-			}
+        // delete file
+        fs.unlinkSync(toFile);
+      }
+    } catch (e) {
+      this._callback(new Error("COPY PREPARATION: " + e.toString()), null);
+    }
 
-			var copyTask = new CopyFileMaster({ source : fromFile, target : toFile }, error => {
-				if (error) {
-					this._callback(new Error("" +
-						"COPY: \n" +
-						"src: " + fromFile + "\n" +
-						"dst: " + toFile + "\n" +
-						"error: " + error
-					), null);
-				}
+    var copyTask = new CopyFileMaster({ source: fromFile, target: toFile }, error => {
+      if (error) {
+        this._callback(new Error("" +
+          "COPY: \n" +
+          "src: " + fromFile + "\n" +
+          "dst: " + toFile + "\n" +
+          "error: " + error
+        ), null);
+      }
 
-				onCopyFinishedCallback();
-			});
+      onCopyFinishedCallback();
+    });
 
-			this._clusterQueue.runTask(copyTask);
-		}
+    this._clusterQueue.runTask(copyTask);
+  }
 
-		private _addTextureMap(textureMapImage : Containers.TextureMap) : void {
-			this._textureMaps.push(textureMapImage);
+  private _addTextureMap(textureMapImage: TextureMap): void {
+    this._textureMaps.push(textureMapImage);
 
-			if (this._copyTask.files.length === this._textureMaps.length) {
-				this._callback(null, this._textureMaps);
-			}
-		}
-	}
+    if (this._copyTask.files.length === this._textureMaps.length) {
+      this._callback(null, this._textureMaps);
+    }
+  }
 }

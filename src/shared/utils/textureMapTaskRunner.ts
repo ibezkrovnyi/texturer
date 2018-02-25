@@ -1,159 +1,165 @@
-///<reference path="../containers/textureMap.ts"/>
-///<reference path="../node.d.ts"/>
-///<reference path="../config/globalConfig.ts"/>
-///<reference path="../multitask/master.ts"/>
-///<reference path="../containers/loadedFile.ts"/>
-///<reference path="../../texturer/textureMapGenerator.ts"/>
-///<reference path="../../texturer/tasks/compressImageMaster.ts"/>
-///<reference path="../../texturer/tasks/tinyPngMaster.ts"/>
-///<reference path="dataURIEncoder.ts"/>
-///<reference path="../../texturer/tasks/writeFileMaster.ts"/>
-namespace Texturer.Utils {
+import { LoadedFile } from '../containers/loadedFile';
+import { TextureMapTask } from '../config/tasks/textureMapTask';
+import { MultiTaskMaster } from '../multitask/master';
+import { GlobalConfig } from '../config/globalConfig';
+import { TextureMapGenerator } from '../../texturer/textureMapGenerator';
+import { FileDimensions, Texture } from '../containers/textureMap';
+import { TextureMap } from '../containers/textureMap';
+import { CompressImageMaster } from '../../texturer/tasks/compressImageMaster';
+import { TinyPngMaster } from '../../texturer/tasks/tinyPngMaster';
+import { DataURIEncoder } from './dataURIEncoder';
+import { WriteFileMaster } from '../../texturer/tasks/writeFileMaster';
 
-	var path = require("path");
+var path = require("path");
 
-	// TODO: refactor
-	export class TextureMapTaskRunner {
-		private _textureMapTask : Config.TextureMapTask;
-		private _loadedFiles : { [fileName : string] : Containers.LoadedFile };
-		private _clusterQueue : MultiTask.Master;
-		private _callback : (error, result) => void;
-		private _globalConfig : Config.GlobalConfig;
+interface Callback {
+  (error: string | Error | null, result: null): void;
+  (error: null, result: TextureMap | null): void;
+}
 
-		constructor(globalConfig : Config.GlobalConfig, textureMapTask : Config.TextureMapTask, loadedFiles : { [fileName : string] : Containers.LoadedFile }, clusterQueue : MultiTask.Master, callback : (error, result) => void) {
-			this._globalConfig   = globalConfig;
-			this._textureMapTask = textureMapTask;
-			this._loadedFiles    = loadedFiles;
-			this._clusterQueue   = clusterQueue;
-			this._callback       = callback;
-		}
+// TODO: refactor
+export class TextureMapTaskRunner {
+  private _textureMapTask: TextureMapTask;
+  private _loadedFiles: { [fileName: string]: LoadedFile };
+  private _clusterQueue: MultiTaskMaster;
+  private _callback: Callback;
+  private _globalConfig: GlobalConfig;
 
-		run() : void {
-			let fileDimensionsArray : Containers.FileDimensions[] = this._textureMapTask.files.map(file => {
-				let loadedFile = this._loadedFiles[ file ];
-				return new Containers.FileDimensions(file, loadedFile.getWidth(), loadedFile.getHeight());
-			});
+  constructor(globalConfig: GlobalConfig, textureMapTask: TextureMapTask, loadedFiles: { [fileName: string]: LoadedFile }, clusterQueue: MultiTaskMaster, callback: Callback) {
+    this._globalConfig = globalConfig;
+    this._textureMapTask = textureMapTask;
+    this._loadedFiles = loadedFiles;
+    this._clusterQueue = clusterQueue;
+    this._callback = callback;
+  }
 
-			let textureMapGenerator : TextureMapGenerator = new TextureMapGenerator(this._clusterQueue);
-			textureMapGenerator.generateTextureMap(fileDimensionsArray, this._textureMapTask, (error : string, textureMap : Containers.TextureMap) => {
-				if (textureMap) {
-					this._compressTextureMapImage(textureMap);
-				} else {
-					// TODO: do texture map size configurable!!
-					this._callback(new Error("Texture Generator: Can't pack texture map for folder '" + this._textureMapTask.folder + "' - too large art. Split images into 2 or more folders!"), null);
-				}
-			});
-		}
+  run(): void {
+    let fileDimensionsArray: FileDimensions[] = this._textureMapTask.files.map(file => {
+      let loadedFile = this._loadedFiles[ file ];
+      return new FileDimensions(file, loadedFile.getWidth(), loadedFile.getHeight());
+    });
 
-		private _compressTextureMapImage(textureMap : Containers.TextureMap) {
-			console.log(this._textureMapTask.textureMapFileName + ": w = " + textureMap.getWidth() + ", h = " + textureMap.getHeight() + ", area = " + textureMap.getArea());
+    let textureMapGenerator: TextureMapGenerator = new TextureMapGenerator(this._clusterQueue);
+    textureMapGenerator.generateTextureMap(fileDimensionsArray, this._textureMapTask, (error: string, textureMap: TextureMap) => {
+      if (textureMap) {
+        this._compressTextureMapImage(textureMap);
+      } else {
+        // TODO: do texture map size configurable!!
+        this._callback(new Error("Texture Generator: Can't pack texture map for folder '" + this._textureMapTask.folder + "' - too large art. Split images into 2 or more folders!"), null);
+      }
+    });
+  }
 
-			// TODO: what type here?
-			var textureArray = [];
+  private _compressTextureMapImage(textureMap: TextureMap) {
+    console.log(this._textureMapTask.textureMapFileName + ": w = " + textureMap.getWidth() + ", h = " + textureMap.getHeight() + ", area = " + textureMap.getArea());
 
-			textureMap.getTextureIds().forEach(id => {
-				const loadedFile : Containers.LoadedFile = this._loadedFiles[ id ],
-					  texture                            = textureMap.getTexture(id);
+    // TODO: what type here?
+    let textureArray: any[] = [];
 
-				textureArray.push({
-					x                : texture.getX(),
-					y                : texture.getY(),
-					width            : texture.getWidth(),
-					height           : texture.getHeight(),
-					realWidth        : loadedFile.getRealWidth(),
-					realHeight       : loadedFile.getRealHeight(),
-					bitmapSerialized : loadedFile.getBitmap()
-				});
-			});
+    textureMap.getTextureIds().forEach(id => {
+      const loadedFile: LoadedFile = this._loadedFiles[ id ],
+        texture = textureMap.getTexture(id);
 
-			var bestCompressedImage : Buffer = null,
-				filterCount                  = 0,
-				filterTypes                  = [ 0, 1, 2, 3, 4 ];
+      textureArray.push({
+        x: texture.getX(),
+        y: texture.getY(),
+        width: texture.getWidth(),
+        height: texture.getHeight(),
+        realWidth: loadedFile.getRealWidth(),
+        realHeight: loadedFile.getRealHeight(),
+        bitmapSerialized: loadedFile.getBitmap()
+      });
+    });
 
-			for (var i = 0; i < filterTypes.length; i++) {
+    var bestCompressedImage: Buffer | null = null,
+      filterCount = 0,
+      filterTypes = [ 0, 1, 2, 3, 4 ];
 
-				var data = {
-					// TODO: integrate with new compress object properties
-					options      : this._textureMapTask.compress,
-					filterType   : filterTypes[ i ],
-					width        : textureMap.getWidth(),
-					height       : textureMap.getHeight(),
-					textureArray : textureArray
-				};
+    for (var i = 0; i < filterTypes.length; i++) {
 
-				this._clusterQueue.runTask(new CompressImageMaster(data, (error, result : any) => {
-					if (error) {
-						//console.log(`compress ${this._textureMapTask.textureMapFileName}, i = ${filterCount} - finished with error`);
-						this._callback(new Error(error), null);
-					} else {
-						//console.log(`compress ${this._textureMapTask.textureMapFileName}, i = ${filterCount + 1}/${filterTypes.length} - finished OK`);
+      var data = {
+        // TODO: integrate with new compress object properties
+        options: this._textureMapTask.compress,
+        filterType: filterTypes[ i ],
+        width: textureMap.getWidth(),
+        height: textureMap.getHeight(),
+        textureArray: textureArray
+      };
 
-						// check if better compressed
-						var compressedImage = new Buffer(result.compressedPNG);
-						if (bestCompressedImage === null || compressedImage.length < bestCompressedImage.length) {
-							bestCompressedImage = compressedImage;
-						}
+      this._clusterQueue.runTask(new CompressImageMaster(data, (error, result: any) => {
+        if (error) {
+          //console.log(`compress ${this._textureMapTask.textureMapFileName}, i = ${filterCount} - finished with error`);
+          this._callback(new Error(error), null);
+        } else {
+          //console.log(`compress ${this._textureMapTask.textureMapFileName}, i = ${filterCount + 1}/${filterTypes.length} - finished OK`);
 
-						// check if finished
-						filterCount++;
-						if (filterCount === filterTypes.length) {
-							this._onTextureMapImageCompressed(textureMap, bestCompressedImage);
-						}
-					}
-				}));
-			}
-		}
+          // check if better compressed
+          var compressedImage = new Buffer(result.compressedPNG);
+          if (bestCompressedImage === null || compressedImage.length < bestCompressedImage.length) {
+            bestCompressedImage = compressedImage;
+          }
 
-		private _onTextureMapImageCompressed(textureMapImage : Containers.TextureMap, compressedImage) {
-			if (this._textureMapTask.compress.tinyPng) {
-				this._clusterQueue.runTask(new TinyPngMaster({
-					content    : Array.prototype.slice.call(compressedImage, 0),
-					// TODO: create property configFileName
-					configFile : "./config.json"
-				}, (error, result) => {
-					if (error) {
-						this._callback(error, null);
-						return;
-					}
+          // check if finished
+          filterCount++;
+          if (filterCount === filterTypes.length) {
+            this._onTextureMapImageCompressed(textureMap, bestCompressedImage);
+          }
+        }
+      }));
+    }
+  }
 
-					let compressedImage = new Buffer(result);
-					this._createDataURI(textureMapImage, compressedImage);
-				}));
-			} else {
-				this._createDataURI(textureMapImage, compressedImage);
-			}
-		}
+  private _onTextureMapImageCompressed(textureMapImage: TextureMap, compressedImage: Buffer) {
+    if (this._textureMapTask.compress.tinyPng) {
+      this._clusterQueue.runTask(new TinyPngMaster({
+        content: Array.prototype.slice.call(compressedImage, 0),
+        // TODO: create property configFileName
+        configFile: "./config.json"
+      }, (error, result) => {
+        if (error) {
+          this._callback(error, null);
+          return;
+        }
 
-		private _createDataURI(textureMap : Containers.TextureMap, compressedImage : Buffer) : void {
-			let dataURI : string = null;
-			if (this._textureMapTask.dataURI.enable) {
-				dataURI = new Utils.DataURIEncoder().encodeBuffer(compressedImage, "image/png");
-				if (dataURI.length >= this._textureMapTask.dataURI.maxSize) {
-					dataURI = null;
-				}
-			}
+        let compressedImage = new Buffer(result);
+        this._createDataURI(textureMapImage, compressedImage);
+      }));
+    } else {
+      this._createDataURI(textureMapImage, compressedImage);
+    }
+  }
 
-			textureMap.setDataURI(dataURI);
+  private _createDataURI(textureMap: TextureMap, compressedImage: Buffer): void {
+    let dataURI: string | null = null;
+    if (this._textureMapTask.dataURI.enable) {
+      dataURI = new DataURIEncoder().encodeBuffer(compressedImage, "image/png");
+      if (this._textureMapTask.dataURI.maxSize !== null) {
+        if (dataURI.length >= this._textureMapTask.dataURI.maxSize) {
+          dataURI = null;
+        }
+      }
+    }
 
-			const skipFileWrite = dataURI && !this._textureMapTask.dataURI.createImageFileAnyway;
-			if (!skipFileWrite) {
-				// write png
-				var file = path.join(this._globalConfig.getFolderRootToIndexHtml(), this._textureMapTask.textureMapFileName),
-					data = {
-						file    : file,
-						content : Array.prototype.slice.call(compressedImage, 0)
-					};
+    textureMap.setDataURI(dataURI);
 
-				this._clusterQueue.runTask(new WriteFileMaster(data, (error, result) => {
-					if (error) {
-						this._callback(error, null);
-					} else {
-						this._callback(null, textureMap);
-					}
-				}));
-			} else {
-				this._callback(null, textureMap);
-			}
-		}
-	}
+    const skipFileWrite = dataURI && !this._textureMapTask.dataURI.createImageFileAnyway;
+    if (!skipFileWrite) {
+      // write png
+      var file = path.join(this._globalConfig.getFolderRootToIndexHtml(), this._textureMapTask.textureMapFileName),
+        data = {
+          file: file,
+          content: Array.prototype.slice.call(compressedImage, 0)
+        };
+
+      this._clusterQueue.runTask(new WriteFileMaster(data, (error, result) => {
+        if (error) {
+          this._callback(error, null);
+        } else {
+          this._callback(null, textureMap);
+        }
+      }));
+    } else {
+      this._callback(null, textureMap);
+    }
+  }
 }

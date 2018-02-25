@@ -1,7 +1,3 @@
-/// <reference path='../shared/node.d.ts' />
-///<reference path="../shared/utils/fsHelper.ts"/>
-///<reference path="../shared/config/globalConfig.ts"/>
-///<reference path="../shared/utils/texturePoolWriter.ts"/>
 /**
  * @preserve
  *
@@ -10,181 +6,161 @@
  *
  * LICENSE TEXT: {@link https://github.com/igor-bezkrovny/texturer/blob/master/LICENSE}
  */
+import * as fs from 'fs';
+import * as path from 'path';
+import * as util from 'util';
+import { TextureMap } from '../shared/containers/textureMap';
+import { LoadedFile } from '../shared/containers/loadedFile';
+import { Rect } from '../shared/containers/rect';
+import { GlobalConfig } from '../shared/config/globalConfig';
+import { MultiTaskMaster } from '../shared/multitask/master';
+import { TexturePoolWriter } from '../shared/utils/texturePoolWriter';
+import { ImageHelper } from '../shared/utils/imageHelper';
+import { CopyTaskRunner } from '../shared/utils/copyTaskRunner';
+import { TextureMapTaskRunner } from '../shared/utils/textureMapTaskRunner';
+import { CopyTask } from '../shared/config/tasks/copyTask';
+import { TextureMapTask } from '../shared/config/tasks/textureMapTask';
 
-/// <reference path='../shared/containers/textureMap.ts' />
-/// <reference path='../shared/containers/loadedFile.ts' />
-///<reference path="../shared/utils/dataURIEncoder.ts"/>
-///<reference path="../shared/utils/textureMapTaskRunner.ts"/>
+let _startTime = Date.now();
 
-///<reference path="../shared/utils/copyTaskRunner.ts"/>
-///<reference path="../shared/utils/imageHelper.ts"/>
+export class Texturer {
+  private _cq: MultiTaskMaster;
+  private _callback!: (error?: string | Error | null) => void;
+  private _configParser!: GlobalConfig;
+  private _loadedFilesCount!: number;
+  private _totalFilesCount!: number;
+  private _totalTexturMapsRequiredCount: any;
+  private _loadedFiles!: { [fileName: string]: LoadedFile };
+  private _textureMapArray!: TextureMap[];
 
-///<reference path="../shared/multitask/types.ts"/>
-///<reference path="../shared/multitask/master.ts"/>
+  constructor() {
+    this._cq = new MultiTaskMaster(`${__dirname}/../tasks`);
+  }
 
-///<reference path="tasks/binPackerMaster.ts"/>
-///<reference path="tasks/compressImageMaster.ts"/>
-///<reference path="tasks/writeFileMaster.ts"/>
-///<reference path="tasks/copyFileMaster.ts"/>
-///<reference path="tasks/tinyPngMaster.ts"/>
+  generate(config: Object, callback: (error?: string | Error | null) => void) {
+    this._cq.restart();
 
-/// <reference path='textureMapGenerator.ts' />
+    this._callback = callback;
 
-namespace Texturer {
+    try {
+      this._configParser = new GlobalConfig(config);
+      this._textureMapArray = [];
 
-	var fs         = require("fs"),
-		path       = require('path'),
-		util       = require('util'),
-		_startTime = Date.now();
+      this._loadedFiles = {};
 
-	export class Texturer {
-		private _cq : MultiTask.Master;
-		private _callback : (error? : Error) => void;
-		private _configParser : Config.GlobalConfig;
-		private _loadedFilesCount : number;
-		private _totalFilesCount : number;
-		private _totalTexturMapsRequiredCount : any;
-		private _loadedFiles : { [fileName : string] : Containers.LoadedFile };
-		private _textureMapArray : Containers.TextureMap[];
+      this._loadedFilesCount = 0;
+      this._totalFilesCount = 0;
+      this._totalTexturMapsRequiredCount = 0;
 
-		constructor() {
-			this._cq = new MultiTask.Master(`${__dirname}/tasks`);
-			/*
-			 this._cq = new ClusterMaster({
-			 file : path.resolve(__dirname, "_tasks.js")
-			 //, maxSimultaneousTasks : 1
-			 });
-			 */
-		}
+      this._loadFiles();
+    } catch (e) {
+      this._shutdown(e);
+    }
+  }
 
-		generate(config : Object, callback : (error? : Error) => void) {
-			this._cq.restart();
+  private _loadFiles() {
+    this._configParser.copyTasks.forEach(copyTask => {
+      this._totalFilesCount += copyTask.files.length;
+      this._totalTexturMapsRequiredCount += copyTask.files.length;
+    });
 
-			this._callback = callback;
+    this._configParser.textureMapTasks.forEach(textureMapTask => {
+      this._totalFilesCount += textureMapTask.files.length;
+      this._totalTexturMapsRequiredCount++;
+    });
 
-			try {
-				this._configParser    = new Config.GlobalConfig(config);
-				this._textureMapArray = [];
+    this._configParser.copyTasks.forEach(copyTask => {
+      this._loadFilesForTextureMap(copyTask.files, false, 0);
+    });
 
-				this._loadedFiles = {};
+    this._configParser.textureMapTasks.forEach(textureMapTask => {
+      this._loadFilesForTextureMap(textureMapTask.files, !!textureMapTask.trim.enable, textureMapTask.trim.alpha);
+    });
+  }
 
-				this._loadedFilesCount             = 0;
-				this._totalFilesCount              = 0;
-				this._totalTexturMapsRequiredCount = 0;
+  private _loadFilesForTextureMap(files: string[], doTrim: boolean, alphaThreshold: number) {
+    files.forEach(file => {
+      ImageHelper.readImageFile(path.join(this._configParser.getFolderRootFrom(), file), (error: Error, instance: { width: number; height: number; data: number[]; }) => {
+        if (error) {
+          this._shutdown(error);
+        } else {
+          let trim: Rect = { left: 0, right: 0, top: 0, bottom: 0 },
+            realWidth = instance.width,
+            realHeight = instance.height;
 
-				this._loadFiles();
-			} catch (e) {
-				this._shutdown(e);
-			}
-		}
+          // trim image if it is part of sprite
+          if (doTrim) {
+            let trimResult = ImageHelper.trimImage(instance, alphaThreshold);
 
-		private _loadFiles() {
-			this._configParser.copyTasks.forEach(copyTask => {
-				this._totalFilesCount += copyTask.files.length;
-				this._totalTexturMapsRequiredCount += copyTask.files.length;
-			});
+            // new trimmed png instance and trim parameters
+            instance = trimResult.png;
+            trim = trimResult.trim;
+          }
+          this._loadedFiles[ file ] = new LoadedFile(instance.width, instance.height, realWidth, realHeight, ImageHelper.isOpaque(instance), trim, instance.data);
 
-			this._configParser.textureMapTasks.forEach(textureMapTask => {
-				this._totalFilesCount += textureMapTask.files.length;
-				this._totalTexturMapsRequiredCount++;
-			});
+          this._loadedFilesCount++;
+          if (this._totalFilesCount === this._loadedFilesCount) {
+            logMemory("files loaded: " + this._totalFilesCount);
+            this._generateTextureMaps();
+          }
+        }
+      });
+    });
+  }
 
-			this._configParser.copyTasks.forEach(copyTask => {
-				this._loadFilesForTextureMap(copyTask.files, false, 0);
-			});
+  private _generateTextureMaps() {
+    this._configParser.copyTasks.forEach(this._runCopyTask, this);
+    this._configParser.textureMapTasks.forEach(this._runTextureMapTask, this);
+  }
 
-			this._configParser.textureMapTasks.forEach(textureMapTask => {
-				this._loadFilesForTextureMap(textureMapTask.files, textureMapTask.trim.enable, textureMapTask.trim.alpha);
-			});
-		}
+  private _runCopyTask(copyTask: CopyTask) {
+    let runner = new CopyTaskRunner(this._configParser, copyTask, this._loadedFiles, this._cq, (error, textureMaps: TextureMap[]) => {
+      if (error) {
+        this._shutdown(error);
+      } else {
+        this._onTextureMapGenerated(textureMaps);
+      }
+    });
+    runner.run();
+  }
 
-		private _loadFilesForTextureMap(files : string[], doTrim : boolean, alphaThreshold : number) {
-			files.forEach(file => {
-				Utils.ImageHelper.readImageFile(path.join(this._configParser.getFolderRootFrom(), file), (error, instance) => {
-					if (error) {
-						this._shutdown(error);
-					} else {
-						let trim : Containers.Rect = { left : 0, right : 0, top : 0, bottom : 0 },
-							realWidth              = instance.width,
-							realHeight             = instance.height;
+  private _runTextureMapTask(textureMapTask: TextureMapTask) {
+    let runner = new TextureMapTaskRunner(this._configParser, textureMapTask, this._loadedFiles, this._cq, (error: any, textureMap: any) => {
+      if (error) {
+        this._shutdown(error);
+      } else {
+        this._onTextureMapGenerated([ textureMap ]);
+      }
+    });
+    runner.run();
+  }
 
-						// trim image if it is part of sprite
-						if (doTrim) {
-							let trimResult = Utils.ImageHelper.trimImage(instance, alphaThreshold);
+  private _onTextureMapGenerated(textureMaps: TextureMap[]) {
+    for (let textureMap of textureMaps) {
+      this._textureMapArray.push(textureMap)
+    }
 
-							// new trimmed png instance and trim parameters
-							instance = trimResult.png;
-							trim     = trimResult.trim;
-						}
-						this._loadedFiles[ file ] = new Containers.LoadedFile(instance.width, instance.height, realWidth, realHeight, Utils.ImageHelper.isOpaque(instance), trim, instance.data);
+    if (this._textureMapArray.length === this._totalTexturMapsRequiredCount) {
+      logMemory('build time: ' + (Date.now() - _startTime) + ' ms');
+      var duplicateFileNamesArray = new TexturePoolWriter().writeTexturePoolFile(this._configParser.getFolderRootTo(), this._configParser, this._loadedFiles, this._textureMapArray);
+      this._shutdown(duplicateFileNamesArray.length > 0 ? new Error("Found duplicate file names:\n" + duplicateFileNamesArray.join("\n")) : null);
+    }
+  }
 
-						this._loadedFilesCount++;
-						if (this._totalFilesCount === this._loadedFilesCount) {
-							logMemory("files loaded: " + this._totalFilesCount);
-							this._generateTextureMaps();
-						}
-					}
-				});
-			});
-		}
-
-		private _generateTextureMaps() {
-			this._configParser.copyTasks.forEach(this._runCopyTask, this);
-			this._configParser.textureMapTasks.forEach(this._runTextureMapTask, this);
-		}
-
-		private _runCopyTask(copyTask : Config.CopyTask) {
-			let runner = new Utils.CopyTaskRunner(this._configParser, copyTask, this._loadedFiles, this._cq, (error, textureMaps : Containers.TextureMap[]) => {
-				if (error) {
-					this._shutdown(error);
-				} else {
-					this._onTextureMapGenerated(textureMaps);
-				}
-			});
-			runner.run();
-		}
-
-		private _runTextureMapTask(textureMapTask : Config.TextureMapTask) {
-			let runner = new Utils.TextureMapTaskRunner(this._configParser, textureMapTask, this._loadedFiles, this._cq, (error, textureMap : Containers.TextureMap) => {
-				if (error) {
-					this._shutdown(error);
-				} else {
-					this._onTextureMapGenerated([ textureMap ]);
-				}
-			});
-			runner.run();
-		}
-
-		private _onTextureMapGenerated(textureMaps : Containers.TextureMap[]) {
-			for (let textureMap of textureMaps) {
-				this._textureMapArray.push(textureMap)
-			}
-
-			if (this._textureMapArray.length === this._totalTexturMapsRequiredCount) {
-				logMemory('build time: ' + (Date.now() - _startTime) + ' ms');
-				var duplicateFileNamesArray = new Utils.TexturePoolWriter().writeTexturePoolFile(this._configParser.getFolderRootTo(), this._configParser, this._loadedFiles, this._textureMapArray);
-				this._shutdown(duplicateFileNamesArray.length > 0 ? new Error("Found duplicate file names:\n" + duplicateFileNamesArray.join("\n")) : null);
-			}
-		}
-
-		private _shutdown(error) {
-			if (error) {
-				this._cq.abort();
-				this._callback(error);
-			} else {
-				this._cq.shutdown(() => {
-					this._callback(null);
-				})
-			}
-		}
-	}
-
-	var __logMemoryUsage = process.memoryUsage();
-
-	function logMemory(title) {
-		console.log(title + "\nheapUsed: " + (process.memoryUsage().heapUsed - __logMemoryUsage.heapUsed + ", heapTotal: " + process.memoryUsage().heapTotal));
-	}
-
+  private _shutdown(error: string | Error | null) {
+    if (error) {
+      this._cq.abort();
+      this._callback(error);
+    } else {
+      this._cq.shutdown(() => {
+        this._callback(null);
+      })
+    }
+  }
 }
 
-module.exports = Texturer.Texturer;
+var __logMemoryUsage = process.memoryUsage();
+
+function logMemory(title: string) {
+  console.log(title + "\nheapUsed: " + (process.memoryUsage().heapUsed - __logMemoryUsage.heapUsed + ", heapTotal: " + process.memoryUsage().heapTotal));
+}

@@ -1,9 +1,5 @@
-/// <reference path='../node.d.ts' />
-namespace MultiTask {
-
-	export interface MasterTask {
-		getFile() : string;
-		getWorkerData() : string | Object;
-		onData(error : string, data : any) : void;
-	}
+export interface MultiTaskMasterTask {
+  getFile(): string;
+  getWorkerData(): string | Object;
+  onData(error: string | null, data: any): void;
 }

@@ -1,12 +1,32 @@
 {
-    "compilerOptions": {
-        "noImplicitAny": false,
-        "removeComments": true,
-        "preserveConstEnums": true,
-        "out": "./dist/texturer.js",
-        "sourceMap": true
-    },
-    "files": [
-        "texturer.ts"
+  "compilerOptions": {
+    "outDir": "../../dist",
+    "sourceMap": true,
+    "inlineSources": true,
+    "module": "commonjs",
+    "target": "es5",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "preserveConstEnums": true,
+    "pretty": false,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "downlevelIteration": true,
+    "lib": [
+      "dom",
+      "esnext"
+    ],
+    "plugins": [
+      {
+        "name": "tslint-language-service",
+        "supressWhileTypeErrorsPresent": false,
+        "ignoreDefinitionFiles": true
+      }
     ]
+  },
+  "files": [
+    "./texturer.ts"
+  ]
 }

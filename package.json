@@ -12,7 +12,7 @@
   "main": "./src/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/igor-bezkrovny/texturer"
+    "url": "https://github.com/ibezkrovnyi/texturer"
   },
   "scripts": {
     "clean": "rimraf dist",
@@ -20,20 +20,23 @@
     "prepublish": "npm run build"
   },
   "bugs": {
-    "url": "https://github.com/igor-bezkrovny/texturer/issues"
+    "url": "https://github.com/ibezkrovnyi/texturer/issues"
   },
   "dependencies": {
-    "bmp-js": "igor-bezkrovny/bmp-js",
-    "handlebars": "^2.0.0",
+    "bmp-js": "ibezkrovnyi/bmp-js",
+    "handlebars": "4.*",
     "jpeg-js": "0.0.4"
   },
-  "preferGlobal": "true",
+  "preferGlobal": true,
   "bin": {
     "texturer": "./bin/texturer"
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^9.4.6",
     "rimraf": "latest",
-    "typescript": "^1.6.0-dev.20150905"
+    "tslint": "^5.9.1",
+    "tslint-language-service": "^0.9.8",
+    "typescript": "^2.7.2"
   }
 }
