@@ -1,13 +1,12 @@
 import { TextureMap } from '../containers/textureMap';
-import { CopyFileMaster } from '../../texturer/tasks/copyFileMaster';
 import { Texture } from '../containers/textureMap';
 import { TextureImage } from '../containers/textureMap';
 import { CopyTask } from '../config/tasks/copyTask';
 import { GlobalConfig } from '../config/globalConfig';
 import { LoadedFile } from '../containers/loadedFile';
-import { MultiTaskMaster } from '../multitask/master';
 import { DataURIEncoder } from './dataURIEncoder';
 import { FSHelper } from './fsHelper';
+import { workers } from '../../texturer/tasks';
 
 var path = require("path"),
   fs = require("fs");
@@ -16,15 +15,13 @@ export class CopyTaskRunner {
   private _globalConfig: GlobalConfig;
   private _copyTask: CopyTask;
   private _loadedFiles: { [fileName: string]: LoadedFile };
-  private _clusterQueue: MultiTaskMaster;
   private _callback: (error: Error | null, result: any) => void;
   private _textureMaps: TextureMap[];
 
-  constructor(globalConfig: GlobalConfig, copyTask: CopyTask, loadedFiles: { [fileName: string]: LoadedFile }, clusterQueue: MultiTaskMaster, callback: (error: Error | null, result: any) => void) {
+  constructor(globalConfig: GlobalConfig, copyTask: CopyTask, loadedFiles: { [fileName: string]: LoadedFile }, callback: (error: Error | null, result: any) => void) {
     this._globalConfig = globalConfig;
     this._copyTask = copyTask;
     this._loadedFiles = loadedFiles;
-    this._clusterQueue = clusterQueue;
     this._textureMaps = [];
     this._callback = callback;
   }
@@ -89,7 +86,7 @@ export class CopyTaskRunner {
       this._callback(new Error("COPY PREPARATION: " + e.toString()), null);
     }
 
-    var copyTask = new CopyFileMaster({ source: fromFile, target: toFile }, error => {
+    var copyTask = workers.copyFileWorker({ source: fromFile, target: toFile }, (error: string) => {
       if (error) {
         this._callback(new Error("" +
           "COPY: \n" +
@@ -102,7 +99,7 @@ export class CopyTaskRunner {
       onCopyFinishedCallback();
     });
 
-    this._clusterQueue.runTask(copyTask);
+    // this._clusterQueue.runTask(copyTask);
   }
 
   private _addTextureMap(textureMapImage: TextureMap): void {

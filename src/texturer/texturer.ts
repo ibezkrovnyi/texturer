@@ -9,22 +9,22 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as util from 'util';
+import * as workerFarm from 'worker-farm';
 import { TextureMap } from '../shared/containers/textureMap';
 import { LoadedFile } from '../shared/containers/loadedFile';
 import { Rect } from '../shared/containers/rect';
 import { GlobalConfig } from '../shared/config/globalConfig';
-import { MultiTaskMaster } from '../shared/multitask/master';
 import { TexturePoolWriter } from '../shared/utils/texturePoolWriter';
 import { ImageHelper } from '../shared/utils/imageHelper';
 import { CopyTaskRunner } from '../shared/utils/copyTaskRunner';
 import { TextureMapTaskRunner } from '../shared/utils/textureMapTaskRunner';
 import { CopyTask } from '../shared/config/tasks/copyTask';
 import { TextureMapTask } from '../shared/config/tasks/textureMapTask';
+import { workers } from './tasks';
 
 let _startTime = Date.now();
 
 export class Texturer {
-  private _cq: MultiTaskMaster;
   private _callback!: (error?: string | Error | null) => void;
   private _configParser!: GlobalConfig;
   private _loadedFilesCount!: number;
@@ -33,13 +33,7 @@ export class Texturer {
   private _loadedFiles!: { [fileName: string]: LoadedFile };
   private _textureMapArray!: TextureMap[];
 
-  constructor() {
-    this._cq = new MultiTaskMaster(`${__dirname}/../tasks`);
-  }
-
   generate(config: Object, callback: (error?: string | Error | null) => void) {
-    this._cq.restart();
-
     this._callback = callback;
 
     try {
@@ -114,7 +108,7 @@ export class Texturer {
   }
 
   private _runCopyTask(copyTask: CopyTask) {
-    let runner = new CopyTaskRunner(this._configParser, copyTask, this._loadedFiles, this._cq, (error, textureMaps: TextureMap[]) => {
+    let runner = new CopyTaskRunner(this._configParser, copyTask, this._loadedFiles, (error, textureMaps: TextureMap[]) => {
       if (error) {
         this._shutdown(error);
       } else {
@@ -125,7 +119,7 @@ export class Texturer {
   }
 
   private _runTextureMapTask(textureMapTask: TextureMapTask) {
-    let runner = new TextureMapTaskRunner(this._configParser, textureMapTask, this._loadedFiles, this._cq, (error: any, textureMap: any) => {
+    let runner = new TextureMapTaskRunner(this._configParser, textureMapTask, this._loadedFiles, (error: any, textureMap: any) => {
       if (error) {
         this._shutdown(error);
       } else {
@@ -148,13 +142,11 @@ export class Texturer {
   }
 
   private _shutdown(error: string | Error | null) {
+    workerFarm.end(workers as any);
     if (error) {
-      this._cq.abort();
       this._callback(error);
     } else {
-      this._cq.shutdown(() => {
-        this._callback(null);
-      })
+      this._callback(null);
     }
   }
 }

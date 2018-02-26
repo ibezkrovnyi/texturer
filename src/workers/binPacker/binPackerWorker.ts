@@ -1,21 +1,17 @@
-import { MultiTaskWorker } from '../shared/multitask/worker';
-import { BinPackerResult } from '../shared/containers/binPackerResult';
-import { FileDimensions } from '../shared/containers/textureMap';
-import { BinPacker } from './binPackerAlgorithm';
-import { BinRectanglesDictionary } from '../shared/containers/binPackerResult';
-
-class BinPackerWorker extends MultiTaskWorker {
+import { BinPackerResult, BinRectanglesDictionary } from "../../shared/containers/binPackerResult";
+import { FileDimensions } from "../../shared/containers/textureMap";
+import { BinPacker } from "./binPackerAlgorithm";
 
   // there is no sense to try all possible width/height. width/height step = 16 is ok
-  private static _binPackerSizeStep = 16;
+  const binPackerSizeStep = 16;
 
-  protected _onData(data: any): void {
+export function binPackerWorker(data: any, callback: any): void {
     let best: BinPackerResult | null = null;
-    for (let x = data.fromX; x <= data.toX; x += BinPackerWorker._binPackerSizeStep) {
-      for (let y = data.fromY; y <= data.toY; y += BinPackerWorker._binPackerSizeStep) {
+    for (let x = data.fromX; x <= data.toX; x += binPackerSizeStep) {
+      for (let y = data.fromY; y <= data.toY; y += binPackerSizeStep) {
 
         if (data.totalPixels <= x * y) {
-          let binPackerResult = this._tryToPack(data.files, x, y, data.gridStep, data.paddingX, data.paddingY);
+          let binPackerResult = tryToPack(data.files, x, y, data.gridStep, data.paddingX, data.paddingY);
           if (binPackerResult) {
             if (!best || best.width * best.height > binPackerResult.width * binPackerResult.height) {
               best = binPackerResult;
@@ -30,10 +26,10 @@ class BinPackerWorker extends MultiTaskWorker {
     }
 
     // send processed taskData back to cluster
-    this._sendData(best);
+    callback(undefined, best);
   }
 
-  private _tryToPack(fileDimensions: FileDimensions[], spriteWidth: number, spriteHeight: number, gridStep: number, paddingX: number, paddingY: number) {
+  function tryToPack(fileDimensions: FileDimensions[], spriteWidth: number, spriteHeight: number, gridStep: number, paddingX: number, paddingY: number) {
     let packer: BinPacker = new BinPacker(spriteWidth, spriteHeight, gridStep, paddingX, paddingY),
       rectangles: BinRectanglesDictionary = {},
       width = 0,
@@ -58,6 +54,4 @@ class BinPackerWorker extends MultiTaskWorker {
 
     return { width, height, rectangles };
   }
-}
 
-new BinPackerWorker();

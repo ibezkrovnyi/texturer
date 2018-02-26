@@ -1,18 +1,13 @@
-import { MultiTaskWorker } from '../shared/multitask/worker';
 import { TinyPngService } from './tinypng';
 
-class TinyPngWorker extends MultiTaskWorker {
-
-  protected _onData(data: any): void {
+export function tinyPngWorker(data: any, callback: any): void {
     //console.log("tinypng.com task...");
     TinyPngService.requestFile(data.configFile, new Buffer(data.content), (error: any, data: any) => {
       if (!error) {
-        this._sendData(data);
+        callback(undefined, data);
       } else {
-        this._sendError(error);
+        callback(error);
       }
     });
   }
-}
 
-new TinyPngWorker();

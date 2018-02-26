@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "../../dist/tasks",
+    "outDir": "../../dist",
     "sourceMap": true,
     "inlineSources": true,
     "module": "commonjs",
@@ -28,6 +28,6 @@
     ]
   },
   "files": [
-    "./copyFileWorker.ts"
+    "./index.ts"
   ]
 }

@@ -1,12 +1,9 @@
-import { MultiTaskWorker } from '../shared/multitask/worker';
 import { FSHelper } from '../shared/utils/fsHelper';
 
 var path = require("path"),
   fs = require("fs");
 
-class WriteFileWorker extends MultiTaskWorker {
-
-  protected _onData(data: any): void {
+export function writeFileWorker(data: any, callback: any): void {
     FSHelper.createDirectory(path.dirname(data.file));
 
     if (fs.existsSync(data.file)) {
@@ -18,11 +15,5 @@ class WriteFileWorker extends MultiTaskWorker {
     let content = new Buffer(data.content);
     fs.writeFileSync(data.file, content);
 
-    //var t = null;
-    //console.log(t());
-
-    this._sendData(null);
+    callback();
   }
-}
-
-new WriteFileWorker();

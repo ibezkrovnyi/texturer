@@ -1,19 +1,13 @@
-;
-;
-;
-;
-;
-import { MultiTaskMaster } from '../shared/multitask/master';
-import { TextureMap } from '../shared/containers/textureMap';
+import { TextureMap, Texture } from '../shared/containers/textureMap';
 import { TextureMapTask } from '../shared/config/tasks/textureMapTask';
 import { Rect } from '../shared/containers/rect';
 import { FileDimensions } from '../shared/containers/textureMap';
-import { BinPackerMaster } from './tasks/binPackerMaster';
+import { BinPackerResult } from '../shared/containers/binPackerResult';
+import { workers } from './tasks';
 
 let path = require("path");
 
 export class TextureMapGenerator {
-  private _cq: MultiTaskMaster;
   private _plannedPlaceFilesTests!: number;
   private _finishedPlaceFilesTests!: number;
   private _textureMap!: TextureMap | null;
@@ -24,8 +18,7 @@ export class TextureMapGenerator {
   private _targetRectangle!: Rect;
   private _files!: FileDimensions[];
 
-  constructor(cq: MultiTaskMaster) {
-    this._cq = cq;
+  constructor() {
   }
 
   generateTextureMap(files: FileDimensions[], textureMapTask: TextureMapTask, callback: any): void {
@@ -87,9 +80,43 @@ export class TextureMapGenerator {
   }
 
   private _placeFiles(textureMapTask: TextureMapTask, targetRectangle: Rect, files: FileDimensions[]) {
-    this._cq.runTask(new BinPackerMaster(textureMapTask, files, targetRectangle, this._totalPixels, (textureMap: TextureMap | null) => {
-      this._onPlaceFilesFinished(null, textureMap);
-    }));
+    const data = {
+      files,
+      fromX: targetRectangle.left,
+      toX: targetRectangle.right,
+      fromY: targetRectangle.top,
+      toY: targetRectangle.bottom,
+      totalPixels: this._totalPixels,
+      gridStep: textureMapTask.gridStep,
+      paddingX: textureMapTask.paddingX,
+      paddingY: textureMapTask.paddingY
+    };
+    workers.binPackerWorker(data, (error: string, data: BinPackerResult) => {
+      if (error) {
+        throw new Error(error);
+      } else {
+        if (!data) {
+          // TODO: it is not good to call callback with null, think about convert it to specific Error
+          this._onPlaceFilesFinished(null, null);
+        } else {
+          const width = data.width,
+            height = data.height,
+            textureIds = Object.keys(data.rectangles);
+  
+          let textureMap = new TextureMap();
+          textureMap.setData(textureMapTask.textureMapFileName, width, height, textureMapTask.repeatX, textureMapTask.repeatY);
+          for (const id of textureIds) {
+            let texture = new Texture(),
+              textureContainer = data.rectangles[ id ];
+            // TODO: why next line in red??
+            texture.setData(textureContainer.x, textureContainer.y, textureContainer.width, textureContainer.height);
+            textureMap.setTexture(id, texture);
+          }
+  
+          this._onPlaceFilesFinished(null, textureMap);
+        }
+      }
+    });
   }
 
   private _getShuffledArray<T>(arr: T[]): T[] {

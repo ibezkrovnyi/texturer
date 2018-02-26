@@ -16,7 +16,7 @@
   },
   "scripts": {
     "clean": "rimraf dist",
-    "build": "tsc -p src/texturer & tsc -p src/binPacker & tsc -p src/compressImage & tsc -p src/tinyPng & tsc -p src/writeFile & tsc -p src/copyFile",
+    "build": "tsc -p src/texturer & tsc -p src/workers",
     "prepublish": "npm run build"
   },
   "bugs": {
@@ -33,10 +33,11 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^9.4.6",
+    "@types/node": "9.4.6",
     "rimraf": "latest",
-    "tslint": "^5.9.1",
-    "tslint-language-service": "^0.9.8",
-    "typescript": "^2.7.2"
+    "tslint": "5.9.1",
+    "tslint-language-service": "0.9.8",
+    "typescript": "2.7.2",
+    "worker-farm": "1.5.2"
   }
 }

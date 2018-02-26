@@ -1,14 +1,11 @@
 import { LoadedFile } from '../containers/loadedFile';
 import { TextureMapTask } from '../config/tasks/textureMapTask';
-import { MultiTaskMaster } from '../multitask/master';
 import { GlobalConfig } from '../config/globalConfig';
 import { TextureMapGenerator } from '../../texturer/textureMapGenerator';
 import { FileDimensions, Texture } from '../containers/textureMap';
 import { TextureMap } from '../containers/textureMap';
-import { CompressImageMaster } from '../../texturer/tasks/compressImageMaster';
-import { TinyPngMaster } from '../../texturer/tasks/tinyPngMaster';
 import { DataURIEncoder } from './dataURIEncoder';
-import { WriteFileMaster } from '../../texturer/tasks/writeFileMaster';
+import { workers } from '../../texturer/tasks';
 
 var path = require("path");
 
@@ -21,15 +18,13 @@ interface Callback {
 export class TextureMapTaskRunner {
   private _textureMapTask: TextureMapTask;
   private _loadedFiles: { [fileName: string]: LoadedFile };
-  private _clusterQueue: MultiTaskMaster;
   private _callback: Callback;
   private _globalConfig: GlobalConfig;
 
-  constructor(globalConfig: GlobalConfig, textureMapTask: TextureMapTask, loadedFiles: { [fileName: string]: LoadedFile }, clusterQueue: MultiTaskMaster, callback: Callback) {
+  constructor(globalConfig: GlobalConfig, textureMapTask: TextureMapTask, loadedFiles: { [fileName: string]: LoadedFile }, callback: Callback) {
     this._globalConfig = globalConfig;
     this._textureMapTask = textureMapTask;
     this._loadedFiles = loadedFiles;
-    this._clusterQueue = clusterQueue;
     this._callback = callback;
   }
 
@@ -39,7 +34,7 @@ export class TextureMapTaskRunner {
       return new FileDimensions(file, loadedFile.getWidth(), loadedFile.getHeight());
     });
 
-    let textureMapGenerator: TextureMapGenerator = new TextureMapGenerator(this._clusterQueue);
+    let textureMapGenerator: TextureMapGenerator = new TextureMapGenerator();
     textureMapGenerator.generateTextureMap(fileDimensionsArray, this._textureMapTask, (error: string, textureMap: TextureMap) => {
       if (textureMap) {
         this._compressTextureMapImage(textureMap);
@@ -86,7 +81,7 @@ export class TextureMapTaskRunner {
         textureArray: textureArray
       };
 
-      this._clusterQueue.runTask(new CompressImageMaster(data, (error, result: any) => {
+      workers.compressImageWorker(data, (error: string, result: any) => {
         if (error) {
           //console.log(`compress ${this._textureMapTask.textureMapFileName}, i = ${filterCount} - finished with error`);
           this._callback(new Error(error), null);
@@ -105,17 +100,17 @@ export class TextureMapTaskRunner {
             this._onTextureMapImageCompressed(textureMap, bestCompressedImage);
           }
         }
-      }));
+      });
     }
   }
 
   private _onTextureMapImageCompressed(textureMapImage: TextureMap, compressedImage: Buffer) {
     if (this._textureMapTask.compress.tinyPng) {
-      this._clusterQueue.runTask(new TinyPngMaster({
+      workers.tinyPngWorker({
         content: Array.prototype.slice.call(compressedImage, 0),
         // TODO: create property configFileName
         configFile: "./config.json"
-      }, (error, result) => {
+      }, (error: string, result: any) => {
         if (error) {
           this._callback(error, null);
           return;
@@ -123,7 +118,7 @@ export class TextureMapTaskRunner {
 
         let compressedImage = new Buffer(result);
         this._createDataURI(textureMapImage, compressedImage);
-      }));
+      });
     } else {
       this._createDataURI(textureMapImage, compressedImage);
     }
@@ -151,13 +146,13 @@ export class TextureMapTaskRunner {
           content: Array.prototype.slice.call(compressedImage, 0)
         };
 
-      this._clusterQueue.runTask(new WriteFileMaster(data, (error, result) => {
+        workers.writeFileWorker(data, (error: string, result: any) => {
         if (error) {
           this._callback(error, null);
         } else {
           this._callback(null, textureMap);
         }
-      }));
+      });
     } else {
       this._callback(null, textureMap);
     }
