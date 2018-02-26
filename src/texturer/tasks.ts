@@ -13,4 +13,4 @@ export const workers = workerFarm(
     'tinyPngWorker', 
     'binPackerWorker' 
   ]
-);
+) as any;
