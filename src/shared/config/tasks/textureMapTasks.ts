@@ -1,13 +1,13 @@
-import { GlobalConfig } from "../globalConfig";
-import { BaseOption } from "../baseOption";
-import { TextureMapTask } from "./textureMapTask";
+import { GlobalConfig } from '../globalConfig';
+import { BaseOption } from '../baseOption';
+import { TextureMapTask } from './textureMapTask';
 
 class TextureMapTasksContainer extends BaseOption<Object[]> {
-  getValue(): Object[] {
+  getValue() {
     return this._getPropertyValue('texture-map-tasks');
   }
 
-  protected _hasDefaultValue(): boolean {
+  protected _hasDefaultValue() {
     return true;
   }
 
@@ -25,7 +25,7 @@ export class TextureMapTasks {
     this._globalConfig = globalConfig;
   }
 
-  getValue(): TextureMapTask[] {
+  getValue() {
     return new TextureMapTasksContainer(this._configObject).getValue().map(taskObject => new TextureMapTask(taskObject, this._globalConfig));
   }
 }

@@ -26,7 +26,7 @@ export class TaskDefaults {
 
   constructor(config: Object) {
 
-    let taskDefaultsContainer = new TaskDefaultsContainer(config, null).getValue();
+    const taskDefaultsContainer = new TaskDefaultsContainer(config, null).getValue();
 
     this.bruteForceTime = new BruteForceTime(taskDefaultsContainer).getValue();
     this.gridStep = new GridStep(taskDefaultsContainer).getValue();

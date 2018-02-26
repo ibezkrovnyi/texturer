@@ -1,9 +1,9 @@
-var pngEngine = require("../../extern/node-png").PNG;
+import { PNG as pngEngine } from '../../extern/node-png';
 
-export function compressImageWorker(taskData: any, callback: any): void {
+export function compressImageWorker(taskData: any, callback: any) {
   // TODO: make these options via CompressionOptions class and remove usage of helper.extend, also remove extend at all
 
-  var extend = function (origin: any, add: any) {
+  const extend = function (origin: any, add: any) {
     // Don't do anything if add isn't an object
     if (!add || typeof add !== 'object') return origin;
 
@@ -14,33 +14,33 @@ export function compressImageWorker(taskData: any, callback: any): void {
     return origin;
   };
 
-  let options = extend(extend({}, taskData.options), {
+  const options = extend(extend({}, taskData.options), {
     filterType: taskData.filterType,
     width: taskData.width,
     height: taskData.height,
-    fill: true
+    fill: true,
   });
 
-  let png = new pngEngine(options);
+  const png = new pngEngine(options);
   taskData.textureArray.forEach(function (texture: any) {
-    let texturePng = new pngEngine({
+    const texturePng = new pngEngine({
       width: texture.width,
       height: texture.height,
-      fill: true
+      fill: true,
     });
 
-    texturePng.data = new Buffer(texture.bitmapSerialized);//bitmap.getRGBABuffer();
+    texturePng.data = new Buffer(texture.bitmapSerialized); // bitmap.getRGBABuffer();
     texturePng.bitblt(png, 0, 0, texture.width, texture.height, texture.x, texture.y);
   });
 
-  let stream = png.pack(),
-    chunks: any[] = [];
+  const stream = png.pack();
+  const chunks: Buffer[] = [];
 
-  stream.on("data", function (chunk: any) {
+  stream.on('data', function (chunk: Buffer) {
     chunks.push(chunk);
   });
 
-  stream.on("end", () => {
+  stream.on('end', () => {
     callback(undefined, { compressedPNG: Array.prototype.slice.call(Buffer.concat(chunks), 0), filterType: options.filterType });
   });
 

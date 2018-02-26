@@ -19,11 +19,11 @@ class ProcessDataURIMaxSize extends BaseOption<number | null> {
     return this._getPropertyValue('max-size');
   }
 
-  protected _hasDefaultValue(): boolean {
+  protected _hasDefaultValue() {
     return true;
   }
 
-  protected _getDefaultValue(): number {
+  protected _getDefaultValue() {
     // Opera 11 limitation = 65000 characters
     return 32 * 1024 - 256;
   }
@@ -34,11 +34,11 @@ class ProcessDataURICreateImageFileAnyway extends BaseOption<boolean | null> {
     return this._getPropertyValue('create-image-file-anyway');
   }
 
-  protected _hasDefaultValue(): boolean {
+  protected _hasDefaultValue() {
     return true;
   }
 
-  protected _getDefaultValue(): boolean {
+  protected _getDefaultValue() {
     return false;
   }
 }
@@ -55,7 +55,7 @@ export class ProcessDataURI {
   createImageFileAnyway: boolean | null;
 
   constructor(configObject: Object | null, inheritDataURI: ProcessDataURI | null = null) {
-    let dataURI = new ProcessDataURIContainer(configObject, null).getValue();
+    const dataURI = new ProcessDataURIContainer(configObject, null).getValue();
     if (inheritDataURI) {
       this.enable = new ProcessDataURIEnable(dataURI, inheritDataURI.enable).getValue();
       this.maxSize = new ProcessDataURIMaxSize(dataURI, inheritDataURI.maxSize).getValue();

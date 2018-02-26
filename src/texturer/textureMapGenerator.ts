@@ -1,11 +1,9 @@
-import { TextureMap, Texture } from '../shared/containers/textureMap';
+import * as path from 'path';
+import { TextureMap, Texture, FileDimensions } from '../shared/containers/textureMap';
 import { TextureMapTask } from '../shared/config/tasks/textureMapTask';
 import { Rect } from '../shared/containers/rect';
-import { FileDimensions } from '../shared/containers/textureMap';
 import { BinPackerResult } from '../shared/containers/binPackerResult';
-import { workers } from './tasks';
-
-let path = require("path");
+import { workers } from './workers';
 
 export class TextureMapGenerator {
   private _plannedPlaceFilesTests!: number;
@@ -21,7 +19,7 @@ export class TextureMapGenerator {
   constructor() {
   }
 
-  generateTextureMap(files: FileDimensions[], textureMapTask: TextureMapTask, callback: any): void {
+  generateTextureMap(files: FileDimensions[], textureMapTask: TextureMapTask, callback: any) {
     try {
       // calculate total pixels
       let totalPixels = 0;
@@ -36,7 +34,7 @@ export class TextureMapGenerator {
       this._totalPixels = totalPixels;
       this._endTime = Date.now() + textureMapTask.bruteForceTime;
 
-      let targetRectangle = this._checkFiles(textureMapTask, files);
+      const targetRectangle = this._checkFiles(textureMapTask, files);
 
       this._textureMapTask = textureMapTask;
       this._targetRectangle = targetRectangle;
@@ -89,7 +87,7 @@ export class TextureMapGenerator {
       totalPixels: this._totalPixels,
       gridStep: textureMapTask.gridStep,
       paddingX: textureMapTask.paddingX,
-      paddingY: textureMapTask.paddingY
+      paddingY: textureMapTask.paddingY,
     };
     workers.binPackerWorker(data, (error: string, data: BinPackerResult) => {
       if (error) {
@@ -99,33 +97,33 @@ export class TextureMapGenerator {
           // TODO: it is not good to call callback with null, think about convert it to specific Error
           this._onPlaceFilesFinished(null, null);
         } else {
-          const width = data.width,
-            height = data.height,
-            textureIds = Object.keys(data.rectangles);
-  
-          let textureMap = new TextureMap();
+          const width = data.width;
+          const height = data.height;
+          const textureIds = Object.keys(data.rectangles);
+
+          const textureMap = new TextureMap();
           textureMap.setData(textureMapTask.textureMapFileName, width, height, textureMapTask.repeatX, textureMapTask.repeatY);
           for (const id of textureIds) {
-            let texture = new Texture(),
-              textureContainer = data.rectangles[ id ];
+            const texture = new Texture();
+            const textureContainer = data.rectangles[ id ];
             // TODO: why next line in red??
             texture.setData(textureContainer.x, textureContainer.y, textureContainer.width, textureContainer.height);
             textureMap.setTexture(id, texture);
           }
-  
+
           this._onPlaceFilesFinished(null, textureMap);
         }
       }
     });
   }
 
-  private _getShuffledArray<T>(arr: T[]): T[] {
-    let shuffled = arr.slice(0);
+  private _getShuffledArray<T>(arr: T[]) {
+    const shuffled = arr.slice(0);
     for (let i = 0; i < shuffled.length - 1; i++) {
-      let l = shuffled.length;
-      let index = ((Math.random() * (l - i)) | 0) + i;
+      const l = shuffled.length;
+      const index = ((Math.random() * (l - i)) | 0) + i;
 
-      let tmp = shuffled[ index ];
+      const tmp = shuffled[ index ];
       shuffled[ index ] = shuffled[ i ];
       shuffled[ i ] = tmp;
     }
@@ -133,17 +131,17 @@ export class TextureMapGenerator {
     return shuffled;
   }
 
-  private _checkFiles(textureMapTask: TextureMapTask, files: FileDimensions[]): Rect {
+  private _checkFiles(textureMapTask: TextureMapTask, files: FileDimensions[]) {
     // TODO: use another interface here. Rect should for trim!!
-    let targetRectangle: Rect = {
+    const targetRectangle: Rect = {
       left: 4,
       right: textureMapTask.dimensions.maxX,
       top: 4,
-      bottom: textureMapTask.dimensions.maxY
+      bottom: textureMapTask.dimensions.maxY,
     };
 
     if (textureMapTask.repeatX && textureMapTask.repeatY) {
-      throw new Error("TextureMapGenerator#_checkFiles: Sprite can't be repeat-x and repeat-y at the same time");
+      throw new Error('TextureMapGenerator#_checkFiles: Sprite can\'t be repeat-x and repeat-y at the same time');
     }
 
     if (textureMapTask.repeatX) {

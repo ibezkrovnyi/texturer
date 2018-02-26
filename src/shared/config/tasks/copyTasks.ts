@@ -3,11 +3,11 @@ import { GlobalConfig } from '../globalConfig';
 import { CopyTask } from './copyTask';
 
 class CopyTasksContainer extends BaseOption<Object[]> {
-  getValue(): Object[] {
+  getValue() {
     return this._getPropertyValue('copy-tasks');
   }
 
-  protected _hasDefaultValue(): boolean {
+  protected _hasDefaultValue() {
     return true;
   }
 
@@ -25,7 +25,7 @@ export class CopyTasks {
     this._globalConfig = globalConfig;
   }
 
-  getValue(): CopyTask[] {
+  getValue() {
     return new CopyTasksContainer(this._configObject).getValue().map(taskObject => new CopyTask(taskObject, this._globalConfig));
   }
 }

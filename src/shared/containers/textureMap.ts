@@ -28,7 +28,7 @@ export class TextureImage {
   }
 
   // TODO: remove setData, move all initializers into constructor
-  setData(realWidth: number, realHeight: number, bitmap: number[], trim: Rect, isOpaque: boolean): void {
+  setData(realWidth: number, realHeight: number, bitmap: number[], trim: Rect, isOpaque: boolean) {
     this._realWidth = realWidth;
     this._realHeight = realHeight;
     this._bitmap = bitmap;
@@ -36,7 +36,7 @@ export class TextureImage {
     this._opaque = isOpaque;
   }
 
-  getOpaque(): boolean {
+  getOpaque() {
     return this._opaque;
   }
 
@@ -65,7 +65,7 @@ export class TextureImage {
    }
 
    */
-  getRealHeight(): number {
+  getRealHeight() {
     return this._realHeight;
   }
 
@@ -76,7 +76,7 @@ export class TextureImage {
    }
    */
 
-  getRealWidth(): number {
+  getRealWidth() {
     return this._realWidth;
   }
 
@@ -102,7 +102,7 @@ export class Texture {
     this._image = null;
   }
 
-  setData(x: number, y: number, width: number, height: number): void {
+  setData(x: number, y: number, width: number, height: number) {
     this._x = x;
     this._y = y;
     this._width = width;
@@ -113,11 +113,11 @@ export class Texture {
     return this._image;
   }
 
-  setTextureImage(textureImage: TextureImage): void {
+  setTextureImage(textureImage: TextureImage) {
     this._image = textureImage;
   }
 
-  getHeight(): number {
+  getHeight() {
     return this._height;
   }
 
@@ -126,7 +126,7 @@ export class Texture {
    this._height = value;
    }
    */
-  getWidth(): number {
+  getWidth() {
     return this._width;
   }
 
@@ -136,7 +136,7 @@ export class Texture {
    }
 
    */
-  getY(): number {
+  getY() {
     return this._y;
   }
 
@@ -146,7 +146,7 @@ export class Texture {
    }
 
    */
-  getX(): number {
+  getX() {
     return this._x;
   }
 
@@ -182,7 +182,7 @@ export class TextureMap {
     this._textures = {};
   }
 
-  setData(file: string, width: number, height: number, repeatX: boolean, repeatY: boolean): void {
+  setData(file: string, width: number, height: number, repeatX: boolean, repeatY: boolean) {
     this._file = file;
     this._width = width;
     this._height = height;
@@ -190,7 +190,7 @@ export class TextureMap {
     this._repeatY = repeatY;
   }
 
-  setDataURI(dataURI: string | null): void {
+  setDataURI(dataURI: string | null) {
     this._dataURI = dataURI;
   }
 
@@ -198,11 +198,11 @@ export class TextureMap {
     return this._dataURI;
   }
 
-  setTexture(id: string, texture: Texture): void {
+  setTexture(id: string, texture: Texture) {
     this._textures[ id ] = texture;
   }
 
-  getTexture(id: string): Texture {
+  getTexture(id: string) {
     return this._textures[ id ];
   }
 
@@ -214,7 +214,7 @@ export class TextureMap {
    }
    */
 
-  getTextureIds(): string[] {
+  getTextureIds() {
     return Object.keys(this._textures);
   }
 
@@ -222,19 +222,19 @@ export class TextureMap {
     return this._file;
   }
 
-  getRepeatX(): boolean {
+  getRepeatX() {
     return this._repeatX;
   }
 
-  getRepeatY(): boolean {
+  getRepeatY() {
     return this._repeatY;
   }
 
-  getWidth(): number {
+  getWidth() {
     return this._width;
   }
 
-  getHeight(): number {
+  getHeight() {
     return this._height;
   }
 
@@ -248,7 +248,7 @@ export class TextureMap {
    }
 
    */
-  getArea(): number {
+  getArea() {
     return this._width * this._height;
   }
 }

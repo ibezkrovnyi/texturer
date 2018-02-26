@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { Folders } from './options/folders';
 import { CopyTask } from './tasks/copyTask';
 import { TextureMapTask } from './tasks/textureMapTask';
@@ -7,8 +8,6 @@ import { Templates } from './options/templates';
 import { ExcludeRegExPattern } from './options/excludeRegExPattern';
 import { TextureMapTasks } from './tasks/textureMapTasks';
 import { CopyTasks } from './tasks/copyTasks';
-
-let path = require('path');
 
 export class GlobalConfig {
   folders: Folders;
@@ -30,15 +29,15 @@ export class GlobalConfig {
     this.copyTasks = new CopyTasks(config, this).getValue();
   }
 
-  getFolderRootFrom(): string {
+  getFolderRootFrom() {
     return path.join(this.folders.rootFolder, this.folders.fromFolder);
   }
 
-  getFolderRootTo(): string {
+  getFolderRootTo() {
     return path.join(this.folders.rootFolder, this.folders.toFolder);
   }
 
-  getFolderRootToIndexHtml(): string {
+  getFolderRootToIndexHtml() {
     return path.join(this.folders.rootFolder, this.folders.toFolder, this.folders.indexHtmlFolder);
   }
 }

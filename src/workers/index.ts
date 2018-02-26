@@ -1,3 +1,4 @@
+///<reference path="../shared/common.d.ts" />
 export { compressImageWorker } from './compressImageWorker';
 export { copyFileWorker } from './copyFileWorker';
 export { writeFileWorker } from './writeFileWorker';

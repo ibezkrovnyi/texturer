@@ -1,52 +1,11 @@
-/*import { MultiTaskWorker } from '../shared/multitask/worker';
+import * as fs from 'fs';
 
-var fs = require("fs");
+export function copyFileWorker(data: any, callback: any) {
+  const source = data.source;
+  const target = data.target;
+  let finished = false;
 
-class CopyFileWorker extends MultiTaskWorker {
-
-  protected _onData(data: any): void {
-    let source = data.source,
-      target = data.target,
-      finished = false;
-
-    var done = (err?: Error) => {
-      if (!finished) {
-        if (err) {
-          this._sendError(err);
-        } else {
-          this._sendData(null);
-        }
-        finished = true;
-      }
-    };
-
-    let rd = fs.createReadStream(source);
-    rd.on("error", done);
-
-    let wr = fs.createWriteStream(target);
-    wr.on("error", done);
-    wr.on("close", function () {
-      // restore original file's modified date/time
-      let stat = fs.statSync(source);
-      fs.utimesSync(target, stat.atime, stat.mtime);
-
-      // done
-      done();
-    });
-    rd.pipe(wr);
-  }
-}
-
-new CopyFileWorker();
-*/
-const fs = require("fs");
-
-export function copyFileWorker(data: any, callback: any): void {
-  let source = data.source,
-    target = data.target,
-    finished = false;
-
-  var done = (err?: Error) => {
+  const done = (err?: Error) => {
     if (!finished) {
       if (err) {
         callback(err);
@@ -57,14 +16,14 @@ export function copyFileWorker(data: any, callback: any): void {
     }
   };
 
-  let rd = fs.createReadStream(source);
-  rd.on("error", done);
+  const rd = fs.createReadStream(source);
+  rd.on('error', done);
 
-  let wr = fs.createWriteStream(target);
-  wr.on("error", done);
-  wr.on("close", function () {
+  const wr = fs.createWriteStream(target);
+  wr.on('error', done);
+  wr.on('close', function () {
     // restore original file's modified date/time
-    let stat = fs.statSync(source);
+    const stat = fs.statSync(source);
     fs.utimesSync(target, stat.atime, stat.mtime);
 
     // done

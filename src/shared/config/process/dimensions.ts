@@ -15,29 +15,29 @@ export class ProcessDimensionsContainer extends BaseOption<Object | null> {
 }
 
 export class ProcessDimensionsMaxX extends BaseOption<number> {
-  getValue(): number {
+  getValue() {
     return this._getPropertyValue('max-x');
   }
 
-  protected _hasDefaultValue(): boolean {
+  protected _hasDefaultValue() {
     return true;
   }
 
-  protected _getDefaultValue(): number {
+  protected _getDefaultValue() {
     return 1920;
   }
 }
 
 export class ProcessDimensionsMaxY extends BaseOption<number> {
-  getValue(): number {
+  getValue() {
     return this._getPropertyValue('max-y');
   }
 
-  protected _hasDefaultValue(): boolean {
+  protected _hasDefaultValue() {
     return true;
   }
 
-  protected _getDefaultValue(): number {
+  protected _getDefaultValue() {
     return 1080;
   }
 }

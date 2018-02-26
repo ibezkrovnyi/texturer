@@ -1,15 +1,12 @@
-import { TextureMap } from '../containers/textureMap';
-import { Texture } from '../containers/textureMap';
-import { TextureImage } from '../containers/textureMap';
+import * as fs from 'fs';
+import * as path from 'path';
+import { TextureMap, Texture, TextureImage } from '../containers/textureMap';
 import { CopyTask } from '../config/tasks/copyTask';
 import { GlobalConfig } from '../config/globalConfig';
 import { LoadedFile } from '../containers/loadedFile';
 import { DataURIEncoder } from './dataURIEncoder';
 import { FSHelper } from './fsHelper';
-import { workers } from '../../texturer/tasks';
-
-var path = require("path"),
-  fs = require("fs");
+import { workers } from '../../texturer/workers';
 
 export class CopyTaskRunner {
   private _globalConfig: GlobalConfig;
@@ -26,11 +23,11 @@ export class CopyTaskRunner {
     this._callback = callback;
   }
 
-  run(): void {
+  run() {
     this._copyTask.files.forEach((file: string) => {
-      var fromFile = path.join(this._globalConfig.getFolderRootFrom(), file),
-        toFile = path.join(this._globalConfig.getFolderRootToIndexHtml(), file),
-        loadedFile: LoadedFile = this._loadedFiles[ file ];
+      const fromFile = path.join(this._globalConfig.getFolderRootFrom(), file);
+      const toFile = path.join(this._globalConfig.getFolderRootToIndexHtml(), file);
+      const loadedFile = this._loadedFiles[file];
 
       // dataURI
       let dataURI: string | null = null;
@@ -43,17 +40,17 @@ export class CopyTaskRunner {
         }
       }
 
-      var width = loadedFile.getWidth(),
-        height = loadedFile.getHeight();
+      const width = loadedFile.getWidth();
+      const height = loadedFile.getHeight();
 
-      let textureImage = new TextureImage();
+      const textureImage = new TextureImage();
       textureImage.setData(loadedFile.getRealWidth(), loadedFile.getRealHeight(), loadedFile.getBitmap(), loadedFile.getTrim(), loadedFile.isOpaque());
 
-      let texture = new Texture();
+      const texture = new Texture();
       texture.setData(0, 0, width, height);
       texture.setTextureImage(textureImage);
 
-      let textureMap: TextureMap = new TextureMap();
+      const textureMap = new TextureMap();
       textureMap.setData(file, width, height, false, false);
       textureMap.setDataURI(dataURI);
       textureMap.setTexture(file, texture);
@@ -70,7 +67,7 @@ export class CopyTaskRunner {
     });
   }
 
-  private _copyFile(fromFile: string, toFile: string, onCopyFinishedCallback: () => void): void {
+  private _copyFile(fromFile: string, toFile: string, onCopyFinishedCallback: () => void) {
     try {
       FSHelper.createDirectory(path.dirname(toFile));
 
@@ -83,26 +80,27 @@ export class CopyTaskRunner {
         fs.unlinkSync(toFile);
       }
     } catch (e) {
-      this._callback(new Error("COPY PREPARATION: " + e.toString()), null);
+      this._callback(new Error('COPY PREPARATION: ' + e.toString()), null);
     }
 
-    var copyTask = workers.copyFileWorker({ source: fromFile, target: toFile }, (error: string) => {
+    const copyTask = workers.copyFileWorker({ source: fromFile, target: toFile }, (error: string) => {
       if (error) {
-        this._callback(new Error("" +
-          "COPY: \n" +
-          "src: " + fromFile + "\n" +
-          "dst: " + toFile + "\n" +
-          "error: " + error
-        ), null);
+        this._callback(
+          new Error('' +
+            'COPY: \n' +
+            'src: ' + fromFile + '\n' +
+            'dst: ' + toFile + '\n' +
+            'error: ' + error,
+          ),
+          null,
+        );
       }
 
       onCopyFinishedCallback();
     });
-
-    // this._clusterQueue.runTask(copyTask);
   }
 
-  private _addTextureMap(textureMapImage: TextureMap): void {
+  private _addTextureMap(textureMapImage: TextureMap) {
     this._textureMaps.push(textureMapImage);
 
     if (this._copyTask.files.length === this._textureMaps.length) {

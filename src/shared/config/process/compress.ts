@@ -24,7 +24,7 @@ export class ProcessCompress {
   tinyPng: boolean | null;
 
   constructor(configObject: Object | null, inheritCompression: ProcessCompress | null = null) {
-    let compression = new ProcessCompressContainer(configObject, null).getValue();
+    const compression = new ProcessCompressContainer(configObject, null).getValue();
 
     if (inheritCompression) {
       this.tinyPng = new ProcessCompressTinyPng(compression, inheritCompression.tinyPng).getValue();

@@ -1,25 +1,25 @@
 import { BaseOption } from '../baseOption';
 
 class FolderRoot extends BaseOption<string> {
-  getValue(): string {
+  getValue() {
     return process.cwd();
   }
 }
 
 class FolderFrom extends BaseOption<string> {
-  getValue(): string {
+  getValue() {
     return this._getPropertyValue('source');
   }
 }
 
 class FolderTo extends BaseOption<string> {
-  getValue(): string {
+  getValue() {
     return this._getPropertyValue('target');
   }
 }
 
 class FolderIndexHtml extends BaseOption<string> {
-  getValue(): string {
+  getValue() {
     return this._getPropertyValue('images(index.html)');
   }
 }
@@ -31,7 +31,7 @@ export class Folders {
   indexHtmlFolder: string;
 
   constructor(configObject: { folders: any }) {
-    let foldersObject = configObject[ "folders" ];
+    const foldersObject = configObject.folders;
     this.rootFolder = new FolderRoot(foldersObject).getValue();
     this.fromFolder = new FolderFrom(foldersObject).getValue();
     this.toFolder = new FolderTo(foldersObject).getValue();

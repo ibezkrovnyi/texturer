@@ -1,15 +1,15 @@
 import { BaseOption } from '../baseOption';
 
 export class RepeatX extends BaseOption<boolean> {
-  getValue(): boolean {
+  getValue() {
     return this._getPropertyValue('repeat-x');
   }
 
-  protected _hasDefaultValue(): boolean {
+  protected _hasDefaultValue() {
     return true;
   }
 
-  protected _getDefaultValue(): boolean {
+  protected _getDefaultValue() {
     return false;
   }
 }

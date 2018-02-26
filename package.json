@@ -17,6 +17,8 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "tsc -p src/texturer & tsc -p src/workers",
+    "lint": "tslint --format verbose --config tslint.json --project ./src/workers/tsconfig.json && tslint --format verbose --config tslint.json --project ./src/texturer/tsconfig.json",
+    "lint-fix": "tslint --fix --format verbose --config tslint.json --project ./src/workers/tsconfig.json && tslint --fix --format verbose --config tslint.json --project ./src/texturer/tsconfig.json",
     "prepublish": "npm run build"
   },
   "bugs": {
@@ -24,7 +26,7 @@
   },
   "dependencies": {
     "bmp-js": "ibezkrovnyi/bmp-js",
-    "handlebars": "4.*",
+    "handlebars": "4.0.11",
     "jpeg-js": "0.0.4"
   },
   "preferGlobal": true,
@@ -33,9 +35,14 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@ibezkrovnyi/tslint-rules": "0.0.3",
+    "@types/handlebars": "4.0.29",
     "@types/node": "9.4.6",
+    "jsonc-parser": "1.0.1",
     "rimraf": "latest",
     "tslint": "5.9.1",
+    "tslint-config-airbnb": "5.7.0",
+    "tslint-consistent-codestyle": "1.11.1",
     "tslint-language-service": "0.9.8",
     "typescript": "2.7.2",
     "worker-farm": "1.5.2"

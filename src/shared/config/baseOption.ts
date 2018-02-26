@@ -11,15 +11,15 @@ export class BaseOption<T> {
 
   // TODO: make abstract when WebStorm will support it
   getValue(): T {
-    throw new Error("BaseOption#getValue: this method is abstract");
+    throw new Error('BaseOption#getValue: this method is abstract');
   }
 
-  protected _hasDefaultValue(): boolean {
+  protected _hasDefaultValue() {
     return false;
   }
 
   protected _getDefaultValue(): T {
-    throw new Error("BaseOption#_getDefaultValue: this method is abstract");
+    throw new Error('BaseOption#_getDefaultValue: this method is abstract');
   }
 
   protected _getPropertyValue(propertyName: string): T {

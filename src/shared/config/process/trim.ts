@@ -19,25 +19,25 @@ export class ProcessTrimEnable extends BaseOption<boolean | null> {
     return this._getPropertyValue('enable');
   }
 
-  protected _hasDefaultValue(): boolean {
+  protected _hasDefaultValue() {
     return true;
   }
 
-  protected _getDefaultValue(): boolean {
+  protected _getDefaultValue() {
     return true;
   }
 }
 
 export class ProcessTrimAlpha extends BaseOption<number> {
-  getValue(): number {
+  getValue() {
     return this._getPropertyValue('alpha');
   }
 
-  protected _hasDefaultValue(): boolean {
+  protected _hasDefaultValue() {
     return true;
   }
 
-  protected _getDefaultValue(): number {
+  protected _getDefaultValue() {
     return 0;
   }
 }

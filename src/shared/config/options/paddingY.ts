@@ -1,15 +1,15 @@
 import { BaseOption } from '../baseOption';
 
 export class PaddingY extends BaseOption<number> {
-  getValue(): number {
+  getValue() {
     return this._getPropertyValue('padding-y');
   }
 
-  protected _hasDefaultValue(): boolean {
+  protected _hasDefaultValue() {
     return true;
   }
 
-  protected _getDefaultValue(): number {
+  protected _getDefaultValue() {
     return 0;
   }
 }

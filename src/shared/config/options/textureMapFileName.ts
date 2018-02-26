@@ -1,17 +1,17 @@
 import { BaseOption } from '../baseOption';
 
 export class TextureMapFileName extends BaseOption<string> {
-  private static _uniqueId: number = 0;
+  private static _uniqueId = 0;
 
-  getValue(): string {
+  getValue() {
     return this._getPropertyValue('texture-map-file');
   }
 
-  protected _hasDefaultValue(): boolean {
+  protected _hasDefaultValue() {
     return true;
   }
 
-  protected _getDefaultValue(): string {
+  protected _getDefaultValue() {
     return 'textureMap' + (TextureMapFileName._uniqueId++) + '.png';
   }
 }

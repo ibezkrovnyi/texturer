@@ -5,12 +5,12 @@ import { Rect } from '../shared/containers/rect';
 import { BinPackerResult } from '../shared/containers/binPackerResult';
 
 export const workers = workerFarm(
-  require.resolve('../workers/index'), 
-  [ 
-    'copyFileWorker', 
-    'compressImageWorker', 
-    'writeFileWorker', 
-    'tinyPngWorker', 
-    'binPackerWorker' 
-  ]
+  require.resolve('../workers/index'),
+  [
+    'copyFileWorker',
+    'compressImageWorker',
+    'writeFileWorker',
+    'tinyPngWorker',
+    'binPackerWorker',
+  ],
 ) as any;

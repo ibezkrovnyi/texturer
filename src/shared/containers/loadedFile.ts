@@ -19,31 +19,31 @@ export class LoadedFile {
     this._bitmap = bitmap;
   }
 
-  isOpaque(): boolean {
+  isOpaque() {
     return this._opaque;
   }
 
-  getWidth(): number {
+  getWidth() {
     return this._width;
   }
 
-  getHeight(): number {
+  getHeight() {
     return this._height;
   }
 
-  getRealWidth(): number {
+  getRealWidth() {
     return this._realWidth;
   }
 
-  getRealHeight(): number {
+  getRealHeight() {
     return this._realHeight;
   }
 
-  getTrim(): Rect {
+  getTrim() {
     return this._trim;
   }
 
-  getBitmap(): number[] {
+  getBitmap() {
     return this._bitmap;
   }
 }

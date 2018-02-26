@@ -6,6 +6,7 @@
  *
  * LICENSE TEXT: {@link https://github.com/igor-bezkrovny/texturer/blob/master/LICENSE}
  */
+///<reference path="../shared/common.d.ts" />
 import * as fs from 'fs';
 import * as path from 'path';
 import * as util from 'util';
@@ -20,9 +21,9 @@ import { CopyTaskRunner } from '../shared/utils/copyTaskRunner';
 import { TextureMapTaskRunner } from '../shared/utils/textureMapTaskRunner';
 import { CopyTask } from '../shared/config/tasks/copyTask';
 import { TextureMapTask } from '../shared/config/tasks/textureMapTask';
-import { workers } from './tasks';
+import { workers } from './workers';
 
-let _startTime = Date.now();
+const startTime = Date.now();
 
 export class Texturer {
   private _callback!: (error?: string | Error | null) => void;
@@ -78,23 +79,23 @@ export class Texturer {
         if (error) {
           this._shutdown(error);
         } else {
-          let trim: Rect = { left: 0, right: 0, top: 0, bottom: 0 },
-            realWidth = instance.width,
-            realHeight = instance.height;
+          const realWidth = instance.width;
+          const realHeight = instance.height;
+          let trim: Rect = { left: 0, right: 0, top: 0, bottom: 0 }; // TODO: why Rect explicit type was not removed by no-unnecessary-type-annotaations ?
 
           // trim image if it is part of sprite
           if (doTrim) {
-            let trimResult = ImageHelper.trimImage(instance, alphaThreshold);
+            const trimResult = ImageHelper.trimImage(instance, alphaThreshold);
 
             // new trimmed png instance and trim parameters
             instance = trimResult.png;
             trim = trimResult.trim;
           }
-          this._loadedFiles[ file ] = new LoadedFile(instance.width, instance.height, realWidth, realHeight, ImageHelper.isOpaque(instance), trim, instance.data);
+          this._loadedFiles[file] = new LoadedFile(instance.width, instance.height, realWidth, realHeight, ImageHelper.isOpaque(instance), trim, instance.data);
 
           this._loadedFilesCount++;
           if (this._totalFilesCount === this._loadedFilesCount) {
-            logMemory("files loaded: " + this._totalFilesCount);
+            logMemory('files loaded: ' + this._totalFilesCount);
             this._generateTextureMaps();
           }
         }
@@ -108,7 +109,7 @@ export class Texturer {
   }
 
   private _runCopyTask(copyTask: CopyTask) {
-    let runner = new CopyTaskRunner(this._configParser, copyTask, this._loadedFiles, (error, textureMaps: TextureMap[]) => {
+    const runner = new CopyTaskRunner(this._configParser, copyTask, this._loadedFiles, (error, textureMaps: TextureMap[]) => {
       if (error) {
         this._shutdown(error);
       } else {
@@ -119,25 +120,25 @@ export class Texturer {
   }
 
   private _runTextureMapTask(textureMapTask: TextureMapTask) {
-    let runner = new TextureMapTaskRunner(this._configParser, textureMapTask, this._loadedFiles, (error: any, textureMap: any) => {
+    const runner = new TextureMapTaskRunner(this._configParser, textureMapTask, this._loadedFiles, (error: any, textureMap: any) => {
       if (error) {
         this._shutdown(error);
       } else {
-        this._onTextureMapGenerated([ textureMap ]);
+        this._onTextureMapGenerated([textureMap]);
       }
     });
     runner.run();
   }
 
   private _onTextureMapGenerated(textureMaps: TextureMap[]) {
-    for (let textureMap of textureMaps) {
-      this._textureMapArray.push(textureMap)
+    for (const textureMap of textureMaps) {
+      this._textureMapArray.push(textureMap);
     }
 
     if (this._textureMapArray.length === this._totalTexturMapsRequiredCount) {
-      logMemory('build time: ' + (Date.now() - _startTime) + ' ms');
-      var duplicateFileNamesArray = new TexturePoolWriter().writeTexturePoolFile(this._configParser.getFolderRootTo(), this._configParser, this._loadedFiles, this._textureMapArray);
-      this._shutdown(duplicateFileNamesArray.length > 0 ? new Error("Found duplicate file names:\n" + duplicateFileNamesArray.join("\n")) : null);
+      logMemory('build time: ' + (Date.now() - startTime) + ' ms');
+      const duplicateFileNamesArray = new TexturePoolWriter().writeTexturePoolFile(this._configParser.getFolderRootTo(), this._configParser, this._loadedFiles, this._textureMapArray);
+      this._shutdown(duplicateFileNamesArray.length > 0 ? new Error('Found duplicate file names:\n' + duplicateFileNamesArray.join('\n')) : null);
     }
   }
 
@@ -151,8 +152,7 @@ export class Texturer {
   }
 }
 
-var __logMemoryUsage = process.memoryUsage();
-
+const logMemoryUsage = process.memoryUsage();
 function logMemory(title: string) {
-  console.log(title + "\nheapUsed: " + (process.memoryUsage().heapUsed - __logMemoryUsage.heapUsed + ", heapTotal: " + process.memoryUsage().heapTotal));
+  console.log(title + '\nheapUsed: ' + (process.memoryUsage().heapUsed - logMemoryUsage.heapUsed + ', heapTotal: ' + process.memoryUsage().heapTotal));
 }

@@ -1,15 +1,16 @@
-let fs = require("fs"),
-  https = require("https"),
-  url = require("url");
+import * as fs from 'fs';
+import * as https from 'https';
+import * as url from 'url';
+import { parse } from 'jsonc-parser';
 
 export class TinyPngService {
 
-  static requestFile(configFile: string, postData: any, callback: any): void {
-    let req_options = url.parse("https://api.tinypng.com/shrink");
-    req_options.auth = "api:" + TinyPngService._getBestKey(configFile);
-    req_options.method = "POST";
+  static requestFile(configFile: string, postData: any, callback: any) {
+    const requestOptions: https.RequestOptions = url.parse('https://api.tinypng.com/shrink');
+    requestOptions.auth = 'api:' + TinyPngService._getBestKey(configFile);
+    requestOptions.method = 'POST';
 
-    let req = https.request(req_options, function (res: any) {
+    const req = https.request(requestOptions, function (res: any) {
       if (res.statusCode === 201) {
         TinyPngService._getFile(res.headers.location, callback);
       } else {
@@ -18,16 +19,11 @@ export class TinyPngService {
           callback = null;
         }
       }
-      //console.log('STATUS: ' + res.statusCode);
-      //console.log('HEADERS: ' + JSON.stringify(res.headers));
-
-      //res.setEncoding('utf8');
-      res.on('data', function (chunk: any) {
-        //console.log('BODY: ' + chunk);
+      res.on('data', function () {
       });
     });
 
-    req.on('error', function (e: Error) {
+    req.on('error', function (e) {
       if (callback) {
         callback(e, null);
         callback = null;
@@ -40,14 +36,13 @@ export class TinyPngService {
   }
 
   private static _getBestKey(configFile: string): string {
-    let data = eval("(" + fs.readFileSync(configFile, 'utf8') + ")");
+    const data = parse(fs.readFileSync(configFile, 'utf8'));
+    const curDate = new Date();
+    const curYear = curDate.getFullYear();
+    const curMonth = curDate.getMonth() + 1;
 
-    let curDate = new Date(),
-      curYear = curDate.getFullYear(),
-      curMonth = curDate.getMonth() + 1,
-      best: any = null;
-
-    data[ "tinypng-api-keys" ].forEach(function (keyData: any) {
+    let best: any = null;
+    data[ 'tinypng-api-keys' ].forEach(function (keyData: any) {
       // check if month passed
       if (curYear !== keyData.year || curMonth !== keyData.month) {
         keyData.used = 0;
@@ -61,25 +56,25 @@ export class TinyPngService {
     });
 
     best.used++;
-    fs.writeFileSync(configFile, JSON.stringify(data, null, "\t"));
+    fs.writeFileSync(configFile, JSON.stringify(data, null, '\t'));
     return best.key;
   }
 
-  private static _getFile(url: string, callback: any): void {
+  private static _getFile(url: string, callback: any) {
     https.get(url, function (res: any) {
-      let chunks: any[] = [];
-      res.on("data", function (chunk: any) {
+      const chunks: any[] = [];
+      res.on('data', function (chunk: any) {
         chunks.push(chunk);
       });
 
-      res.on("end", function () {
+      res.on('end', function () {
         if (callback) {
           callback(null, Buffer.concat(chunks));
           callback = null;
         }
       });
 
-      res.on("error", function (e: Error) {
+      res.on('error', function (e: Error) {
         if (callback) {
           callback(e, null);
           callback = null;
