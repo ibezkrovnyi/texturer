@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as path from 'path';
 import Handlebars from 'handlebars';
 import { FSHelper } from './fsHelper';
@@ -123,7 +123,7 @@ export class TexturePoolWriter {
         console.log(`${templateFolderAndFile} => ${resultFile}`);
         const template = Handlebars.compile(text);
         if (template) {
-          FSHelper.createDirectory(path.dirname(resultFile));
+          fs.ensureDirSync(path.dirname(resultFile));
           fs.writeFileSync(resultFile, template(data));
         } else {
           console.log('template error in ' + resultFile);

@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as path from 'path';
 import { TextureMap, Texture, TextureImage } from '../containers/textureMap';
 import { CopyTask } from '../config/tasks/copyTask';
@@ -69,7 +69,7 @@ export class CopyTaskRunner {
 
   private _copyFile(fromFile: string, toFile: string, onCopyFinishedCallback: () => void) {
     try {
-      FSHelper.createDirectory(path.dirname(toFile));
+      fs.ensureDirSync(path.dirname(toFile));
 
       // check if file exists
       if (fs.existsSync(toFile)) {

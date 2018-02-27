@@ -2,7 +2,7 @@ var path = require('path');
 
 module.exports = {
   mode: "development",
-  devtool: "inline-source-map",
+  devtool: "source-map",
   entry: {
     texturer: './src/texturer/index.ts',
     workers: './src/workers/index.ts',

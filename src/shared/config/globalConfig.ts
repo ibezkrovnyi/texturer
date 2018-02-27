@@ -1,3 +1,4 @@
+import * as fs from 'fs-extra';
 import * as path from 'path';
 import { Folders } from './options/folders';
 import { CopyTask } from './tasks/copyTask';
@@ -19,7 +20,8 @@ export class GlobalConfig {
 
   constructor(config: any) {
     this.folders = new Folders(config);
-    FSHelper.createDirectory(this.getFolderRootToIndexHtml());
+    console.log('x1x', this.getFolderRootToIndexHtml());
+    fs.ensureDirSync(this.getFolderRootToIndexHtml());
 
     this.templates = new Templates(config).getValue();
     this.excludeRegExPattern = new ExcludeRegExPattern(config).getValue();
