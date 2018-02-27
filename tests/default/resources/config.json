@@ -6,7 +6,7 @@
 	},
 	"exclude" : ".*wl.*",
 	"templates" : [
-		"ts.hbs", "D:/111/1ts.h1", "OO"
+		"../test.hbs", "OO"
 	],
 	"task-defaults" : {
 		"brute-force-time" : 0,

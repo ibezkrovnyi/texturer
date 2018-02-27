@@ -1,0 +1,31 @@
+js/texturePool.js
+// Statistics:
+// - textures: {{textures.length}}
+// - textureMaps: {{maps.length}}
+
+var Game = Game || {};
+(function(config) {
+
+	var maps = [{{#each maps}}
+		{
+			url        : "{{url}}",
+			width      : {{width}},
+			height     : {{height}},
+			repeatX    : {{repeat-x}},
+			repeatY    : {{repeat-y}}
+		}{{#unless is-last-item}}, {{/unless}}{{/each}}
+	];
+
+	config.texturePool = { {{#each textures}}
+		"{{id}}" : {
+			map        : maps[{{map-index}}],
+			x          : {{x}},
+			y          : {{y}},
+			width      : {{real-width}},
+			height     : {{real-height}},
+			opaque     : {{opaque}},
+			trim       : { left : {{trim.left}}, right : {{trim.right}}, top : {{trim.top}}, bottom : {{trim.bottom}} }
+		}{{#unless is-last-item}}, {{/unless}}{{/each}}
+	};
+
+})(Game.config = Game.config || {});
