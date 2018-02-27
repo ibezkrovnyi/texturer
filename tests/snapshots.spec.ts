@@ -24,7 +24,7 @@ function expectFolderToMatchSnapshot(folder: string) {
     process.chdir(path.join(absoluteFolder, 'resources'));
     execSync('node ../../../bin/texturer config.json');
     process.chdir(cwd);
-    const calculatedHash = getHashFromBuffer(serializeFolderToBuffer(path.join(absoluteFolder, 'source')));
+    const calculatedHash = getHashFromBuffer(serializeFolderToBuffer(path.join(absoluteFolder, 'source/images')));
     expect(calculatedHash).toMatchSnapshot();
 }
 
@@ -42,7 +42,7 @@ function serializeFolderToBuffer(folder: string) {
         if (file.indexOf('texturePool.ts') >= 0) {
             console.log(fs.readFileSync(file).toString('utf8'));
         }
-    })
+    });
 
     const chunks = files.map(file => fs.readFileSync(file) as any as Buffer);
     return Buffer.concat(chunks);
