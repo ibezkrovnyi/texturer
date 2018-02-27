@@ -2,13 +2,13 @@ Texturer
 ========
 Texture Map Generator in **TypeScript** _(MIT License)_
 
-[![github](https://img.shields.io/badge/github-.com-brightgreen.svg)](https://github.com/igor-bezkrovny/texturer)
+[![github](https://img.shields.io/badge/github-.com-brightgreen.svg)](https://github.com/ibezkrovnyi/texturer)
 [![npm version](https://badge.fury.io/js/texturer.svg)](https://www.npmjs.com/package/texturer "Texturer on NPM")
 [![NPM License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **images/textureMap0.png**
 
-![Texture](https://raw.githubusercontent.com/igor-bezkrovny/texturer/master/example/texture_example.png "Texture")
+![Texture](sample.png "Texture")
 
 **texturePool.ts** (TypeScript template result. See all [templates](templates) or create your [own (custom) template](#own-custom-template))
 ```typescript
@@ -57,10 +57,10 @@ Install this module globally with the following command:
 npm install texturer -g
 ```
 
-### from GitHub (https://github.com/igor-bezkrovny/texturer) 
+### from GitHub (https://github.com/ibezkrovnyi/texturer) 
 
 ```shell
-git clone https://github.com/igor-bezkrovny/texturer
+git clone https://github.com/ibezkrovnyi/texturer
 cd texturer
 npm install
 npm run build
@@ -407,7 +407,7 @@ var Game = Game || {};
 
 TODO
 ====
-1) integrate with [image-quantization-library](https://github.com/igor-bezkrovny/ImageQuantization)
+1) integrate with [image-quantization-library](https://github.com/ibezkrovnyi/ImageQuantization)
 
 2) interlaced jpeg decoding (?)
 

@@ -1,5 +1,6 @@
-.idea
-.vscode
-.rpt2_cache
-node_modules
-example/app/source
+/.idea
+/.vscode
+/.rpt2_cache
+/node_modules
+/example/app/source
+/tests
