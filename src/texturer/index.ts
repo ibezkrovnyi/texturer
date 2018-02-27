@@ -37,7 +37,7 @@ export class Texturer {
   generate(config: Object, callback: (error?: string | Error | null) => void) {
     this._callback = callback;
 
-    try {
+    // try {
       this._configParser = new GlobalConfig(config);
       this._textureMapArray = [];
 
@@ -48,9 +48,9 @@ export class Texturer {
       this._totalTexturMapsRequiredCount = 0;
 
       this._loadFiles();
-    } catch (e) {
-      this._shutdown(e);
-    }
+    // } catch (e) {
+    //   this._shutdown(e);
+    // }
   }
 
   private _loadFiles() {
