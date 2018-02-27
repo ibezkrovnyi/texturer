@@ -6,11 +6,46 @@ import { LoadedFile } from '../containers/loadedFile';
 import { TextureMap } from '../containers/textureMap';
 import { GlobalConfig } from '../config/globalConfig';
 
+interface TemplateMap {
+  url: string;
+  'data-uri': string;
+  'is-last-item': boolean;
+  width: number;
+  height: number;
+  'repeat-x': boolean;
+  'repeat-y': boolean;
+}
+
+interface TemplateTexture {
+  // "css-id"    : this.getFileNameWithoutExtension(texture.id).replace(/^[(\d+)`~\| !@#\$%\^&\*\(\)\-=\+\?\.,<>]+|[`~\|!@#\$%\^&\*\(\)\-=\+\? \.,<>]/g, ""),
+  id: string;
+  file: string;
+  'map-index': number;
+  url: string;
+  'data-uri': string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  'real-width': number;
+  'real-height': number;
+  trim: {
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+  };
+  opaque: boolean;
+  'repeat-x': boolean;
+  'repeat-y': boolean;
+  'is-last-item': boolean;
+}
+
 export class TexturePoolWriter {
 
   writeTexturePoolFile(folderRootTo: string, configParser: GlobalConfig, loadedFiles: { [fileName: string]: LoadedFile }, textureMapImages: TextureMap[]) {
-    const templateTexturesArray: any[] = [];
-    const templateMapsArray: any[] = [];
+    const templateTexturesArray: TemplateTexture[] = [];
+    const templateMapsArray: TemplateMap[] = [];
     let usedPixels = 0;
     let trimmedPixels = 0;
 
@@ -68,6 +103,13 @@ export class TexturePoolWriter {
       });
     },
     );
+
+    stableSort(templateMapsArray, (a, b) => {
+      return a.url > b.url ? 1 : a.url < b.url ? -1 : 0;
+    });
+    stableSort(templateTexturesArray, (a, b) => {
+      return a.id > b.id ? 1 : a.id < b.id ? -1 : 0;
+    });
 
     const duplicateFileNamesArray: string[] = [];
     templateTexturesArray.forEach(function (d1, i1) {
@@ -131,4 +173,16 @@ export class TexturePoolWriter {
       }
     }
   }
+}
+
+// TODO: extract to utils
+function stableSort<T>(arr: T[], compare: (a: T, b: T) => number) {
+  var original = arr.slice(0);
+
+  arr.sort((a, b) => {
+      const result = compare(a, b);
+      return result === 0 ? original.indexOf(a) - original.indexOf(b) : result;
+  });
+
+  return arr;
 }
