@@ -8,7 +8,7 @@ import { GlobalConfig } from '../config/globalConfig';
 
 interface TemplateMap {
   url: string;
-  'data-uri': string;
+  'data-uri': string | null;
   'is-last-item': boolean;
   width: number;
   height: number;
@@ -22,7 +22,7 @@ interface TemplateTexture {
   file: string;
   'map-index': number;
   url: string;
-  'data-uri': string;
+  'data-uri': string | null;
   x: number;
   y: number;
   width: number;
