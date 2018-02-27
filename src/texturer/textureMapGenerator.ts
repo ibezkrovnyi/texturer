@@ -1,138 +1,167 @@
-///<referenc1e path="../shared/utils/textureMap.ts"/>
-///<reference path="../shared/multitask/master.ts"/>
-///<reference path="../shared/containers/textureMap.ts"/>
-///<reference path="../shared/config/tasks/textureMapTask.ts"/>
-///<reference path="tasks/binPackerMaster.ts"/>
-namespace Texturer {
+import * as path from 'path';
+import { TextureMap, Texture, FileDimensions } from '../shared/containers/textureMap';
+import { TextureMapTask } from '../shared/config/tasks/textureMapTask';
+import { Rect } from '../shared/containers/rect';
+import { BinPackerResult } from '../shared/containers/binPackerResult';
+import { workers } from './workers';
 
-	let path = require("path");
+export class TextureMapGenerator {
+  private _plannedPlaceFilesTests!: number;
+  private _finishedPlaceFilesTests!: number;
+  private _textureMap!: TextureMap | null;
+  private _callback!: any;
+  private _totalPixels!: number;
+  private _endTime!: number;
+  private _textureMapTask!: TextureMapTask;
+  private _targetRectangle!: Rect;
+  private _files!: FileDimensions[];
 
-	export class TextureMapGenerator {
-		private _cq : MultiTask.Master;
-		private _plannedPlaceFilesTests : number;
-		private _finishedPlaceFilesTests : number;
-		private _textureMap : Containers.TextureMap;
-		private _callback : (error : string, textureMap : Containers.TextureMap) => void;
-		private _totalPixels;
-		private _endTime : number;
-		private _textureMapTask : Config.TextureMapTask;
-		private _targetRectangle : Containers.Rect;
-		private _files : Containers.FileDimensions[];
+  constructor() {
+  }
 
-		constructor(cq) {
-			this._cq = cq;
-		}
+  generateTextureMap(files: FileDimensions[], textureMapTask: TextureMapTask, callback: any) {
+    try {
+      // calculate total pixels
+      let totalPixels = 0;
+      files.forEach(function (file: any) {
+        totalPixels += file.width * file.height;
+      });
 
-		generateTextureMap(files : Containers.FileDimensions[], textureMapTask : Config.TextureMapTask, callback : (error : string, textureMap : Containers.TextureMap) => void) : void {
-			try {
-				// calculate total pixels
-				let totalPixels = 0;
-				files.forEach(function (file : any) {
-					totalPixels += file.width * file.height;
-				});
+      this._plannedPlaceFilesTests = 3;
+      this._finishedPlaceFilesTests = 0;
+      this._textureMap = null;
+      this._callback = callback;
+      this._totalPixels = totalPixels;
+      this._endTime = Date.now() + textureMapTask.bruteForceTime;
 
-				this._plannedPlaceFilesTests  = 3;
-				this._finishedPlaceFilesTests = 0;
-				this._textureMap              = null;
-				this._callback                = callback;
-				this._totalPixels             = totalPixels;
-				this._endTime                 = Date.now() + textureMapTask.bruteForceTime;
+      const targetRectangle = this._checkFiles(textureMapTask, files);
 
-				let targetRectangle = this._checkFiles(textureMapTask, files);
+      this._textureMapTask = textureMapTask;
+      this._targetRectangle = targetRectangle;
+      this._files = files;
 
-				this._textureMapTask  = textureMapTask;
-				this._targetRectangle = targetRectangle;
-				this._files           = files;
+      // try different combinations
+      this._placeFiles(textureMapTask, targetRectangle, files.sort((a: any, b: any) => (b.width * b.height - a.width * a.height) || (b.id > a.id ? 1 : -1)));
+      this._placeFiles(textureMapTask, targetRectangle, files.sort((a: any, b: any) => (b.width - a.width) || (b.id > a.id ? 1 : -1)));
+      this._placeFiles(textureMapTask, targetRectangle, files.sort((a: any, b: any) => (b.height - a.height) || (b.id > a.id ? 1 : -1)));
 
-				// try different combinations
-				this._placeFiles(textureMapTask, targetRectangle, files.sort((a : any, b : any) => (b.width * b.height - a.width * a.height) || (b.id > a.id ? 1 : -1)));
-				this._placeFiles(textureMapTask, targetRectangle, files.sort((a : any, b : any) => (b.width - a.width) || (b.id > a.id ? 1 : -1)));
-				this._placeFiles(textureMapTask, targetRectangle, files.sort((a : any, b : any) => (b.height - a.height) || (b.id > a.id ? 1 : -1)));
+      /*
+       for (let i = 0; i < textureMapTask.getNPass(); i++) {
+       this._placeFiles(textureMapTask, targetRectangle, this._getShuffledArray(files));
+       }
+       */
+    } catch (e) {
+      callback(e.stack, null);
+    }
+  }
 
-				/*
-				 for (let i = 0; i < textureMapTask.getNPass(); i++) {
-				 this._placeFiles(textureMapTask, targetRectangle, this._getShuffledArray(files));
-				 }
-				 */
-			} catch (e) {
-				callback(e.stack, null);
-			}
-		}
+  private _onPlaceFilesFinished(error: any, bestTextureMap: TextureMap | null) {
+    if (!error && bestTextureMap) {
+      if (this._textureMap === null || bestTextureMap.getArea() < this._textureMap.getArea()) {
+        this._textureMap = bestTextureMap;
+      }
+    }
 
-		private _onPlaceFilesFinished(error, bestTextureMap : Containers.TextureMap) {
-			if (!error && bestTextureMap) {
-				if (this._textureMap === null || bestTextureMap.getArea() < this._textureMap.getArea()) {
-					this._textureMap = bestTextureMap;
-				}
-			}
+    this._finishedPlaceFilesTests++;
+    if (this._finishedPlaceFilesTests === this._plannedPlaceFilesTests) {
+      if (Date.now() < this._endTime) {
+        this._plannedPlaceFilesTests++;
+        this._placeFiles(this._textureMapTask, this._targetRectangle, this._getShuffledArray(this._files));
+      } else {
+        if (this._textureMap && this._textureMap.getArea() > 0) {
+          this._callback(null, this._textureMap);
+        } else {
+          this._callback(null, null);
+        }
+      }
+    }
+  }
 
-			this._finishedPlaceFilesTests++;
-			if (this._finishedPlaceFilesTests === this._plannedPlaceFilesTests) {
-				if (Date.now() < this._endTime) {
-					this._plannedPlaceFilesTests++;
-					this._placeFiles(this._textureMapTask, this._targetRectangle, this._getShuffledArray(this._files));
-				} else {
-					if (this._textureMap && this._textureMap.getArea() > 0) {
-						this._callback(null, this._textureMap);
-					} else {
-						this._callback(null, null);
-					}
-				}
-			}
-		}
+  private _placeFiles(textureMapTask: TextureMapTask, targetRectangle: Rect, files: FileDimensions[]) {
+    const data = {
+      files,
+      fromX: targetRectangle.left,
+      toX: targetRectangle.right,
+      fromY: targetRectangle.top,
+      toY: targetRectangle.bottom,
+      totalPixels: this._totalPixels,
+      gridStep: textureMapTask.gridStep,
+      paddingX: textureMapTask.paddingX,
+      paddingY: textureMapTask.paddingY,
+    };
+    workers.binPackerWorker(data, (error: string, data: BinPackerResult) => {
+      if (error) {
+        throw new Error(error);
+      } else {
+        if (!data) {
+          // TODO: it is not good to call callback with null, think about convert it to specific Error
+          this._onPlaceFilesFinished(null, null);
+        } else {
+          const width = data.width;
+          const height = data.height;
+          const textureIds = Object.keys(data.rectangles);
 
-		private _placeFiles(textureMapTask : Config.TextureMapTask, targetRectangle : Containers.Rect, files : Containers.FileDimensions[]) {
-			this._cq.runTask(new BinPackerMaster(textureMapTask, files, targetRectangle, this._totalPixels, (textureMap : Containers.TextureMap) => {
-				this._onPlaceFilesFinished(null, textureMap);
-			}));
-		}
+          const textureMap = new TextureMap();
+          textureMap.setData(textureMapTask.textureMapFileName, width, height, textureMapTask.repeatX, textureMapTask.repeatY);
+          for (const id of textureIds) {
+            const texture = new Texture();
+            const textureContainer = data.rectangles[ id ];
+            // TODO: why next line in red??
+            texture.setData(textureContainer.x, textureContainer.y, textureContainer.width, textureContainer.height);
+            textureMap.setTexture(id, texture);
+          }
 
-		private _getShuffledArray<T>(arr : T[]) : T[] {
-			let shuffled = arr.slice(0);
-			for (let i = 0; i < shuffled.length - 1; i++) {
-				let l     = shuffled.length;
-				let index = ((Math.random() * (l - i)) | 0) + i;
+          this._onPlaceFilesFinished(null, textureMap);
+        }
+      }
+    });
+  }
 
-				let tmp           = shuffled[ index ];
-				shuffled[ index ] = shuffled[ i ];
-				shuffled[ i ]     = tmp;
-			}
+  private _getShuffledArray<T>(arr: T[]) {
+    const shuffled = arr.slice(0);
+    for (let i = 0; i < shuffled.length - 1; i++) {
+      const l = shuffled.length;
+      const index = ((Math.random() * (l - i)) | 0) + i;
 
-			return shuffled;
-		}
+      const tmp = shuffled[ index ];
+      shuffled[ index ] = shuffled[ i ];
+      shuffled[ i ] = tmp;
+    }
 
-		private _checkFiles(textureMapTask : Config.TextureMapTask, files : Containers.FileDimensions[]) : Containers.Rect {
-			// TODO: use another interface here. Rect should for trim!!
-			let targetRectangle : Containers.Rect = {
-				left   : 4,
-				right  : textureMapTask.dimensions.maxX,
-				top    : 4,
-				bottom : textureMapTask.dimensions.maxY
-			};
+    return shuffled;
+  }
 
-			if (textureMapTask.repeatX && textureMapTask.repeatY) {
-				throw new Error("TextureMapGenerator#_checkFiles: Sprite can't be repeat-x and repeat-y at the same time");
-			}
+  private _checkFiles(textureMapTask: TextureMapTask, files: FileDimensions[]) {
+    // TODO: use another interface here. Rect should for trim!!
+    const targetRectangle: Rect = {
+      left: 4,
+      right: textureMapTask.dimensions.maxX,
+      top: 4,
+      bottom: textureMapTask.dimensions.maxY,
+    };
 
-			if (textureMapTask.repeatX) {
-				targetRectangle.left = targetRectangle.right = files[ 0 ].width;
-				files.forEach(file => {
-					if (file.width !== targetRectangle.left) {
-						throw new Error(`TextureMapGenerator#_checkFiles: All images in folder ${textureMapTask.folder} should have the same width to repeat by X axis`);
-					}
-				});
-			}
+    if (textureMapTask.repeatX && textureMapTask.repeatY) {
+      throw new Error('TextureMapGenerator#_checkFiles: Sprite can\'t be repeat-x and repeat-y at the same time');
+    }
 
-			if (textureMapTask.repeatY) {
-				targetRectangle.top = targetRectangle.bottom = files[ 0 ].height;
-				files.forEach(file => {
-					if (file.height !== targetRectangle.top) {
-						throw new Error(`TextureMapGenerator#_checkFiles: All images in folder ${textureMapTask.folder} should have the same width to repeat by Y axis`);
-					}
-				});
-			}
+    if (textureMapTask.repeatX) {
+      targetRectangle.left = targetRectangle.right = files[ 0 ].width;
+      files.forEach(file => {
+        if (file.width !== targetRectangle.left) {
+          throw new Error(`TextureMapGenerator#_checkFiles: All images in folder ${textureMapTask.folder} should have the same width to repeat by X axis`);
+        }
+      });
+    }
 
-			return targetRectangle;
-		}
-	}
+    if (textureMapTask.repeatY) {
+      targetRectangle.top = targetRectangle.bottom = files[ 0 ].height;
+      files.forEach(file => {
+        if (file.height !== targetRectangle.top) {
+          throw new Error(`TextureMapGenerator#_checkFiles: All images in folder ${textureMapTask.folder} should have the same width to repeat by Y axis`);
+        }
+      });
+    }
+
+    return targetRectangle;
+  }
 }

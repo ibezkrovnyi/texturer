@@ -1,17 +1,15 @@
-///<reference path="../baseOption.ts"/>
-namespace Texturer.Config {
+import { BaseOption } from '../baseOption';
 
-	export class ExcludeRegExPattern extends BaseOption<string> {
-		getValue() : string {
-			return this._getPropertyValue('exclude');
-		}
+export class ExcludeRegExPattern extends BaseOption<string | null> {
+  getValue() {
+    return this._getPropertyValue('exclude');
+  }
 
-		protected _hasDefaultValue() : boolean {
-			return true;
-		}
+  protected _hasDefaultValue() {
+    return true;
+  }
 
-		protected _getDefaultValue() : string {
-			return null;
-		}
-	}
+  protected _getDefaultValue() {
+    return null;
+  }
 }
