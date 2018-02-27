@@ -1,72 +1,69 @@
-///<reference path="../baseOption.ts"/>
-namespace Texturer.Config {
+import { BaseOption } from '../baseOption';
 
-	class ProcessDataURIEnable extends BaseOption<boolean> {
-		getValue() : boolean {
-			return this._getPropertyValue('enable');
-		}
+class ProcessDataURIEnable extends BaseOption<boolean | null> {
+  getValue() {
+    return this._getPropertyValue('enable');
+  }
 
-		protected _hasDefaultValue() : boolean {
-			return true;
-		}
+  protected _hasDefaultValue() {
+    return true;
+  }
 
-		protected _getDefaultValue() : boolean {
-			return true;
-		}
-	}
+  protected _getDefaultValue() {
+    return true;
+  }
+}
 
-	class ProcessDataURIMaxSize extends BaseOption<number> {
-		getValue() : number {
-			return this._getPropertyValue('max-size');
-		}
+class ProcessDataURIMaxSize extends BaseOption<number | null> {
+  getValue() {
+    return this._getPropertyValue('max-size');
+  }
 
-		protected _hasDefaultValue() : boolean {
-			return true;
-		}
+  protected _hasDefaultValue() {
+    return true;
+  }
 
-		protected _getDefaultValue() : number {
-			// Opera 11 limitation = 65000 characters
-			return 32 * 1024 - 256;
-		}
-	}
+  protected _getDefaultValue() {
+    // Opera 11 limitation = 65000 characters
+    return 32 * 1024 - 256;
+  }
+}
 
-	class ProcessDataURICreateImageFileAnyway extends BaseOption<boolean> {
-		getValue() : boolean {
-			return this._getPropertyValue('create-image-file-anyway');
-		}
+class ProcessDataURICreateImageFileAnyway extends BaseOption<boolean | null> {
+  getValue() {
+    return this._getPropertyValue('create-image-file-anyway');
+  }
 
-		protected _hasDefaultValue() : boolean {
-			return true;
-		}
+  protected _hasDefaultValue() {
+    return true;
+  }
 
-		protected _getDefaultValue() : boolean {
-			return false;
-		}
-	}
+  protected _getDefaultValue() {
+    return false;
+  }
+}
 
-	class ProcessDataURIContainer extends BaseOption<Object> {
-		getValue() : Object {
-			return this._getPropertyValue('data-uri');
-		}
-	}
+class ProcessDataURIContainer extends BaseOption<Object | null> {
+  getValue() {
+    return this._getPropertyValue('data-uri');
+  }
+}
 
-	export class ProcessDataURI {
-		enable : boolean;
-		maxSize : number;
-		createImageFileAnyway : boolean;
+export class ProcessDataURI {
+  enable: boolean | null;
+  maxSize: number | null;
+  createImageFileAnyway: boolean | null;
 
-		constructor(configObject : Object, inheritDataURI : ProcessDataURI = null) {
-			let dataURI = new ProcessDataURIContainer(configObject, null).getValue();
-			if (inheritDataURI) {
-				this.enable                = new ProcessDataURIEnable(dataURI, inheritDataURI.enable).getValue();
-				this.maxSize               = new ProcessDataURIMaxSize(dataURI, inheritDataURI.maxSize).getValue();
-				this.createImageFileAnyway = new ProcessDataURICreateImageFileAnyway(dataURI, inheritDataURI.createImageFileAnyway).getValue();
-			} else {
-				this.enable                = new ProcessDataURIEnable(dataURI).getValue();
-				this.maxSize               = new ProcessDataURIMaxSize(dataURI).getValue();
-				this.createImageFileAnyway = new ProcessDataURICreateImageFileAnyway(dataURI).getValue();
-			}
-		}
-	}
-
+  constructor(configObject: Object | null, inheritDataURI: ProcessDataURI | null = null) {
+    const dataURI = new ProcessDataURIContainer(configObject, null).getValue();
+    if (inheritDataURI) {
+      this.enable = new ProcessDataURIEnable(dataURI, inheritDataURI.enable).getValue();
+      this.maxSize = new ProcessDataURIMaxSize(dataURI, inheritDataURI.maxSize).getValue();
+      this.createImageFileAnyway = new ProcessDataURICreateImageFileAnyway(dataURI, inheritDataURI.createImageFileAnyway).getValue();
+    } else {
+      this.enable = new ProcessDataURIEnable(dataURI).getValue();
+      this.maxSize = new ProcessDataURIMaxSize(dataURI).getValue();
+      this.createImageFileAnyway = new ProcessDataURICreateImageFileAnyway(dataURI).getValue();
+    }
+  }
 }

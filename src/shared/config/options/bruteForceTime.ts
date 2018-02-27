@@ -1,17 +1,15 @@
-///<reference path="../baseOption.ts"/>
-namespace Texturer.Config {
+import { BaseOption } from '../baseOption';
 
-	export class BruteForceTime extends BaseOption<number> {
-		getValue() : number {
-			return this._getPropertyValue('brute-force-time');
-		}
+export class BruteForceTime extends BaseOption<number> {
+  getValue() {
+    return this._getPropertyValue('brute-force-time');
+  }
 
-		protected _hasDefaultValue() : boolean {
-			return true;
-		}
+  protected _hasDefaultValue() {
+    return true;
+  }
 
-		protected _getDefaultValue() : number {
-			return 0;
-		}
-	}
+  protected _getDefaultValue() {
+    return 0;
+  }
 }

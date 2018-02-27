@@ -1,42 +1,42 @@
-///<reference path="../../node.d.ts"/>
-///<reference path="../process/dataURI.ts"/>
-///<reference path="../globalConfig.ts"/>
-///<reference path="../../utils/fsHelper.ts"/>
-namespace Texturer.Config {
+import * as path from 'path';
+import { ProcessDataURI } from '../process/dataURI';
+import { TaskFolder } from '../options/taskFolder';
+import { GlobalConfig } from '../globalConfig';
+import { FSHelper } from '../../utils/fsHelper';
 
-	let path = require("path");
+export class CopyTask {
+  folder: string;
+  files: string[];
+  dataURI: ProcessDataURI;
 
-	export class CopyTask {
-		folder : string;
-		files : string[];
-		dataURI : ProcessDataURI;
+  constructor(taskObject: Object, globalConfig: GlobalConfig) {
+    this.folder = new TaskFolder(taskObject).getValue();
+    this.dataURI = new ProcessDataURI(taskObject, globalConfig.taskDefaults.dataURI);
+    this.files = this._getFiles(globalConfig);
+  }
 
-		constructor(taskObject : Object, globalConfig : GlobalConfig) {
-			this.folder  = new TaskFolder(taskObject).getValue();
-			this.dataURI = new ProcessDataURI(taskObject, globalConfig.taskDefaults.dataURI);
-			this.files   = this._getFiles(globalConfig);
-		}
+  private _getFiles(globalConfig: GlobalConfig) {
+    const folder = this.folder;
+    const fullFolder = path.join(globalConfig.folders.rootFolder, globalConfig.folders.fromFolder, folder);
 
-		private _getFiles(globalConfig) {
-			var folder     = this.folder,
-				fullFolder = path.join(globalConfig.folders.rootFolder, globalConfig.folders.fromFolder, folder);
+    FSHelper.checkDirectoryExistsSync(fullFolder);
 
-			Utils.FSHelper.checkDirectoryExistsSync(fullFolder);
+    let filter = null;
+    if (globalConfig.excludeRegExPattern) {
+      const regex = new RegExp(globalConfig.excludeRegExPattern, 'gi');
+      filter = function (name: string) {
+        regex.lastIndex = 0;
+        return regex.test(name);
+      };
+    }
 
-			var regex  = globalConfig.excludeRegExPattern ? new RegExp(globalConfig.excludeRegExPattern, "gi") : null,
-				filter = regex ? function (name) {
-					regex.lastIndex = 0;
-					return regex.test(name);
-				} : null;
+    const files = FSHelper.getFilesInFolder(fullFolder, filter, true).map(file => {
+      return path.join(this.folder, file).replace(/\\/g, '/');
+    });
 
-			var files = Utils.FSHelper.getFilesInFolder(fullFolder, filter, true).map(file => {
-				return path.join(this.folder, file).replace(/\\/g, "/");
-			});
-
-			if (files.length <= 0) {
-				throw "no files in fullfolder " + folder;
-			}
-			return files;
-		};
-	}
+    if (files.length <= 0) {
+      throw new Error('no files in fullfolder ' + folder);
+    }
+    return files;
+  }
 }

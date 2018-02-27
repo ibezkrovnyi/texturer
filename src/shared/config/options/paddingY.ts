@@ -1,16 +1,15 @@
-///<reference path="../baseOption.ts"/>
-namespace Texturer.Config {
-	export class PaddingY extends BaseOption<number> {
-		getValue() : number {
-			return this._getPropertyValue('padding-y');
-		}
+import { BaseOption } from '../baseOption';
 
-		protected _hasDefaultValue() : boolean {
-			return true;
-		}
+export class PaddingY extends BaseOption<number> {
+  getValue() {
+    return this._getPropertyValue('padding-y');
+  }
 
-		protected _getDefaultValue() : number {
-			return 0;
-		}
-	}
+  protected _hasDefaultValue() {
+    return true;
+  }
+
+  protected _getDefaultValue() {
+    return 0;
+  }
 }

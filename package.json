@@ -12,28 +12,69 @@
   "main": "./src/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/igor-bezkrovny/texturer"
+    "url": "https://github.com/ibezkrovnyi/texturer"
   },
   "scripts": {
     "clean": "rimraf dist",
-    "build": "tsc -p src/texturer & tsc -p src/binPacker & tsc -p src/compressImage & tsc -p src/tinyPng & tsc -p src/writeFile & tsc -p src/copyFile",
+    "build": "webpack --display-modules",
+    "build1": "tsc -p src/texturer & tsc -p src/workers",
+    "lint": "tslint --format verbose --config tslint.json --project ./src/workers/tsconfig.json && tslint --format verbose --config tslint.json --project ./src/texturer/tsconfig.json",
+    "lint-fix": "tslint --fix --format verbose --config tslint.json --project ./src/workers/tsconfig.json && tslint --fix --format verbose --config tslint.json --project ./src/texturer/tsconfig.json",
+    "test": "jest",
     "prepublish": "npm run build"
   },
   "bugs": {
-    "url": "https://github.com/igor-bezkrovny/texturer/issues"
+    "url": "https://github.com/ibezkrovnyi/texturer/issues"
   },
   "dependencies": {
-    "bmp-js": "igor-bezkrovny/bmp-js",
-    "handlebars": "^2.0.0",
+    "bmp-js": "ibezkrovnyi/bmp-js",
+    "handlebars": "4.0.11",
     "jpeg-js": "0.0.4"
   },
-  "preferGlobal": "true",
+  "preferGlobal": true,
   "bin": {
     "texturer": "./bin/texturer"
   },
   "license": "MIT",
   "devDependencies": {
+    "@ibezkrovnyi/tslint-rules": "0.0.3",
+    "@types/handlebars": "4.0.29",
+    "@types/node": "9.4.6",
+    "jest": "22.4.2",
+    "jsonc-parser": "1.0.1",
     "rimraf": "latest",
-    "typescript": "^1.6.0-dev.20150905"
+    "ts-jest": "22.4.0",
+    "ts-loader": "4.0.0",
+    "tslint": "5.9.1",
+    "tslint-config-airbnb": "5.7.0",
+    "tslint-consistent-codestyle": "1.11.1",
+    "tslint-language-service": "0.9.8",
+    "typescript": "2.7.2",
+    "webpack": "4.0.1",
+    "worker-farm": "1.5.2"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/tests"
+    ],
+    "globals": {
+      "ts-jest": {
+        "skipBabel": true,
+        "tsConfigFile": "./src/texturer/tsconfig.json"
+      }
+    },
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(test|spec)\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }

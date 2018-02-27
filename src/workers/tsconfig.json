@@ -25,7 +25,7 @@
         "name": "tslint-language-service",
         "supressWhileTypeErrorsPresent": false,
         "ignoreDefinitionFiles": true
-      } 
+      }
     ]
   },
   "files": [
