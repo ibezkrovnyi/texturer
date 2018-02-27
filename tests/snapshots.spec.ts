@@ -30,14 +30,14 @@ function expectFolderToMatchSnapshot(folder: string) {
 
 function getHashFromBuffer(data: Buffer) {
     const sha1 = crypto.createHash('sha1');
-    sha1.update(data);
+    sha1.update(data, 'binary');
     return sha1.digest('hex');
 }
 
 function serializeFolderToBuffer(folder: string) {
     const files = walkSync(folder).sort();
-    console.log(files.map((file, i) => '(' + i + ') ' + file + ' (' + getHashFromBuffer(fs.readFileSync(file)) + ')').join('\n'));
-    const chunks = files.map(file => fs.readFileSync(file));
+    console.log(files.map((file, i) => '(' + i + ') ' + file + ' (' + getHashFromBuffer(fs.readFileSync(file, 'binary') as any as Buffer) + ')').join('\n'));
+    const chunks = files.map(file => fs.readFileSync(file, 'binary') as any as Buffer);
     return Buffer.concat(chunks);
 }
 
