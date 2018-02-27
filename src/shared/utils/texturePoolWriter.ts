@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as Handlebars from 'handlebars';
+import Handlebars from 'handlebars';
 import { FSHelper } from './fsHelper';
 import { LoadedFile } from '../containers/loadedFile';
 import { TextureMap } from '../containers/textureMap';
@@ -89,7 +89,7 @@ export class TexturePoolWriter {
     console.log('');
     console.log('Template Generation:');
 
-    const templatesFolder = path.join(__dirname, '..', '..', '..', 'templates');
+    const templatesFolder = path.join(__dirname, '..', 'templates');
     configParser.templates.forEach(templateFile => {
       // check if template file exists relatively to config.json root folder
       let templateFolderAndFile = path.resolve(configParser.folders.rootFolder, templateFile);

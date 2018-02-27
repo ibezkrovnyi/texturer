@@ -12,6 +12,8 @@
     "preserveConstEnums": true,
     "pretty": false,
     "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
     "lib": [
@@ -27,6 +29,6 @@
     ]
   },
   "files": [
-    "./texturer.ts"
+    "./index.ts"
   ]
 }

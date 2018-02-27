@@ -16,7 +16,8 @@
   },
   "scripts": {
     "clean": "rimraf dist",
-    "build": "tsc -p src/texturer & tsc -p src/workers",
+    "build": "webpack --display-modules",
+    "build1": "tsc -p src/texturer & tsc -p src/workers",
     "lint": "tslint --format verbose --config tslint.json --project ./src/workers/tsconfig.json && tslint --format verbose --config tslint.json --project ./src/texturer/tsconfig.json",
     "lint-fix": "tslint --fix --format verbose --config tslint.json --project ./src/workers/tsconfig.json && tslint --fix --format verbose --config tslint.json --project ./src/texturer/tsconfig.json",
     "prepublish": "npm run build"
@@ -40,11 +41,14 @@
     "@types/node": "9.4.6",
     "jsonc-parser": "1.0.1",
     "rimraf": "latest",
+    "ts-loader": "^4.0.0",
     "tslint": "5.9.1",
     "tslint-config-airbnb": "5.7.0",
     "tslint-consistent-codestyle": "1.11.1",
     "tslint-language-service": "0.9.8",
     "typescript": "2.7.2",
+    "webpack": "^4.0.1",
+    "webpack-cli": "^2.0.9",
     "worker-farm": "1.5.2"
   }
 }
