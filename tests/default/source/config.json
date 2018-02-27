@@ -1,7 +1,7 @@
 {
 	"folders" : {
 		"source" : "./",
-		"target" : "../source",
+		"target" : "../generated",
 		"images(index.html)" : "images"
 	},
 	"exclude" : ".*wl.*",

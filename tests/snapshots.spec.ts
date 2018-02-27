@@ -21,10 +21,10 @@ function walkSync(dir: string, filelist?: string[]) {
 function expectFolderToMatchSnapshot(folder: string) {
     const absoluteFolder = path.resolve(path.join(__dirname, folder));
     const cwd = process.cwd();
-    process.chdir(path.join(absoluteFolder, 'resources'));
+    process.chdir(path.join(absoluteFolder, 'source'));
     execSync('node ../../../bin/texturer config.json');
     process.chdir(cwd);
-    const calculatedHash = getHashFromBuffer(serializeFolderToBuffer(path.join(absoluteFolder, 'source')));
+    const calculatedHash = getHashFromBuffer(serializeFolderToBuffer(path.join(absoluteFolder, 'generated')));
     expect(calculatedHash).toMatchSnapshot();
 }
 
@@ -36,13 +36,13 @@ function getHashFromBuffer(data: Buffer) {
 
 function serializeFolderToBuffer(folder: string) {
     const files = walkSync(folder).sort();
-    console.log(files.map((file, i) => '(' + i + ') ' + file + ' (' + getHashFromBuffer(fs.readFileSync(file) as any as Buffer) + ')').join('\n'));
 
-    files.forEach(file => {
-        if (file.indexOf('texturePool.ts') >= 0) {
-            console.log(fs.readFileSync(file).toString('utf8'));
-        }
-    });
+    // console.log(files.map((file, i) => '(' + i + ') ' + file + ' (' + getHashFromBuffer(fs.readFileSync(file) as any as Buffer) + ')').join('\n'));
+    // files.forEach(file => {
+    //     if (file.indexOf('texturePool.ts') >= 0) {
+    //         console.log(fs.readFileSync(file).toString('utf8'));
+    //     }
+    // });
 
     const chunks = files.map(file => fs.readFileSync(file) as any as Buffer);
     return Buffer.concat(chunks);

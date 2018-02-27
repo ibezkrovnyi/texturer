@@ -3,5 +3,4 @@
 /.rpt2_cache
 /node_modules
 /dist
-/example/app/source
-/tests/default/source
+/tests/default/generated
