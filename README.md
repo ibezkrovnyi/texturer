@@ -2,6 +2,7 @@ Texturer
 ========
 Texture Map Generator in **TypeScript** _(MIT License)_
 
+[![Build Status](https://travis-ci.org/ibezkrovnyi/texturer.svg?branch=master)](https://travis-ci.org/ibezkrovnyi/texturer)
 [![github](https://img.shields.io/badge/github-.com-brightgreen.svg)](https://github.com/ibezkrovnyi/texturer)
 [![npm version](https://badge.fury.io/js/texturer.svg)](https://www.npmjs.com/package/texturer "Texturer on NPM")
 [![NPM License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
