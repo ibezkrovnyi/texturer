@@ -10,7 +10,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as util from 'util';
-import * as workerFarm from 'worker-farm';
+import workerFarm from 'worker-farm';
 import { TextureMap } from '../shared/containers/textureMap';
 import { LoadedFile } from '../shared/containers/loadedFile';
 import { Rect } from '../shared/containers/rect';
