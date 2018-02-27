@@ -16,7 +16,7 @@
   },
   "scripts": {
     "clean": "rimraf dist",
-    "build": "webpack --display-modules",
+    "build": "webpack-cli --display-modules",
     "build1": "tsc -p src/texturer & tsc -p src/workers",
     "lint": "tslint --format verbose --config tslint.json --project ./src/workers/tsconfig.json && tslint --format verbose --config tslint.json --project ./src/texturer/tsconfig.json",
     "lint-fix": "tslint --fix --format verbose --config tslint.json --project ./src/workers/tsconfig.json && tslint --fix --format verbose --config tslint.json --project ./src/texturer/tsconfig.json",
@@ -51,6 +51,7 @@
     "tslint-language-service": "0.9.8",
     "typescript": "2.7.2",
     "webpack": "4.0.1",
+    "webpack-cli": "2.0.9",
     "worker-farm": "1.5.2"
   },
   "jest": {
