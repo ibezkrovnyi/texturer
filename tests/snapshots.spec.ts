@@ -36,8 +36,8 @@ function getHashFromBuffer(data: Buffer) {
 
 function serializeFolderToBuffer(folder: string) {
     const files = walkSync(folder).sort();
-    console.log(files.map((file, i) => '(' + i + ') ' + file + ' (' + getHashFromBuffer(fs.readFileSync(file, 'binary') as any as Buffer) + ')').join('\n'));
-    const chunks = files.map(file => fs.readFileSync(file, 'binary') as any as Buffer);
+    console.log(files.map((file, i) => '(' + i + ') ' + file + ' (' + getHashFromBuffer(fs.readFileSync(file) as any as Buffer) + ')').join('\n'));
+    const chunks = files.map(file => fs.readFileSync(file) as any as Buffer);
     return Buffer.concat(chunks);
 }
 
