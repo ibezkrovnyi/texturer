@@ -110,6 +110,13 @@ export class TexturePoolWriter {
     stableSort(templateTexturesArray, (a, b) => {
       return a.id > b.id ? 1 : a.id < b.id ? -1 : 0;
     });
+    templateTexturesArray.forEach(texture => templateMapsArray.some((map, mapIndex) => {
+      if (map.url === texture.url) {
+        texture['map-index'] = mapIndex;
+        return true;
+      }
+      return false;
+    }));
 
     const duplicateFileNamesArray: string[] = [];
     templateTexturesArray.forEach(function (d1, i1) {
