@@ -66,7 +66,8 @@ export class TextureMapGenerator {
     if (this._finishedPlaceFilesTests === this._plannedPlaceFilesTests) {
       if (Date.now() < this._endTime) {
         this._plannedPlaceFilesTests++;
-        this._placeFiles(this._textureMapTask, this._targetRectangle, this._getShuffledArray(this._files));
+        const files = this._textureMapTask._disableShuffle ? this._files.slice(0) : this._getShuffledArray(this._files);
+        this._placeFiles(this._textureMapTask, this._targetRectangle, files);
       } else {
         if (this._textureMap && this._textureMap.getArea() > 0) {
           this._callback(null, this._textureMap);
