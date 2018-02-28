@@ -19,14 +19,9 @@ module.exports = {
     __filename: false,
   },
   externals: [
-  //   /(?!node_modules)/,
     'jsonc-parser',
     'handlebars',
     'worker-farm',
-  //   'fs',
-  //   'path',
-  //   'os',
-  //   'child_process'
   ],
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.

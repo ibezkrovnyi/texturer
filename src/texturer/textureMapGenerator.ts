@@ -1,9 +1,9 @@
 import * as path from 'path';
 import { TextureMap, Texture, FileDimensions } from '../shared/containers/textureMap';
-import { TextureMapTask } from '../shared/config/tasks/textureMapTask';
 import { Rect } from '../shared/containers/rect';
 import { BinPackerResult } from '../shared/containers/binPackerResult';
 import { workers } from './workers';
+import { InternalTextureMapTask } from './config';
 
 export class TextureMapGenerator {
   private _plannedPlaceFilesTests!: number;
@@ -12,14 +12,14 @@ export class TextureMapGenerator {
   private _callback!: any;
   private _totalPixels!: number;
   private _endTime!: number;
-  private _textureMapTask!: TextureMapTask;
+  private _textureMapTask!: InternalTextureMapTask;
   private _targetRectangle!: Rect;
   private _files!: FileDimensions[];
 
   constructor() {
   }
 
-  generateTextureMap(files: FileDimensions[], textureMapTask: TextureMapTask, callback: any) {
+  generateTextureMap(files: FileDimensions[], textureMapTask: InternalTextureMapTask, callback: any) {
     try {
       // calculate total pixels
       let totalPixels = 0;
@@ -77,7 +77,7 @@ export class TextureMapGenerator {
     }
   }
 
-  private _placeFiles(textureMapTask: TextureMapTask, targetRectangle: Rect, files: FileDimensions[]) {
+  private _placeFiles(textureMapTask: InternalTextureMapTask, targetRectangle: Rect, files: FileDimensions[]) {
     const data = {
       files,
       fromX: targetRectangle.left,
@@ -102,7 +102,7 @@ export class TextureMapGenerator {
           const textureIds = Object.keys(data.rectangles);
 
           const textureMap = new TextureMap();
-          textureMap.setData(textureMapTask.textureMapFileName, width, height, textureMapTask.repeatX, textureMapTask.repeatY);
+          textureMap.setData(textureMapTask.textureMapFile, width, height, textureMapTask.repeatX, textureMapTask.repeatY);
           for (const id of textureIds) {
             const texture = new Texture();
             const textureContainer = data.rectangles[ id ];
@@ -131,7 +131,7 @@ export class TextureMapGenerator {
     return shuffled;
   }
 
-  private _checkFiles(textureMapTask: TextureMapTask, files: FileDimensions[]) {
+  private _checkFiles(textureMapTask: InternalTextureMapTask, files: FileDimensions[]) {
     // TODO: use another interface here. Rect should for trim!!
     const targetRectangle: Rect = {
       left: 4,

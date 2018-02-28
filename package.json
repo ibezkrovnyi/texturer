@@ -27,9 +27,7 @@
     "url": "https://github.com/ibezkrovnyi/texturer/issues"
   },
   "dependencies": {
-    "bmp-js": "ibezkrovnyi/bmp-js",
-    "handlebars": "4.0.11",
-    "jpeg-js": "0.0.4"
+    "handlebars": "4.0.11"
   },
   "preferGlobal": true,
   "bin": {
@@ -38,10 +36,13 @@
   "license": "MIT",
   "devDependencies": {
     "@ibezkrovnyi/tslint-rules": "0.0.3",
-    "@types/fs-extra": "^5.0.1",
+    "@types/fs-extra": "5.0.1",
     "@types/handlebars": "4.0.29",
     "@types/node": "9.4.6",
-    "fs-extra": "^5.0.0",
+    "ajv": "6.2.0",
+    "bmp-js": "ibezkrovnyi/bmp-js",
+    "jpeg-js": "0.0.4",
+    "fs-extra": "5.0.0",
     "jest": "22.4.2",
     "jsonc-parser": "1.0.1",
     "rimraf": "latest",

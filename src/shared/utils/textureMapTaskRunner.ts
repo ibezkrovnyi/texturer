@@ -1,11 +1,10 @@
 import * as path from 'path';
 import { LoadedFile } from '../containers/loadedFile';
-import { TextureMapTask } from '../config/tasks/textureMapTask';
-import { GlobalConfig } from '../config/globalConfig';
 import { TextureMapGenerator } from '../../texturer/textureMapGenerator';
 import { FileDimensions, Texture, TextureMap } from '../containers/textureMap';
 import { DataURIEncoder } from './dataURIEncoder';
 import { workers } from '../../texturer/workers';
+import { InternalConfig, InternalTextureMapTask } from '../../texturer/config';
 
 interface Callback {
   (error: string | Error | null, result: null): void;
@@ -14,12 +13,12 @@ interface Callback {
 
 // TODO: refactor
 export class TextureMapTaskRunner {
-  private _textureMapTask: TextureMapTask;
+  private _textureMapTask: InternalTextureMapTask;
   private _loadedFiles: { [fileName: string]: LoadedFile };
   private _callback: Callback;
-  private _globalConfig: GlobalConfig;
+  private _globalConfig: InternalConfig;
 
-  constructor(globalConfig: GlobalConfig, textureMapTask: TextureMapTask, loadedFiles: { [fileName: string]: LoadedFile }, callback: Callback) {
+  constructor(globalConfig: InternalConfig, textureMapTask: InternalTextureMapTask, loadedFiles: { [fileName: string]: LoadedFile }, callback: Callback) {
     this._globalConfig = globalConfig;
     this._textureMapTask = textureMapTask;
     this._loadedFiles = loadedFiles;
@@ -44,7 +43,7 @@ export class TextureMapTaskRunner {
   }
 
   private _compressTextureMapImage(textureMap: TextureMap) {
-    console.log(this._textureMapTask.textureMapFileName + ': w = ' + textureMap.getWidth() + ', h = ' + textureMap.getHeight() + ', area = ' + textureMap.getArea());
+    console.log(this._textureMapTask.textureMapFile + ': w = ' + textureMap.getWidth() + ', h = ' + textureMap.getHeight() + ', area = ' + textureMap.getArea());
 
     // TODO: what type here?
     const textureArray: any[] = [];
@@ -73,7 +72,7 @@ export class TextureMapTaskRunner {
       const data = {
         // TODO: integrate with new compress object properties
         textureArray,
-        options: this._textureMapTask.compress,
+        options: this._textureMapTask.compression,
         filterType: filterTypes[i],
         width: textureMap.getWidth(),
         height: textureMap.getHeight(),
@@ -103,7 +102,7 @@ export class TextureMapTaskRunner {
   }
 
   private _onTextureMapImageCompressed(textureMapImage: TextureMap, compressedImage: Buffer) {
-    if (this._textureMapTask.compress.tinyPng) {
+    if (this._textureMapTask.compression.tinyPNG) {
       workers.tinyPngWorker(
         {
           content: Array.prototype.slice.call(compressedImage, 0),
@@ -141,7 +140,7 @@ export class TextureMapTaskRunner {
     const skipFileWrite = dataURI && !this._textureMapTask.dataURI.createImageFileAnyway;
     if (!skipFileWrite) {
       // write png
-      const file = path.join(this._globalConfig.getFolderRootToIndexHtml(), this._textureMapTask.textureMapFileName);
+      const file = path.join(this._globalConfig.folders.rootToIndexHtml, this._textureMapTask.textureMapFile);
       const data = {
         file,
         content: Array.prototype.slice.call(compressedImage, 0),
