@@ -6,7 +6,7 @@
 	},
 	"excludePattern" : ".*wl.*",
 	"templates" : [
-		"ts.hbs", "D:/111/1ts.h1", "OO"
+		"../test.hbs", "OO"
 	],
 	"taskDefaults" : {
 		"bruteForceTime" : 0,
