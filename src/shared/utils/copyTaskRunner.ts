@@ -1,21 +1,20 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { TextureMap, Texture, TextureImage } from '../containers/textureMap';
-import { CopyTask } from '../config/tasks/copyTask';
-import { GlobalConfig } from '../config/globalConfig';
 import { LoadedFile } from '../containers/loadedFile';
 import { DataURIEncoder } from './dataURIEncoder';
 import { FSHelper } from './fsHelper';
 import { workers } from '../../texturer/workers';
+import { InternalConfig, InternalCopyTask } from '../../texturer/config';
 
 export class CopyTaskRunner {
-  private _globalConfig: GlobalConfig;
-  private _copyTask: CopyTask;
+  private _globalConfig: InternalConfig;
+  private _copyTask: InternalCopyTask;
   private _loadedFiles: { [fileName: string]: LoadedFile };
   private _callback: (error: Error | null, result: any) => void;
   private _textureMaps: TextureMap[];
 
-  constructor(globalConfig: GlobalConfig, copyTask: CopyTask, loadedFiles: { [fileName: string]: LoadedFile }, callback: (error: Error | null, result: any) => void) {
+  constructor(globalConfig: InternalConfig, copyTask: InternalCopyTask, loadedFiles: { [fileName: string]: LoadedFile }, callback: (error: Error | null, result: any) => void) {
     this._globalConfig = globalConfig;
     this._copyTask = copyTask;
     this._loadedFiles = loadedFiles;
@@ -25,8 +24,8 @@ export class CopyTaskRunner {
 
   run() {
     this._copyTask.files.forEach((file: string) => {
-      const fromFile = path.join(this._globalConfig.getFolderRootFrom(), file);
-      const toFile = path.join(this._globalConfig.getFolderRootToIndexHtml(), file);
+      const fromFile = path.join(this._globalConfig.folders.rootFrom, file);
+      const toFile = path.join(this._globalConfig.folders.rootToIndexHtml, file);
       const loadedFile = this._loadedFiles[file];
 
       // dataURI

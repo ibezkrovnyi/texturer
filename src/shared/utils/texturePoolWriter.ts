@@ -1,14 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import Handlebars from 'handlebars';
+import handlebars from 'handlebars';
 import { FSHelper } from './fsHelper';
 import { LoadedFile } from '../containers/loadedFile';
 import { TextureMap } from '../containers/textureMap';
-import { GlobalConfig } from '../config/globalConfig';
+import { InternalConfig } from '../../texturer/config';
 
 export class TexturePoolWriter {
 
-  writeTexturePoolFile(folderRootTo: string, configParser: GlobalConfig, loadedFiles: { [fileName: string]: LoadedFile }, textureMapImages: TextureMap[]) {
+  writeTexturePoolFile(folderRootTo: string, configParser: InternalConfig, loadedFiles: { [fileName: string]: LoadedFile }, textureMapImages: TextureMap[]) {
     const templateTexturesArray: any[] = [];
     const templateMapsArray: any[] = [];
     let usedPixels = 0;
@@ -17,7 +17,7 @@ export class TexturePoolWriter {
     // for each Texture Map
     textureMapImages.forEach(function (map: TextureMap, mapIndex) {
       console.log('map file = ' + map.getFile());
-      const url = path.join(configParser.folders.indexHtmlFolder, map.getFile()!).replace(/\\/g, '/');
+      const url = path.join(configParser.folders.wwwRoot, map.getFile()!).replace(/\\/g, '/');
       const dataURI = map.getDataURI();
       const textureIds = map.getTextureIds();
       const isLastTextureMap = mapIndex + 1 === textureMapImages.length;
@@ -92,13 +92,13 @@ export class TexturePoolWriter {
     const templatesFolder = path.join(__dirname, '..', 'templates');
     configParser.templates.forEach(templateFile => {
       // check if template file exists relatively to config.json root folder
-      let templateFolderAndFile = path.resolve(configParser.folders.rootFolder, templateFile);
+      let templateFolderAndFile = path.resolve(configParser.folders.root, templateFile);
       if (!fs.existsSync(templateFolderAndFile)) {
 
         // check if template file exists relatively texturer/templates
         templateFolderAndFile = path.resolve(templatesFolder, templateFile);
         if (!fs.existsSync(templateFolderAndFile)) {
-          console.log(`WARNING: Template ${templateFile} not found in ${configParser.folders.rootFolder} nor in ${templatesFolder}`);
+          console.log(`WARNING: Template ${templateFile} not found in ${configParser.folders.root} nor in ${templatesFolder}`);
           return;
         }
       }
@@ -121,7 +121,7 @@ export class TexturePoolWriter {
         text = lines.slice(1).join('\n');
 
         console.log(`${templateFolderAndFile} => ${resultFile}`);
-        const template = Handlebars.compile(text);
+        const template = handlebars.compile(text);
         if (template) {
           FSHelper.createDirectory(path.dirname(resultFile));
           fs.writeFileSync(resultFile, template(data));

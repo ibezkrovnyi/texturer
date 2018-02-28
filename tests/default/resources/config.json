@@ -1,58 +1,58 @@
 {
 	"folders" : {
 		"source" : "./",
-		"target" : "../source",
-		"images(index.html)" : "images"
+		"target" : "../generated",
+		"wwwRoot" : "images"
 	},
-	"exclude" : ".*wl.*",
+	"excludePattern" : ".*wl.*",
 	"templates" : [
 		"ts.hbs", "D:/111/1ts.h1", "OO"
 	],
-	"task-defaults" : {
-		"brute-force-time" : 0,
+	"taskDefaults" : {
+		"bruteForceTime" : 0,
 		"trim" : {
 			"enable" : true,
-			"alpha" : 0
+			"alpha" : 11
 		},
-		"data-uri" : {
+		"dataURI" : {
 			"enable" : true,
-			"max-size" : 32512,
-			"create-image-file-anyway" : false
+			"maxSize" : 32512,
+			"createImageFileAnyway" : false
 		},
-		"grid-step" : 1,
-		"padding-x" : 0,
-		"padding-y" : 0,
-		"compress" : {
-			"tiny-png" : false
+		"gridStep" : 1,
+		"paddingX" : 0,
+		"paddingY" : 0,
+		"compression" : {
+			"tinyPNG" : false
 		}
 	},
-	"copy-tasks" : [
+	"copyTasks" : [
 		{
 			"folder" : "lviv-ukraine-backgrounds",
-			"data-uri" : {
+			"dataURI" : {
 				"enable" : true,
-				"max-size" : 32512,
-				"create-image-file-anyway" : false
+				"maxSize" : 32512,
+				"createImageFileAnyway" : false
 			}
 		}
 	],
-	"texture-map-tasks" : [
+	"textureMapTasks" : [
 		{
 			"folder" : "creative-nerds-wooden-icons",
-			"texture-map-file" : "creative-nerds-wooden-icons.png",
-			"brute-force-time" : 0,
-			"grid-step" : 1,
-			"padding-x" : 0,
-			"padding-y" : 0,
-			"repeat-x" : false,
-			"repeat-y" : false,
-			"compress" : {
-				"tiny-png" : false
+			"textureMapFile" : "creative-nerds-wooden-icons.png",
+			"bruteForceTime" : 0,
+			"gridStep" : 1,
+			"paddingX" : 0,
+			"paddingY" : 0,
+			"repeatX" : false,
+			"repeatY" : false,
+			"compression" : {
+				"tinyPNG" : false
 			},
-			"data-uri" : {
+			"dataURI" : {
 				"enable" : true,
-				"max-size" : 32768,
-				"create-image-file-anyway" : false
+				"maxSize" : 32768,
+				"createImageFileAnyway" : false
 			},
 			"trim" : {
 				"enable" : true,
@@ -62,15 +62,15 @@
 		{
 			"folder" : "recursive",
 			"compression" : {
-				"tinypng" : false
+				"tinyPNG" : false
 			}
 		},
 		{
 			"folder" : "buttons",
-			"repeat-x" : true
+			"repeatX" : true
 		}
 	],
-	"tinypng-api-keys" : [
+	"tinypngApiKeys" : [
 		{
 			"used" : 22,
 			"month" : 8,

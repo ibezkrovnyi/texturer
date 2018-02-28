@@ -24,7 +24,7 @@ function expectFolderToMatchSnapshot(folder: string) {
     process.chdir(path.join(absoluteFolder, 'resources'));
     execSync('node ../../../bin/texturer config.json');
     process.chdir(cwd);
-    const calculatedHash = getHashFromBuffer(serializeFolderToBuffer(path.join(absoluteFolder, 'source')));
+    const calculatedHash = getHashFromBuffer(serializeFolderToBuffer(path.join(absoluteFolder, 'generated')));
     expect(calculatedHash).toMatchSnapshot();
 }
 
