@@ -12,7 +12,7 @@
 		"bruteForceTime" : 0,
 		"trim" : {
 			"enable" : true,
-			"alpha" : 11
+			"alpha" : 0
 		},
 		"dataURI" : {
 			"enable" : true,
