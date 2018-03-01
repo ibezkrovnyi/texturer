@@ -39,52 +39,21 @@ export class TextureMapTaskRunner {
   }
 
   private _compressTextureMapImage(textureMap: TextureMap) {
-    console.log(this._textureMapTask.textureMapFile + ': w = ' + textureMap.getWidth() + ', h = ' + textureMap.getHeight() + ', area = ' + textureMap.getArea());
+    console.log(this._textureMapTask.textureMapFile + ': w = ' + textureMap.width + ', h = ' + textureMap.height + ', area = ' + (textureMap.width * textureMap.height));
 
     // TODO: what type here?
     const textureArray: any[] = [];
-
-    var sha1 = crypto.createHash('sha1');
-    sha1.update(JSON.stringify(textureMap), 'binary' as any);
-    const dig1 = sha1.digest('hex');
-
-    textureMap.getTextureIds().forEach(id => {
+    Object.keys(textureMap.textures).forEach(id => {
       const loadedFile = this._loadedFiles[id];
-      const texture = textureMap.getTexture(id);
+      const texture = textureMap.textures[id];
 
       textureArray.push({
-        x: texture.getX(),
-        y: texture.getY(),
-        width: texture.getWidth(),
-        height: texture.getHeight(),
-        realWidth: loadedFile.getRealWidth(),
-        realHeight: loadedFile.getRealHeight(),
-      });
-    });
-
-    var sha1 = crypto.createHash('sha1');
-    sha1.update(JSON.stringify(textureArray), 'binary' as any);
-    const dig2 = sha1.digest('hex');
-
-    textureArray.length = 0;
-    textureMap.getTextureIds().forEach(id => {
-      const loadedFile = this._loadedFiles[id];
-      const texture = textureMap.getTexture(id);
-
-      textureArray.push({
-        x: texture.getX(),
-        y: texture.getY(),
-        width: texture.getWidth(),
-        height: texture.getHeight(),
+        ...texture,
         realWidth: loadedFile.getRealWidth(),
         realHeight: loadedFile.getRealHeight(),
         bitmapSerialized: loadedFile.getBitmap(),
       });
     });
-
-    var sha1 = crypto.createHash('sha1');
-    sha1.update(JSON.stringify(textureArray), 'binary' as any);
-    const dig3 = sha1.digest('hex');
 
     const filterTypes = [0, 1, 2, 3, 4];
     let bestCompressedImage: Buffer | null = null;
@@ -97,8 +66,8 @@ export class TextureMapTaskRunner {
         textureArray,
         options: this._textureMapTask.compression,
         filterType: filterTypes[i],
-        width: textureMap.getWidth(),
-        height: textureMap.getHeight(),
+        width: textureMap.width,
+        height: textureMap.height,
       };
 
       workers.compressImageWorker(data, (error: string, result: any) => {
@@ -117,11 +86,6 @@ export class TextureMapTaskRunner {
           // check if finished
           filterCount++;
           if (filterCount === filterTypes.length) {
-            var sha1 = crypto.createHash('sha1');
-            sha1.update(JSON.stringify(bestCompressedImage), 'binary' as any);
-            const dig4 = sha1.digest('hex');
-            console.error('result: ', dig1, dig2, dig3, dig4);
-
             this._onTextureMapImageCompressed(textureMap, bestCompressedImage);
           }
         }
@@ -163,7 +127,7 @@ export class TextureMapTaskRunner {
       }
     }
 
-    textureMap.setDataURI(dataURI);
+    textureMap.dataURI = dataURI;
 
     const skipFileWrite = dataURI && !this._textureMapTask.dataURI.createImageFileAnyway;
     if (!skipFileWrite) {

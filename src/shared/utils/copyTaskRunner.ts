@@ -42,17 +42,31 @@ export class CopyTaskRunner {
       const width = loadedFile.getWidth();
       const height = loadedFile.getHeight();
 
-      const textureImage = new TextureImage();
-      textureImage.setData(loadedFile.getRealWidth(), loadedFile.getRealHeight(), loadedFile.getBitmap(), loadedFile.getTrim(), loadedFile.isOpaque());
+      const textureImage: TextureImage = {
+        realWidth: loadedFile.getRealWidth(), 
+        realHeight: loadedFile.getRealHeight(),
+        bitmap: loadedFile.getBitmap(),
+        trim: loadedFile.getTrim(),
+        opaque: loadedFile.isOpaque(),
+      };
 
-      const texture = new Texture();
-      texture.setData(0, 0, width, height);
-      texture.setTextureImage(textureImage);
+      const texture: Texture = {
+        x: 0,
+        y: 0,
+        width,
+        height,
+        image: textureImage,
+      }
 
-      const textureMap = new TextureMap();
-      textureMap.setData(file, width, height, false, false);
-      textureMap.setDataURI(dataURI);
-      textureMap.setTexture(file, texture);
+      const textureMap: TextureMap = {
+        file,
+        width,
+        height,
+        dataURI,
+        repeatX: false,
+        repeatY: false,
+        textures: { [file]: texture },
+      }
 
       const skipFileWrite = dataURI && !this._copyTask.dataURI.createImageFileAnyway;
       if (!skipFileWrite) {

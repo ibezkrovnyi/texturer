@@ -51,10 +51,10 @@ export class TexturePoolWriter {
 
     // for each Texture Map
     textureMapImages.forEach(function (map: TextureMap, mapIndex) {
-      console.log('map file = ' + map.getFile());
-      const url = path.join(configParser.folders.wwwRoot, map.getFile()!).replace(/\\/g, '/');
-      const dataURI = map.getDataURI();
-      const textureIds = map.getTextureIds();
+      console.log('map file = ' + map.file);
+      const url = path.join(configParser.folders.wwwRoot, map.file).replace(/\\/g, '/');
+      const dataURI = map.dataURI;
+      const textureIds = Object.keys(map.textures);
       const isLastTextureMap = mapIndex + 1 === textureMapImages.length;
 
       // console.log("map.textureMapImages = " + map.textureMapImages);
@@ -63,21 +63,21 @@ export class TexturePoolWriter {
           url,
           'data-uri': dataURI,
           'is-last-item': isLastTextureMap,
-          width: map.getWidth(),
-          height: map.getHeight(),
-          'repeat-x': map.getRepeatX(),
-          'repeat-y': map.getRepeatY(),
+          width: map.width,
+          height: map.height,
+          'repeat-x': map.repeatX,
+          'repeat-y': map.repeatY,
         },
       );
 
       // for each Texture
       textureIds.forEach((id: string, textureIndex) => {
-        const texture = map.getTexture(id);
+        const texture = map.textures[id];
         const loadedFile = loadedFiles[id];
         const trim = loadedFile.getTrim();
         const isLastTexture = textureIndex + 1 === textureIds.length;
 
-        usedPixels += texture.getWidth() * texture.getHeight();
+        usedPixels += texture.width * texture.height;
         trimmedPixels += (trim.left + trim.right) * (trim.top + trim.bottom);
 
         templateTexturesArray.push({
@@ -87,16 +87,16 @@ export class TexturePoolWriter {
           'map-index': mapIndex,
           url,
           'data-uri': dataURI,
-          x: texture.getX(),
-          y: texture.getY(),
-          width: texture.getWidth(),
-          height: texture.getHeight(),
+          x: texture.x,
+          y: texture.y,
+          width: texture.width,
+          height: texture.height,
           'real-width': loadedFile.getRealWidth(),
           'real-height': loadedFile.getRealHeight(),
           trim,
           opaque: loadedFile.isOpaque(),
-          'repeat-x': map.getRepeatX(),
-          'repeat-y': map.getRepeatY(),
+          'repeat-x': map.repeatX,
+          'repeat-y': map.repeatY,
           'is-last-item': isLastTexture && isLastTextureMap,
         },
         );

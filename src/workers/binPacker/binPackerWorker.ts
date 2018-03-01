@@ -8,9 +8,8 @@ const binPackerSizeStep = 16;
 export interface Layout {
   width: number;
   height: number;
-  rectangles: Rect[];
+  rects: Rect[];
 }
-
 
 export function binPackerWorker(data: any, callback: any) {
   let best: Layout | null = null;
@@ -37,8 +36,8 @@ export function binPackerWorker(data: any, callback: any) {
 }
 
 function tryToPack(fileDimensions: FileDimensions[], spriteWidth: number, spriteHeight: number, gridStep: number, paddingX: number, paddingY: number) {
+  const rects: Rect[] = [];
   const packer = new BinPacker(spriteWidth, spriteHeight, gridStep, paddingX, paddingY);
-  const rectangles: Rect[] = [];
 
   let width = 0;
   let height = 0;
@@ -46,16 +45,10 @@ function tryToPack(fileDimensions: FileDimensions[], spriteWidth: number, sprite
     const placeCoordinates = packer.placeNextRectangle(fileDimension.width, fileDimension.height);
     if (!placeCoordinates) return null;
 
-    rectangles.push({
-      x: placeCoordinates.x,
-      y: placeCoordinates.y,
-      width: fileDimension.width,
-      height: fileDimension.height,
-    });
-
+    rects.push({ ...placeCoordinates, ...fileDimension });
     width = Math.max(width, placeCoordinates.x + fileDimension.width);
     height = Math.max(height, placeCoordinates.y + fileDimension.height);
   }
 
-  return { width, height, rectangles };
+  return { width, height, rects };
 }

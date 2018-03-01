@@ -18,15 +18,15 @@ export class TextureMapGenerator {
   private _endTime!: number;
   private _textureMapTask!: InternalTextureMapTask;
   private _targetRectangle!: Margins;
-  private _files!: FileDimensions[];
+  private _files!: ReadonlyArray<FileDimensions>;
 
   constructor() {
   }
 
   generateTextureMap(loadedFiles: Record<string, LoadedFile>, textureMapTask: InternalTextureMapTask, callback: any) {
-    const files = textureMapTask.files.map(file => {
+    const files: FileDimensions[] = textureMapTask.files.map(file => {
       const loadedFile = loadedFiles[file];
-      return new FileDimensions(loadedFile.getWidth(), loadedFile.getHeight());
+      return { width: loadedFile.getWidth(), height: loadedFile.getHeight() };
     });
 
     try {
@@ -82,24 +82,29 @@ export class TextureMapGenerator {
     }
   }
 
-  private _getTextureMap(layout: Layout) {
-    const textures: Record<string, Rect> = {};
-    const rectangles = Array.from(layout.rectangles);
+  private _getTextureMap(layout: Layout): TextureMap {
+    const rectangles = Array.from(layout.rects);
     
-    const textureMap = new TextureMap();
-    textureMap.setData(this._textureMapTask.textureMapFile, layout.width, layout.height, this._textureMapTask.repeatX, this._textureMapTask.repeatY);
-
-    this._textureMapTask.files.forEach(file => {
+    const files = this._textureMapTask.files;
+    const textures = files.reduce<TextureMap['textures']>((acc, file) => {
       const loadedFile = this._loadedFiles[file];
       const index = rectangles.findIndex(rect => rect.width === loadedFile.getWidth() && rect.height === loadedFile.getHeight());
       if (index === -1) throw new Error(`Error: no placement for file ${file}`);
       const rect = rectangles.splice(index, 1)[0];
-      const texture = new Texture();
-      texture.setData(rect.x, rect.y, rect.width, rect.height);
-      textureMap.setTexture(file, texture);
-    });
+      const texture: Texture = { ...rect };
+      acc[file] = texture;
+      return acc;
+    }, {});
 
-    return textureMap;
+    return {
+      file: this._textureMapTask.textureMapFile, 
+      width: layout.width, 
+      height: layout.height, 
+      repeatX: this._textureMapTask.repeatX, 
+      repeatY: this._textureMapTask.repeatY,
+      textures,
+      dataURI: null,
+    }
   }
 
   private _arrangeRects(textureMapTask: InternalTextureMapTask, targetRectangle: Margins, files: FileDimensions[]) {
@@ -155,7 +160,7 @@ export class TextureMapGenerator {
     });
   }
 
-  private _getShuffledArray<T>(arr: T[]) {
+  private _getShuffledArray<T>(arr: ReadonlyArray<T>) {
     const shuffled = Array.from(arr);
     for (let i = 0; i < shuffled.length - 1; i++) {
       const l = shuffled.length;
