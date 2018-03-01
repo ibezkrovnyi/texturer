@@ -180,10 +180,6 @@
         "dimensions": {
           "$ref": "#/definitions/Dimensions",
           "default": {}
-        },
-        "_disableShuffle": {
-          "type": "boolean",
-          "default": false
         }
       },
       "required": [

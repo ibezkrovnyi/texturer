@@ -78,8 +78,7 @@ export class TextureMapGenerator {
     if (this._finishedPlaceFilesTests === this._plannedPlaceFilesTests) {
       if (Date.now() < this._endTime) {
         this._plannedPlaceFilesTests++;
-        const files = this._textureMapTask._disableShuffle ? this._files.slice(0) : this._getShuffledArray(this._files);
-        this._placeFiles(this._textureMapTask, this._targetRectangle, files);
+        this._placeFiles(this._textureMapTask, this._targetRectangle, this._getShuffledArray(this._files));
       } else {
         if (this._textureMap && this._textureMap.getArea() > 0) {
 
@@ -123,7 +122,7 @@ export class TextureMapGenerator {
         } else {
           const width = data.width;
           const height = data.height;
-          // TODO: do we need stableSort for textureIds ?
+          // TODO: do we need to add stableSort for textureIds ?
           const textureIds = Object.keys(data.rectangles);
 
           const textureMap = new TextureMap();

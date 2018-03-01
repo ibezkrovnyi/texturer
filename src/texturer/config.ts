@@ -82,7 +82,6 @@ export interface TextureMapTask {
   paddingX?: number;
   paddingY: number;
   textureMapFile?: string;
-  _disableShuffle?: boolean;
 }
 
 export interface InternalTextureMapTask {
@@ -99,7 +98,6 @@ export interface InternalTextureMapTask {
   paddingY: number;
   textureMapFile: string;
   files: string[];
-  _disableShuffle: boolean;
 }
 
 export interface DataURI {
