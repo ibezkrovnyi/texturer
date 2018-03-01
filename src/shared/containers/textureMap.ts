@@ -164,7 +164,7 @@ export class TextureMap {
   protected _dataURI: string | null;
 
   // TODO: do we need this? we have id!
-  protected _file: string | null;
+  protected _file!: string;
 
   protected _repeatX: boolean;
   protected _repeatY: boolean;
@@ -174,7 +174,6 @@ export class TextureMap {
   constructor() {
     this._width = 0;
     this._height = 0;
-    this._file = null;
     this._dataURI = null;
     this._repeatX = false;
     this._repeatY = false;

@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import * as path from 'path';
 import { LoadedFile } from '../containers/loadedFile';
 import { TextureMapGenerator } from '../../texturer/textureMapGenerator';
@@ -48,6 +49,29 @@ export class TextureMapTaskRunner {
     // TODO: what type here?
     const textureArray: any[] = [];
 
+    var sha1 = crypto.createHash('sha1');
+    sha1.update(JSON.stringify(textureMap), 'binary' as any);
+    const dig1 = sha1.digest('hex');
+
+    textureMap.getTextureIds().forEach(id => {
+      const loadedFile = this._loadedFiles[id];
+      const texture = textureMap.getTexture(id);
+
+      textureArray.push({
+        x: texture.getX(),
+        y: texture.getY(),
+        width: texture.getWidth(),
+        height: texture.getHeight(),
+        realWidth: loadedFile.getRealWidth(),
+        realHeight: loadedFile.getRealHeight(),
+      });
+    });
+
+    var sha1 = crypto.createHash('sha1');
+    sha1.update(JSON.stringify(textureArray), 'binary' as any);
+    const dig2 = sha1.digest('hex');
+
+    textureArray.length = 0;
     textureMap.getTextureIds().forEach(id => {
       const loadedFile = this._loadedFiles[id];
       const texture = textureMap.getTexture(id);
@@ -62,6 +86,10 @@ export class TextureMapTaskRunner {
         bitmapSerialized: loadedFile.getBitmap(),
       });
     });
+
+    var sha1 = crypto.createHash('sha1');
+    sha1.update(JSON.stringify(textureArray), 'binary' as any);
+    const dig3 = sha1.digest('hex');
 
     const filterTypes = [0, 1, 2, 3, 4];
     let bestCompressedImage: Buffer | null = null;
@@ -94,6 +122,11 @@ export class TextureMapTaskRunner {
           // check if finished
           filterCount++;
           if (filterCount === filterTypes.length) {
+            var sha1 = crypto.createHash('sha1');
+            sha1.update(JSON.stringify(bestCompressedImage), 'binary' as any);
+            const dig4 = sha1.digest('hex');
+            console.error('result: ', dig1, dig2, dig3, dig4);
+
             this._onTextureMapImageCompressed(textureMap, bestCompressedImage);
           }
         }

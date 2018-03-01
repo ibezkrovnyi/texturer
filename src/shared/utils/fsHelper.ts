@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
@@ -88,4 +89,10 @@ export function stableSort<T>(arr: T[], compare: (a: T, b: T) => number) {
   });
 
   return arr;
+}
+
+export function getHash(data: any) {
+  var sha1 = crypto.createHash('sha1');
+  sha1.update(JSON.stringify(data), 'binary' as any);
+  return sha1.digest('hex');
 }
