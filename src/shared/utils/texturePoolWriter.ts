@@ -1,23 +1,58 @@
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as path from 'path';
-import Handlebars from 'handlebars';
-import { FSHelper } from './fsHelper';
+import handlebars from 'handlebars';
+import { FSHelper, stableSort } from './fsHelper';
 import { LoadedFile } from '../containers/loadedFile';
 import { TextureMap } from '../containers/textureMap';
-import { GlobalConfig } from '../config/globalConfig';
+import { InternalConfig } from '../../texturer/config';
+
+interface TemplateMap {
+  url: string;
+  'data-uri': string | null;
+  'is-last-item': boolean;
+  width: number;
+  height: number;
+  'repeat-x': boolean;
+  'repeat-y': boolean;
+}
+
+interface TemplateTexture {
+  // "css-id"    : this.getFileNameWithoutExtension(texture.id).replace(/^[(\d+)`~\| !@#\$%\^&\*\(\)\-=\+\?\.,<>]+|[`~\|!@#\$%\^&\*\(\)\-=\+\? \.,<>]/g, ""),
+  id: string;
+  file: string;
+  'map-index': number;
+  url: string;
+  'data-uri': string | null;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  'real-width': number;
+  'real-height': number;
+  trim: {
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+  };
+  opaque: boolean;
+  'repeat-x': boolean;
+  'repeat-y': boolean;
+  'is-last-item': boolean;
+}
 
 export class TexturePoolWriter {
 
-  writeTexturePoolFile(folderRootTo: string, configParser: GlobalConfig, loadedFiles: { [fileName: string]: LoadedFile }, textureMapImages: TextureMap[]) {
-    const templateTexturesArray: any[] = [];
-    const templateMapsArray: any[] = [];
+  writeTexturePoolFile(folderRootTo: string, configParser: InternalConfig, loadedFiles: { [fileName: string]: LoadedFile }, textureMapImages: TextureMap[]) {
+    const templateTexturesArray: TemplateTexture[] = [];
+    const templateMapsArray: TemplateMap[] = [];
     let usedPixels = 0;
     let trimmedPixels = 0;
 
     // for each Texture Map
     textureMapImages.forEach(function (map: TextureMap, mapIndex) {
       console.log('map file = ' + map.getFile());
-      const url = path.join(configParser.folders.indexHtmlFolder, map.getFile()!).replace(/\\/g, '/');
+      const url = path.join(configParser.folders.wwwRoot, map.getFile()!).replace(/\\/g, '/');
       const dataURI = map.getDataURI();
       const textureIds = map.getTextureIds();
       const isLastTextureMap = mapIndex + 1 === textureMapImages.length;
@@ -69,6 +104,20 @@ export class TexturePoolWriter {
     },
     );
 
+    stableSort(templateMapsArray, (a, b) => {
+      return a.url > b.url ? 1 : a.url < b.url ? -1 : 0;
+    });
+    stableSort(templateTexturesArray, (a, b) => {
+      return a.id > b.id ? 1 : a.id < b.id ? -1 : 0;
+    });
+    templateTexturesArray.forEach(texture => templateMapsArray.some((map, mapIndex) => {
+      if (map.url === texture.url) {
+        texture['map-index'] = mapIndex;
+        return true;
+      }
+      return false;
+    }));
+
     const duplicateFileNamesArray: string[] = [];
     templateTexturesArray.forEach(function (d1, i1) {
       templateTexturesArray.forEach(function (d2, i2) {
@@ -92,13 +141,13 @@ export class TexturePoolWriter {
     const templatesFolder = path.join(__dirname, '..', 'templates');
     configParser.templates.forEach(templateFile => {
       // check if template file exists relatively to config.json root folder
-      let templateFolderAndFile = path.resolve(configParser.folders.rootFolder, templateFile);
+      let templateFolderAndFile = path.resolve(configParser.folders.root, templateFile);
       if (!fs.existsSync(templateFolderAndFile)) {
 
         // check if template file exists relatively texturer/templates
         templateFolderAndFile = path.resolve(templatesFolder, templateFile);
         if (!fs.existsSync(templateFolderAndFile)) {
-          console.log(`WARNING: Template ${templateFile} not found in ${configParser.folders.rootFolder} nor in ${templatesFolder}`);
+          console.log(`WARNING: Template ${templateFile} not found in ${configParser.folders.root} nor in ${templatesFolder}`);
           return;
         }
       }
@@ -121,9 +170,9 @@ export class TexturePoolWriter {
         text = lines.slice(1).join('\n');
 
         console.log(`${templateFolderAndFile} => ${resultFile}`);
-        const template = Handlebars.compile(text);
+        const template = handlebars.compile(text);
         if (template) {
-          FSHelper.createDirectory(path.dirname(resultFile));
+          fs.ensureDirSync(path.dirname(resultFile));
           fs.writeFileSync(resultFile, template(data));
         } else {
           console.log('template error in ' + resultFile);

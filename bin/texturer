@@ -37,7 +37,7 @@ function main (configFile) {
 
 	texturer.generate(config, function (error) {
 		if (error) {
-			console.trace("\x1B[91m" + error + "\x1B[39m");
+			throw error; //("\x1B[91m" + error + "\x1B[39m");
 			process.exit(42);
 		} else {
 			process.exit(0);

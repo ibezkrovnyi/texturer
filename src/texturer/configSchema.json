@@ -1,0 +1,270 @@
+{
+  "$ref": "#/definitions/Texturer",
+  "definitions": {
+    "Folders": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "wwwRoot": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "wwwRoot",
+        "source",
+        "target"
+      ],
+      "title": "folders"
+    },
+    "Trim": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "default": true
+        },
+        "alpha": {
+          "type": "integer",
+          "default": 0
+        }
+      },
+      "title": "trim"
+    },
+    "DataURI": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "default": true
+        },
+        "maxSize": {
+          "title": "Opera 11 limitation = 65000 characters, on some broken implementation it is 32512",
+          "type": "integer",
+          "default": 32512
+        },
+        "createImageFileAnyway": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "title": "data-uri"
+    },
+    "Compression": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tinyPNG": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "title": "compression"
+    },
+    "Dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "maxX": {
+          "type": "integer",
+          "default": 1920
+        },
+        "maxY": {
+          "type": "integer",
+          "default": 1080
+        }
+      },
+      "title": "compression"
+    },
+    "TaskDefaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "bruteForceTime": {
+          "type": "integer"
+        },
+        "trim": {
+          "$ref": "#/definitions/Trim"
+        },
+        "dataURI": {
+          "$ref": "#/definitions/DataURI"
+        },
+        "gridStep": {
+          "type": "integer"
+        },
+        "paddingX": {
+          "type": "integer"
+        },
+        "paddingY": {
+          "type": "integer"
+        },
+        "compression": {
+          "$ref": "#/definitions/Compression"
+        },
+        "dimensions": {
+          "$ref": "#/definitions/Dimensions"
+        }
+      },
+      "title": "task-defaults"
+    },
+    "CopyTask": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "folder": {
+          "type": "string"
+        },
+        "dataURI": {
+          "$ref": "#/definitions/DataURI",
+          "default": {}
+        }
+      },
+      "required": [
+        "folder"
+      ],
+      "title": "copy-task"
+    },
+    "TextureMapTask": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "folder": {
+          "type": "string"
+        },
+        "textureMapFile": {
+          "type": "string"
+        },
+        "bruteForceTime": {
+          "type": "integer",
+          "default": 0
+        },
+        "gridStep": {
+          "type": "integer",
+          "default": 1
+        },
+        "paddingX": {
+          "type": "integer",
+          "default": 0
+        },
+        "paddingY": {
+          "type": "integer",
+          "default": 0
+        },
+        "repeatX": {
+          "type": "boolean",
+          "default": false
+        },
+        "repeatY": {
+          "type": "boolean",
+          "default": false
+        },
+        "dataURI": {
+          "$ref": "#/definitions/DataURI",
+          "default": {}
+        },
+        "trim": {
+          "$ref": "#/definitions/Trim",
+          "default": {}
+        },
+        "compression": {
+          "$ref": "#/definitions/Compression",
+          "default": {}
+        },
+        "dimensions": {
+          "$ref": "#/definitions/Dimensions",
+          "default": {}
+        },
+        "_disableShuffle": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "folder"
+      ],
+      "title": "texture-map-task"
+    },
+    "TinypngAPIKey": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "used": {
+          "type": "integer"
+        },
+        "month": {
+          "type": "integer"
+        },
+        "year": {
+          "type": "integer"
+        },
+        "key": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "key",
+        "month",
+        "used",
+        "year"
+      ],
+      "title": "tinypng-api-key"
+    },
+    "Texturer": {
+      "title": "Texturer",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "folders": {
+          "$ref": "#/definitions/Folders"
+        },
+        "excludePattern": {
+          "title": "RegExp pattern to excldue files and folders from being processed",
+          "type": "string"
+        },
+        "templates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "taskDefaults": {
+          "$ref": "#/definitions/TaskDefaults",
+          "default": {}
+        },
+        "copyTasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CopyTask"
+          },
+          "default": []
+        },
+        "textureMapTasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TextureMapTask"
+          },
+          "default": []
+        },
+        "tinypngApiKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TinypngAPIKey"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "folders",
+        "templates"
+      ]
+    }
+  }
+}

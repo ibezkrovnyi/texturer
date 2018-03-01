@@ -2,7 +2,7 @@ var path = require('path');
 
 module.exports = {
   mode: "development",
-  devtool: "inline-source-map",
+  devtool: "source-map",
   entry: {
     texturer: './src/texturer/index.ts',
     workers: './src/workers/index.ts',
@@ -19,14 +19,9 @@ module.exports = {
     __filename: false,
   },
   externals: [
-  //   /(?!node_modules)/,
     'jsonc-parser',
     'handlebars',
     'worker-farm',
-  //   'fs',
-  //   'path',
-  //   'os',
-  //   'child_process'
   ],
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.

@@ -2,5 +2,5 @@
 /.vscode
 /.rpt2_cache
 /node_modules
-/example/app/source
 /tests
+/extern

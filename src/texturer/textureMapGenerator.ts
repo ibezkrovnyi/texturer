@@ -1,9 +1,11 @@
+import * as crypto from 'crypto';
 import * as path from 'path';
 import { TextureMap, Texture, FileDimensions } from '../shared/containers/textureMap';
-import { TextureMapTask } from '../shared/config/tasks/textureMapTask';
 import { Rect } from '../shared/containers/rect';
 import { BinPackerResult } from '../shared/containers/binPackerResult';
 import { workers } from './workers';
+import { InternalTextureMapTask } from './config';
+import { stableSort, getHash } from '../shared/utils/fsHelper';
 
 export class TextureMapGenerator {
   private _plannedPlaceFilesTests!: number;
@@ -12,14 +14,14 @@ export class TextureMapGenerator {
   private _callback!: any;
   private _totalPixels!: number;
   private _endTime!: number;
-  private _textureMapTask!: TextureMapTask;
+  private _textureMapTask!: InternalTextureMapTask;
   private _targetRectangle!: Rect;
   private _files!: FileDimensions[];
 
   constructor() {
   }
 
-  generateTextureMap(files: FileDimensions[], textureMapTask: TextureMapTask, callback: any) {
+  generateTextureMap(files: FileDimensions[], textureMapTask: InternalTextureMapTask, callback: any) {
     try {
       // calculate total pixels
       let totalPixels = 0;
@@ -41,9 +43,12 @@ export class TextureMapGenerator {
       this._files = files;
 
       // try different combinations
-      this._placeFiles(textureMapTask, targetRectangle, files.sort((a: any, b: any) => (b.width * b.height - a.width * a.height) || (b.id > a.id ? 1 : -1)));
-      this._placeFiles(textureMapTask, targetRectangle, files.sort((a: any, b: any) => (b.width - a.width) || (b.id > a.id ? 1 : -1)));
-      this._placeFiles(textureMapTask, targetRectangle, files.sort((a: any, b: any) => (b.height - a.height) || (b.id > a.id ? 1 : -1)));
+      // this._placeFiles(textureMapTask, targetRectangle, files.sort((a, b) => (b.width * b.height - a.width * a.height) || (b.id > a.id ? 1 : -1)));
+      // this._placeFiles(textureMapTask, targetRectangle, files.sort((a, b) => (b.width - a.width) || (b.id > a.id ? 1 : -1)));
+      // this._placeFiles(textureMapTask, targetRectangle, files.sort((a, b) => (b.height - a.height) || (b.id > a.id ? 1 : -1)));
+      this._placeFiles(textureMapTask, targetRectangle, stableSort(files.slice(0), (a, b) => b.width * b.height - a.width * a.height));
+      this._placeFiles(textureMapTask, targetRectangle, stableSort(files.slice(0), (a, b) => b.width - a.width));
+      this._placeFiles(textureMapTask, targetRectangle, stableSort(files.slice(0), (a, b) => b.height - a.height));
 
       /*
        for (let i = 0; i < textureMapTask.getNPass(); i++) {
@@ -57,7 +62,14 @@ export class TextureMapGenerator {
 
   private _onPlaceFilesFinished(error: any, bestTextureMap: TextureMap | null) {
     if (!error && bestTextureMap) {
-      if (this._textureMap === null || bestTextureMap.getArea() < this._textureMap.getArea()) {
+      if (this._textureMap) {
+        if (
+          bestTextureMap.getArea() < this._textureMap.getArea() ||
+          (bestTextureMap.getArea() === this._textureMap.getArea() && getHash(bestTextureMap) < getHash(this._textureMap))
+        ) {
+          this._textureMap = bestTextureMap;
+        }
+      } else {
         this._textureMap = bestTextureMap;
       }
     }
@@ -66,9 +78,16 @@ export class TextureMapGenerator {
     if (this._finishedPlaceFilesTests === this._plannedPlaceFilesTests) {
       if (Date.now() < this._endTime) {
         this._plannedPlaceFilesTests++;
-        this._placeFiles(this._textureMapTask, this._targetRectangle, this._getShuffledArray(this._files));
+        const files = this._textureMapTask._disableShuffle ? this._files.slice(0) : this._getShuffledArray(this._files);
+        this._placeFiles(this._textureMapTask, this._targetRectangle, files);
       } else {
         if (this._textureMap && this._textureMap.getArea() > 0) {
+
+          var sha1 = crypto.createHash('sha1');
+          sha1.update(JSON.stringify(this._textureMap), 'binary' as any);
+          const dig1 = sha1.digest('hex');
+          console.error('placefinished: ', dig1);
+
           this._callback(null, this._textureMap);
         } else {
           this._callback(null, null);
@@ -77,7 +96,7 @@ export class TextureMapGenerator {
     }
   }
 
-  private _placeFiles(textureMapTask: TextureMapTask, targetRectangle: Rect, files: FileDimensions[]) {
+  private _placeFiles(textureMapTask: InternalTextureMapTask, targetRectangle: Rect, files: FileDimensions[]) {
     const data = {
       files,
       fromX: targetRectangle.left,
@@ -89,6 +108,11 @@ export class TextureMapGenerator {
       paddingX: textureMapTask.paddingX,
       paddingY: textureMapTask.paddingY,
     };
+
+    var sha1 = crypto.createHash('sha1');
+    sha1.update(JSON.stringify({ textureMapTask, targetRectangle, files }), 'binary' as any);
+    const dig1 = sha1.digest('hex');
+
     workers.binPackerWorker(data, (error: string, data: BinPackerResult) => {
       if (error) {
         throw new Error(error);
@@ -99,17 +123,23 @@ export class TextureMapGenerator {
         } else {
           const width = data.width;
           const height = data.height;
+          // TODO: do we need stableSort for textureIds ?
           const textureIds = Object.keys(data.rectangles);
 
           const textureMap = new TextureMap();
-          textureMap.setData(textureMapTask.textureMapFileName, width, height, textureMapTask.repeatX, textureMapTask.repeatY);
+          textureMap.setData(textureMapTask.textureMapFile, width, height, textureMapTask.repeatX, textureMapTask.repeatY);
           for (const id of textureIds) {
             const texture = new Texture();
-            const textureContainer = data.rectangles[ id ];
+            const textureContainer = data.rectangles[id];
             // TODO: why next line in red??
             texture.setData(textureContainer.x, textureContainer.y, textureContainer.width, textureContainer.height);
             textureMap.setTexture(id, texture);
           }
+
+          var sha1 = crypto.createHash('sha1');
+          sha1.update(JSON.stringify(textureMap), 'binary' as any);
+          const dig2 = sha1.digest('hex');
+          console.error('tmp: ', dig1, dig2);
 
           this._onPlaceFilesFinished(null, textureMap);
         }
@@ -123,15 +153,15 @@ export class TextureMapGenerator {
       const l = shuffled.length;
       const index = ((Math.random() * (l - i)) | 0) + i;
 
-      const tmp = shuffled[ index ];
-      shuffled[ index ] = shuffled[ i ];
-      shuffled[ i ] = tmp;
+      const tmp = shuffled[index];
+      shuffled[index] = shuffled[i];
+      shuffled[i] = tmp;
     }
 
     return shuffled;
   }
 
-  private _checkFiles(textureMapTask: TextureMapTask, files: FileDimensions[]) {
+  private _checkFiles(textureMapTask: InternalTextureMapTask, files: FileDimensions[]) {
     // TODO: use another interface here. Rect should for trim!!
     const targetRectangle: Rect = {
       left: 4,
@@ -145,7 +175,7 @@ export class TextureMapGenerator {
     }
 
     if (textureMapTask.repeatX) {
-      targetRectangle.left = targetRectangle.right = files[ 0 ].width;
+      targetRectangle.left = targetRectangle.right = files[0].width;
       files.forEach(file => {
         if (file.width !== targetRectangle.left) {
           throw new Error(`TextureMapGenerator#_checkFiles: All images in folder ${textureMapTask.folder} should have the same width to repeat by X axis`);
@@ -154,7 +184,7 @@ export class TextureMapGenerator {
     }
 
     if (textureMapTask.repeatY) {
-      targetRectangle.top = targetRectangle.bottom = files[ 0 ].height;
+      targetRectangle.top = targetRectangle.bottom = files[0].height;
       files.forEach(file => {
         if (file.height !== targetRectangle.top) {
           throw new Error(`TextureMapGenerator#_checkFiles: All images in folder ${textureMapTask.folder} should have the same width to repeat by Y axis`);

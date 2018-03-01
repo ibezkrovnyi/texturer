@@ -1,4 +1,5 @@
-import * as fs from 'fs';
+import * as crypto from 'crypto';
+import * as fs from 'fs-extra';
 import * as path from 'path';
 
 export class FSHelper {
@@ -11,19 +12,6 @@ export class FSHelper {
   static getExtension(fileName: string) {
     const index = fileName.lastIndexOf('.');
     return (index < 0) ? '' : fileName.substr(index + 1);
-  }
-
-  static createDirectory(dir: string) {
-    const folders = path.normalize(dir).replace(/\\/g, '/').split('/');
-
-    if (folders && folders.length > 0) {
-      for (let i = 0; i < folders.length; i++) {
-        const testDir = folders.slice(0, i + 1).join('/');
-        if (!fs.existsSync(testDir)) {
-          fs.mkdirSync(testDir);
-        }
-      }
-    }
   }
 
   static checkDirectoryExistsSync(dir: string) {
@@ -89,4 +77,22 @@ export class FSHelper {
       return folder.replace(/\\/g, '/');
     });
   }
+}
+
+// TODO: convert class to functions
+export function stableSort<T>(arr: T[], compare: (a: T, b: T) => number) {
+  var original = arr.slice(0);
+
+  arr.sort((a, b) => {
+      const result = compare(a, b);
+      return result === 0 ? original.indexOf(a) - original.indexOf(b) : result;
+  });
+
+  return arr;
+}
+
+export function getHash(data: any) {
+  var sha1 = crypto.createHash('sha1');
+  sha1.update(JSON.stringify(data), 'binary' as any);
+  return sha1.digest('hex');
 }

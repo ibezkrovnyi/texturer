@@ -1,9 +1,8 @@
-import { FSHelper } from '../shared/utils/fsHelper';
 import * as path from 'path';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 
 export function writeFileWorker(data: any, callback: any) {
-  FSHelper.createDirectory(path.dirname(data.file));
+  fs.ensureDirSync(path.dirname(data.file));
 
   if (fs.existsSync(data.file)) {
     // remove read-only and other attributes and delete file
