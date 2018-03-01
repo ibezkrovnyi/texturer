@@ -52,7 +52,7 @@ export function binPackerWorker(data: any, callback: any) {
   }
 
   if (!found) {
-    console.log('ERROR-!!!xxx', dig1, dig2);
+    console.error('ERROR-!!!xxx', dig1, dig2, JSON.stringify(data, undefined, 2));
   }
 
   // send processed taskData back to cluster

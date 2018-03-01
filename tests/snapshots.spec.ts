@@ -38,11 +38,11 @@ function serializeFolderToBuffer(folder: string) {
     const files = walkSync(folder).sort();
 
     console.log(files.map((file, i) => '(' + i + ') ' + file + ' (' + getHashFromBuffer(fs.readFileSync(file) as any as Buffer) + ')').join('\n'));
-    files.forEach(file => {
-      if (file.indexOf('texturePool.js') >= 0) {
-        console.log(fs.readFileSync(file).toString('utf8'));
-      }
-    });
+    // files.forEach(file => {
+    //   if (file.indexOf('texturePool.js') >= 0) {
+    //     console.log(fs.readFileSync(file).toString('utf8'));
+    //   }
+    // });
 
     const chunks = files.map(file => fs.readFileSync(file) as any as Buffer);
     return Buffer.concat(chunks);
