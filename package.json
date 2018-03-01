@@ -46,7 +46,6 @@
     "jpeg-js": "0.0.4",
     "jsonc-parser": "1.0.1",
     "rimraf": "latest",
-    "source-map-loader": "^0.2.3",
     "ts-jest": "22.4.0",
     "ts-loader": "4.0.0",
     "tslint": "5.9.1",

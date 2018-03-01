@@ -1,12 +1,10 @@
 import { Rect, Margins } from './rect';
 
 export class FileDimensions {
-  id: string;
   width: number;
   height: number;
 
-  constructor(id: string, width: number, height: number) {
-    this.id = id;
+  constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
   }

@@ -5,20 +5,14 @@ import { Rect, Margins } from '../shared/containers/rect';
 import { workers } from './workers';
 import { InternalTextureMapTask } from './config';
 import { stableSort, getHash } from '../shared/utils/fsHelper';
-import { BinPackerResult } from '../workers/binPacker/binPackerWorker';
+import { Layout } from '../workers/binPacker/binPackerWorker';
 import { LoadedFile } from '../shared/containers/loadedFile';
-
-interface Layout {
-  width: number;
-  height: number;
-  rectangles: Rect[];
-}
 
 export class TextureMapGenerator {
   private _loadedFiles!: Record<string, LoadedFile>;
-  private _plannedPlaceFilesTests!: number;
-  private _finishedPlaceFilesTests!: number;
-  private _textureMap!: TextureMap | null;
+  private _arrangementAttemptsPlanned!: number;
+  private _arrangementAttemptsDone!: number;
+  private _bestLayout!: Layout | null;
   private _callback!: any;
   private _totalPixels!: number;
   private _endTime!: number;
@@ -32,7 +26,7 @@ export class TextureMapGenerator {
   generateTextureMap(loadedFiles: Record<string, LoadedFile>, textureMapTask: InternalTextureMapTask, callback: any) {
     const files = textureMapTask.files.map(file => {
       const loadedFile = loadedFiles[file];
-      return new FileDimensions(file, loadedFile.getWidth(), loadedFile.getHeight());
+      return new FileDimensions(loadedFile.getWidth(), loadedFile.getHeight());
     });
 
     try {
@@ -43,9 +37,9 @@ export class TextureMapGenerator {
         totalPixels += file.width * file.height;
       });
 
-      this._plannedPlaceFilesTests = 3;
-      this._finishedPlaceFilesTests = 0;
-      this._textureMap = null;
+      this._arrangementAttemptsPlanned = 0;
+      this._arrangementAttemptsDone = 0;
+      this._bestLayout = null;
       this._callback = callback;
       this._totalPixels = totalPixels;
       this._endTime = Date.now() + textureMapTask.bruteForceTime;
@@ -57,99 +51,45 @@ export class TextureMapGenerator {
       this._files = files;
 
       // try different combinations
-      // this._placeFiles(textureMapTask, targetRectangle, files.sort((a, b) => (b.width * b.height - a.width * a.height) || (b.id > a.id ? 1 : -1)));
-      // this._placeFiles(textureMapTask, targetRectangle, files.sort((a, b) => (b.width - a.width) || (b.id > a.id ? 1 : -1)));
-      // this._placeFiles(textureMapTask, targetRectangle, files.sort((a, b) => (b.height - a.height) || (b.id > a.id ? 1 : -1)));
-      this._placeFiles(textureMapTask, targetRectangle, stableSort(files.slice(0), (a, b) => b.width * b.height - a.width * a.height));
-      this._placeFiles(textureMapTask, targetRectangle, stableSort(files.slice(0), (a, b) => b.width - a.width));
-      this._placeFiles(textureMapTask, targetRectangle, stableSort(files.slice(0), (a, b) => b.height - a.height));
-
-      /*
-       for (let i = 0; i < textureMapTask.getNPass(); i++) {
-       this._placeFiles(textureMapTask, targetRectangle, this._getShuffledArray(files));
-       }
-       */
+      this._arrangeRects(textureMapTask, targetRectangle, stableSort(Array.from(files), (a, b) => b.width * b.height - a.width * a.height));
+      this._arrangeRects(textureMapTask, targetRectangle, stableSort(Array.from(files), (a, b) => b.width - a.width));
+      this._arrangeRects(textureMapTask, targetRectangle, stableSort(Array.from(files), (a, b) => b.height - a.height));
     } catch (e) {
       callback(e.stack, null);
     }
   }
 
-  private _onPlaceFilesFinished(error: any, bestTextureMap: TextureMap | null) {
-    if (!error && bestTextureMap) {
-      if (this._textureMap) {
-        if (
-          bestTextureMap.getArea() < this._textureMap.getArea() ||
-          (bestTextureMap.getArea() === this._textureMap.getArea() && getHash(bestTextureMap) < getHash(this._textureMap))
-        ) {
-          this._textureMap = bestTextureMap;
+  private _onRectsArranged(error: any, layout: Layout | null) {
+    if (!error && layout && getArea(layout) > 0) {
+      if (this._bestLayout) {
+        const layoutArea = getArea(layout);
+        const bestLayoutArea = getArea(this._bestLayout);
+        if (layoutArea < bestLayoutArea || (layoutArea === bestLayoutArea && getHash(layout) < getHash(this._bestLayout))) {
+          this._bestLayout = layout;
         }
       } else {
-        this._textureMap = bestTextureMap;
+        this._bestLayout = layout;
       }
     }
 
-    this._finishedPlaceFilesTests++;
-    if (this._finishedPlaceFilesTests === this._plannedPlaceFilesTests) {
+    this._arrangementAttemptsDone++;
+    if (this._arrangementAttemptsDone === this._arrangementAttemptsPlanned) {
       if (Date.now() < this._endTime) {
-        this._plannedPlaceFilesTests++;
-        this._placeFiles(this._textureMapTask, this._targetRectangle, this._getShuffledArray(this._files));
+        this._arrangeRects(this._textureMapTask, this._targetRectangle, this._getShuffledArray(this._files));
       } else {
-        if (this._textureMap && this._textureMap.getArea() > 0) {
-
-          var sha1 = crypto.createHash('sha1');
-          sha1.update(JSON.stringify(this._textureMap), 'binary' as any);
-          const dig1 = sha1.digest('hex');
-          console.error('placefinished: ', dig1);
-
-          // const o: any = this._textureMap;
-          // o._textures = Object.keys(o._textures).sort().reduce((prev:any, id) => {
-          //   prev[id] = o._textures[id];
-          //   return prev;
-          // }, {});
-          // const c = this._getTextureMap(tmpGetLayout(this._textureMap));
-
-          // if (JSON.stringify(c) !== JSON.stringify(o)) {
-          //   debugger;
-          // } else {
-          //   debugger;
-           
-          // }
-
-          this._callback(null, this._getTextureMap(tmpGetLayout(this._textureMap)));
-        } else {
-          this._callback(null, null);
-        }
-      }
-    }
-
-    function tmpGetLayout(map: TextureMap) {
-      const keys = map.getTextureIds();
-      const rectangles = keys.map(key => {
-        const t = map.getTexture(key);
-        return {
-          x: t.getX(),
-          y: t.getY(),
-          width: t.getWidth(),
-          height: t.getHeight(),
-        }
-      });
-      return {
-        width: map.getWidth(),
-        height: map.getHeight(),
-        rectangles,
+        this._callback(null, this._bestLayout ? this._getTextureMap(this._bestLayout) : null);
       }
     }
   }
 
   private _getTextureMap(layout: Layout) {
-    const files = this._textureMapTask.files;
     const textures: Record<string, Rect> = {};
     const rectangles = Array.from(layout.rectangles);
     
     const textureMap = new TextureMap();
     textureMap.setData(this._textureMapTask.textureMapFile, layout.width, layout.height, this._textureMapTask.repeatX, this._textureMapTask.repeatY);
 
-    files.forEach(file => {
+    this._textureMapTask.files.forEach(file => {
       const loadedFile = this._loadedFiles[file];
       const index = rectangles.findIndex(rect => rect.width === loadedFile.getWidth() && rect.height === loadedFile.getHeight());
       if (index === -1) throw new Error(`Error: no placement for file ${file}`);
@@ -162,7 +102,9 @@ export class TextureMapGenerator {
     return textureMap;
   }
 
-  private _placeFiles(textureMapTask: InternalTextureMapTask, targetRectangle: Margins, files: FileDimensions[]) {
+  private _arrangeRects(textureMapTask: InternalTextureMapTask, targetRectangle: Margins, files: FileDimensions[]) {
+    this._arrangementAttemptsPlanned++;
+
     const data = {
       files,
       fromX: targetRectangle.left,
@@ -179,42 +121,42 @@ export class TextureMapGenerator {
     sha1.update(JSON.stringify({ textureMapTask, targetRectangle, files }), 'binary' as any);
     const dig1 = sha1.digest('hex');
 
-    workers.binPackerWorker(data, (error: string, data: BinPackerResult) => {
+    workers.binPackerWorker(data, (error: string, layout: Layout | null) => {
       if (error) {
         throw new Error(error);
       } else {
-        if (!data) {
+        if (!layout) {
           // TODO: it is not good to call callback with null, think about convert it to specific Error
-          this._onPlaceFilesFinished(null, null);
+          this._onRectsArranged(null, null);
         } else {
-          const width = data.width;
-          const height = data.height;
-          // TODO: do we need to add stableSort for textureIds ?
-          const textureIds = Object.keys(data.rectangles);
+          // const width = data.width;
+          // const height = data.height;
+          // // TODO: do we need to add stableSort for textureIds ?
+          // const textureIds = Object.keys(data.rectangles);
 
-          const textureMap = new TextureMap();
-          textureMap.setData(textureMapTask.textureMapFile, width, height, textureMapTask.repeatX, textureMapTask.repeatY);
-          for (const id of textureIds) {
-            const texture = new Texture();
-            const textureContainer = data.rectangles[id];
-            // TODO: why next line in red??
-            texture.setData(textureContainer.x, textureContainer.y, textureContainer.width, textureContainer.height);
-            textureMap.setTexture(id, texture);
-          }
+          // const textureMap = new TextureMap();
+          // textureMap.setData(textureMapTask.textureMapFile, width, height, textureMapTask.repeatX, textureMapTask.repeatY);
+          // for (const id of textureIds) {
+          //   const texture = new Texture();
+          //   const textureContainer = data.rectangles[id];
+          //   // TODO: why next line in red??
+          //   texture.setData(textureContainer.x, textureContainer.y, textureContainer.width, textureContainer.height);
+          //   textureMap.setTexture(id, texture);
+          // }
 
-          var sha1 = crypto.createHash('sha1');
-          sha1.update(JSON.stringify(textureMap), 'binary' as any);
-          const dig2 = sha1.digest('hex');
-          console.error('tmp: ', dig1, dig2);
+          // var sha1 = crypto.createHash('sha1');
+          // sha1.update(JSON.stringify(textureMap), 'binary' as any);
+          // const dig2 = sha1.digest('hex');
+          // console.error('tmp: ', dig1, dig2);
 
-          this._onPlaceFilesFinished(null, textureMap);
+          this._onRectsArranged(null, layout);
         }
       }
     });
   }
 
   private _getShuffledArray<T>(arr: T[]) {
-    const shuffled = arr.slice(0);
+    const shuffled = Array.from(arr);
     for (let i = 0; i < shuffled.length - 1; i++) {
       const l = shuffled.length;
       const index = ((Math.random() * (l - i)) | 0) + i;
@@ -257,4 +199,8 @@ export class TextureMapGenerator {
 
     return { left, right, top, bottom };
   }
+}
+
+function getArea(layout: Layout) {
+  return layout.width * layout.height;
 }
