@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import handlebars from 'handlebars';
-import { FSHelper } from './fsHelper';
+import { FSHelper, stableSort } from './fsHelper';
 import { LoadedFile } from '../containers/loadedFile';
 import { TextureMap } from '../containers/textureMap';
 import { InternalConfig } from '../../texturer/config';
@@ -180,16 +180,4 @@ export class TexturePoolWriter {
       }
     }
   }
-}
-
-// TODO: extract to utils
-function stableSort<T>(arr: T[], compare: (a: T, b: T) => number) {
-  var original = arr.slice(0);
-
-  arr.sort((a, b) => {
-      const result = compare(a, b);
-      return result === 0 ? original.indexOf(a) - original.indexOf(b) : result;
-  });
-
-  return arr;
 }

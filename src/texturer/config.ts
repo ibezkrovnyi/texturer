@@ -3,7 +3,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { parse } from 'jsonc-parser';
 import schema from './configSchema.json';
-import { FSHelper as fsHelper } from '../shared/utils/fsHelper';
+import { FSHelper as fsHelper, stableSort } from '../shared/utils/fsHelper';
 
 export interface Config {
   folders: {
@@ -231,5 +231,8 @@ function getFiles(folder: string, config: InternalConfig) {
   if (files.length <= 0) {
     throw new Error('no files in fullfolder ' + folder);
   }
-  return files;
+  
+  return stableSort(files, (a, b) => {
+    return a > b ? 1 : a < b ? -1 : 0;
+  });
 }

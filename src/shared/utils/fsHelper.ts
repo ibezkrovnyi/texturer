@@ -77,3 +77,15 @@ export class FSHelper {
     });
   }
 }
+
+// TODO: convert class to functions
+export function stableSort<T>(arr: T[], compare: (a: T, b: T) => number) {
+  var original = arr.slice(0);
+
+  arr.sort((a, b) => {
+      const result = compare(a, b);
+      return result === 0 ? original.indexOf(a) - original.indexOf(b) : result;
+  });
+
+  return arr;
+}
