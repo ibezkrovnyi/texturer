@@ -1,0 +1,367 @@
+{
+  "_width": 1664,
+  "_height": 512,
+  "_dataURI": null,
+  "_repeatX": false,
+  "_repeatY": false,
+  "_textures": {
+    "creative-nerds-wooden-icons/aim.png": {
+      "_x": 1536,
+      "_y": 0,
+      "_width": 128,
+      "_height": 127,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/apple.png": {
+      "_x": 0,
+      "_y": 0,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/ask.png": {
+      "_x": 0,
+      "_y": 128,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/at.png": {
+      "_x": 1152,
+      "_y": 128,
+      "_width": 128,
+      "_height": 127,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/bebo.png": {
+      "_x": 0,
+      "_y": 256,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/behance.png": {
+      "_x": 1152,
+      "_y": 255,
+      "_width": 128,
+      "_height": 127,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/blogger.png": {
+      "_x": 0,
+      "_y": 384,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/box.png": {
+      "_x": 128,
+      "_y": 0,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/buddy.png": {
+      "_x": 128,
+      "_y": 128,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/chrome.png": {
+      "_x": 128,
+      "_y": 256,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/digg.png": {
+      "_x": 1536,
+      "_y": 255,
+      "_width": 128,
+      "_height": 125,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/dribble.png": {
+      "_x": 128,
+      "_y": 384,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/dzone.png": {
+      "_x": 256,
+      "_y": 0,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/email.png": {
+      "_x": 256,
+      "_y": 128,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/evernote.png": {
+      "_x": 256,
+      "_y": 256,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/facebook.png": {
+      "_x": 1280,
+      "_y": 255,
+      "_width": 128,
+      "_height": 126,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/flickr.png": {
+      "_x": 256,
+      "_y": 384,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/float.png": {
+      "_x": 384,
+      "_y": 0,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/friend_feed.png": {
+      "_x": 1152,
+      "_y": 382,
+      "_width": 128,
+      "_height": 127,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/fun.png": {
+      "_x": 384,
+      "_y": 128,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/gmail.png": {
+      "_x": 384,
+      "_y": 256,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/google.png": {
+      "_x": 384,
+      "_y": 384,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/google_buzz.png": {
+      "_x": 512,
+      "_y": 0,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/google_wave.png": {
+      "_x": 512,
+      "_y": 128,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/hd.png": {
+      "_x": 512,
+      "_y": 256,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/heart_internet.png": {
+      "_x": 512,
+      "_y": 384,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/last.png": {
+      "_x": 640,
+      "_y": 0,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/linkedin.png": {
+      "_x": 640,
+      "_y": 128,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/mobile.png": {
+      "_x": 640,
+      "_y": 256,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/music.png": {
+      "_x": 640,
+      "_y": 384,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/myspace.png": {
+      "_x": 1280,
+      "_y": 128,
+      "_width": 128,
+      "_height": 127,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/net_vibes.png": {
+      "_x": 768,
+      "_y": 0,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/p.png": {
+      "_x": 768,
+      "_y": 128,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/paypal.png": {
+      "_x": 768,
+      "_y": 256,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/qik.png": {
+      "_x": 1408,
+      "_y": 128,
+      "_width": 128,
+      "_height": 127,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/rss.png": {
+      "_x": 1536,
+      "_y": 128,
+      "_width": 128,
+      "_height": 127,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/share.png": {
+      "_x": 1408,
+      "_y": 381,
+      "_width": 128,
+      "_height": 125,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/star.png": {
+      "_x": 768,
+      "_y": 384,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/stumble.png": {
+      "_x": 896,
+      "_y": 0,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/tech.png": {
+      "_x": 1280,
+      "_y": 381,
+      "_width": 128,
+      "_height": 126,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/think.png": {
+      "_x": 896,
+      "_y": 128,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/thunder.png": {
+      "_x": 896,
+      "_y": 256,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/tumblr.png": {
+      "_x": 896,
+      "_y": 384,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/twitter.png": {
+      "_x": 1024,
+      "_y": 0,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/vidderler.png": {
+      "_x": 1024,
+      "_y": 128,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/vimeo.png": {
+      "_x": 1408,
+      "_y": 255,
+      "_width": 128,
+      "_height": 126,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/virb.png": {
+      "_x": 1024,
+      "_y": 256,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/windows.png": {
+      "_x": 1024,
+      "_y": 384,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/wordpress.png": {
+      "_x": 1152,
+      "_y": 0,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/yahoo.png": {
+      "_x": 1280,
+      "_y": 0,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    },
+    "creative-nerds-wooden-icons/youtube.png": {
+      "_x": 1408,
+      "_y": 0,
+      "_width": 128,
+      "_height": 128,
+      "_image": null
+    }
+  },
+  "_file": "creative-nerds-wooden-icons.png"
+}

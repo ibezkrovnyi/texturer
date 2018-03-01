@@ -11,7 +11,8 @@ module.exports = {
     path: path.join(__dirname, 'dist'),
     filename: '[name].js',
     library: '[name]',
-    libraryTarget: 'commonjs2'
+    libraryTarget: 'commonjs2',
+    devtoolModuleFilenameTemplate: '[absolute-resource-path]'
   },
   target: 'node',
   node: {
@@ -30,7 +31,12 @@ module.exports = {
   module: {
     rules: [
       // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
-      { test: /\.tsx?$/, loader: "ts-loader" }
+      { test: /\.tsx?$/, loader: "ts-loader" },
+      {
+        test: /\.js$/,
+        use: ["source-map-loader"],
+        enforce: "pre"
+      }
     ]
   }
 };

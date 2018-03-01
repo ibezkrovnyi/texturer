@@ -6,8 +6,16 @@ import { workers } from './workers';
 import { InternalTextureMapTask } from './config';
 import { stableSort, getHash } from '../shared/utils/fsHelper';
 import { BinPackerResult } from '../workers/binPacker/binPackerWorker';
+import { LoadedFile } from '../shared/containers/loadedFile';
+
+interface Layout {
+  width: number;
+  height: number;
+  rectangles: Rect[];
+}
 
 export class TextureMapGenerator {
+  private _loadedFiles!: Record<string, LoadedFile>;
   private _plannedPlaceFilesTests!: number;
   private _finishedPlaceFilesTests!: number;
   private _textureMap!: TextureMap | null;
@@ -21,8 +29,14 @@ export class TextureMapGenerator {
   constructor() {
   }
 
-  generateTextureMap(files: FileDimensions[], textureMapTask: InternalTextureMapTask, callback: any) {
+  generateTextureMap(loadedFiles: Record<string, LoadedFile>, textureMapTask: InternalTextureMapTask, callback: any) {
+    const files = textureMapTask.files.map(file => {
+      const loadedFile = loadedFiles[file];
+      return new FileDimensions(file, loadedFile.getWidth(), loadedFile.getHeight());
+    });
+
     try {
+      this._loadedFiles = loadedFiles;
       // calculate total pixels
       let totalPixels = 0;
       files.forEach(function (file: any) {
@@ -87,12 +101,65 @@ export class TextureMapGenerator {
           const dig1 = sha1.digest('hex');
           console.error('placefinished: ', dig1);
 
-          this._callback(null, this._textureMap);
+          // const o: any = this._textureMap;
+          // o._textures = Object.keys(o._textures).sort().reduce((prev:any, id) => {
+          //   prev[id] = o._textures[id];
+          //   return prev;
+          // }, {});
+          // const c = this._getTextureMap(tmpGetLayout(this._textureMap));
+
+          // if (JSON.stringify(c) !== JSON.stringify(o)) {
+          //   debugger;
+          // } else {
+          //   debugger;
+           
+          // }
+
+          this._callback(null, this._getTextureMap(tmpGetLayout(this._textureMap)));
         } else {
           this._callback(null, null);
         }
       }
     }
+
+    function tmpGetLayout(map: TextureMap) {
+      const keys = map.getTextureIds();
+      const rectangles = keys.map(key => {
+        const t = map.getTexture(key);
+        return {
+          x: t.getX(),
+          y: t.getY(),
+          width: t.getWidth(),
+          height: t.getHeight(),
+        }
+      });
+      return {
+        width: map.getWidth(),
+        height: map.getHeight(),
+        rectangles,
+      }
+    }
+  }
+
+  private _getTextureMap(layout: Layout) {
+    const files = this._textureMapTask.files;
+    const textures: Record<string, Rect> = {};
+    const rectangles = Array.from(layout.rectangles);
+    
+    const textureMap = new TextureMap();
+    textureMap.setData(this._textureMapTask.textureMapFile, layout.width, layout.height, this._textureMapTask.repeatX, this._textureMapTask.repeatY);
+
+    files.forEach(file => {
+      const loadedFile = this._loadedFiles[file];
+      const index = rectangles.findIndex(rect => rect.width === loadedFile.getWidth() && rect.height === loadedFile.getHeight());
+      if (index === -1) throw new Error(`Error: no placement for file ${file}`);
+      const rect = rectangles.splice(index, 1)[0];
+      const texture = new Texture();
+      texture.setData(rect.x, rect.y, rect.width, rect.height);
+      textureMap.setTexture(file, texture);
+    });
+
+    return textureMap;
   }
 
   private _placeFiles(textureMapTask: InternalTextureMapTask, targetRectangle: Margins, files: FileDimensions[]) {

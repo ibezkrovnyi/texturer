@@ -27,13 +27,8 @@ export class TextureMapTaskRunner {
   }
 
   run() {
-    const fileDimensionsArray = this._textureMapTask.files.map(file => {
-      const loadedFile = this._loadedFiles[file];
-      return new FileDimensions(file, loadedFile.getWidth(), loadedFile.getHeight());
-    });
-
     const textureMapGenerator = new TextureMapGenerator();
-    textureMapGenerator.generateTextureMap(fileDimensionsArray, this._textureMapTask, (error: string, textureMap: TextureMap) => {
+    textureMapGenerator.generateTextureMap(this._loadedFiles, this._textureMapTask, (error: string, textureMap: TextureMap) => {
       if (textureMap) {
         this._compressTextureMapImage(textureMap);
       } else {
