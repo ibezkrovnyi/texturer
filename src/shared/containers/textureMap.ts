@@ -1,4 +1,4 @@
-import { Rect } from './rect';
+import { Rect, Margins } from './rect';
 
 export class FileDimensions {
   id: string;
@@ -16,7 +16,7 @@ export class TextureImage {
   private _realWidth: number;
   private _realHeight: number;
   private _bitmap: number[] | null;
-  private _trim: Rect | null;
+  private _trim: Margins | null;
   private _opaque: boolean;
 
   constructor() {
@@ -28,7 +28,7 @@ export class TextureImage {
   }
 
   // TODO: remove setData, move all initializers into constructor
-  setData(realWidth: number, realHeight: number, bitmap: number[], trim: Rect, isOpaque: boolean) {
+  setData(realWidth: number, realHeight: number, bitmap: number[], trim: Margins, isOpaque: boolean) {
     this._realWidth = realWidth;
     this._realHeight = realHeight;
     this._bitmap = bitmap;

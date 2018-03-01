@@ -2,7 +2,6 @@ import workerFarm from 'worker-farm';
 import * as path from 'path';
 import { TextureMap, Texture, FileDimensions } from '../shared/containers/textureMap';
 import { Rect } from '../shared/containers/rect';
-import { BinPackerResult } from '../shared/containers/binPackerResult';
 
 export const workers = workerFarm(
   path.join(__dirname, 'workers.js'),

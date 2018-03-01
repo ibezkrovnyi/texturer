@@ -1,9 +1,15 @@
-import { BinPackerResult, BinRectanglesDictionary } from '../../shared/containers/binPackerResult';
 import { FileDimensions } from '../../shared/containers/textureMap';
 import { BinPacker } from './binPackerAlgorithm';
+import { Rect } from '../../shared/containers/rect';
 
 // there is no sense to try all possible width/height. width/height step = 16 is ok
 const binPackerSizeStep = 16;
+
+export interface BinPackerResult {
+  width: number;
+  height: number;
+  rectangles: Record<string, Rect>;
+}
 
 export function binPackerWorker(data: any, callback: any) {
   let best: BinPackerResult | null = null;
@@ -31,7 +37,7 @@ export function binPackerWorker(data: any, callback: any) {
 
 function tryToPack(fileDimensions: FileDimensions[], spriteWidth: number, spriteHeight: number, gridStep: number, paddingX: number, paddingY: number) {
   const packer = new BinPacker(spriteWidth, spriteHeight, gridStep, paddingX, paddingY);
-  const rectangles: BinRectanglesDictionary = {};
+  const rectangles: BinPackerResult['rectangles'] = {};
 
   let width = 0;
   let height = 0;

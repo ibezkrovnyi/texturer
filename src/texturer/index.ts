@@ -13,7 +13,7 @@ import * as util from 'util';
 import workerFarm from 'worker-farm';
 import { TextureMap } from '../shared/containers/textureMap';
 import { LoadedFile } from '../shared/containers/loadedFile';
-import { Rect } from '../shared/containers/rect';
+import { Rect, Margins } from '../shared/containers/rect';
 import { TexturePoolWriter } from '../shared/utils/texturePoolWriter';
 import { ImageHelper } from '../shared/utils/imageHelper';
 import { CopyTaskRunner } from '../shared/utils/copyTaskRunner';
@@ -81,7 +81,7 @@ export class Texturer {
         } else {
           const realWidth = instance.width;
           const realHeight = instance.height;
-          let trim: Rect = { left: 0, right: 0, top: 0, bottom: 0 }; // TODO: why Rect explicit type was not removed by no-unnecessary-type-annotaations ?
+          let trim: Margins = { left: 0, right: 0, top: 0, bottom: 0 }; // TODO: why Rect explicit type was not removed by no-unnecessary-type-annotaations ?
 
           // trim image if it is part of sprite
           if (trim1 && trim1.enable) {

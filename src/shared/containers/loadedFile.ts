@@ -1,4 +1,4 @@
-import { Rect } from './rect';
+import { Rect, Margins } from './rect';
 
 export class LoadedFile {
   private _width: number;
@@ -6,10 +6,10 @@ export class LoadedFile {
   private _realWidth: number;
   private _realHeight: number;
   private _bitmap: number[];
-  private _trim: Rect;
+  private _trim: Margins;
   private _opaque: boolean;
 
-  constructor(width: number, height: number, realWidth: number, realHeight: number, opaque: boolean, trim: Rect, bitmap: number[]) {
+  constructor(width: number, height: number, realWidth: number, realHeight: number, opaque: boolean, trim: Margins, bitmap: number[]) {
     this._width = width;
     this._height = height;
     this._realWidth = realWidth;
