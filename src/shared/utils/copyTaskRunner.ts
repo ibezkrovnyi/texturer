@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { TextureMap, Texture, TextureImage } from '../containers/textureMap';
 import { LoadedFile } from '../containers/loadedFile';
-import { DataURIEncoder } from './dataURIEncoder';
+import { encodeFile } from './dataURI';
 import { FSHelper } from './fsHelper';
 import { workers } from '../../texturer/workers';
 import { InternalConfig, InternalCopyTask } from '../../texturer/config';
@@ -31,7 +31,7 @@ export class CopyTaskRunner {
       // dataURI
       let dataURI: string | null = null;
       if (this._copyTask.dataURI.enable) {
-        dataURI = new DataURIEncoder().encodeFile(fromFile);
+        dataURI = encodeFile(fromFile);
         if (this._copyTask.dataURI.maxSize !== null) {
           if (dataURI.length >= this._copyTask.dataURI.maxSize) {
             dataURI = null;

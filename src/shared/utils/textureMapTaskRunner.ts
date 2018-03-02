@@ -3,7 +3,7 @@ import * as path from 'path';
 import { LoadedFile } from '../containers/loadedFile';
 import { TextureMapGenerator } from '../../texturer/textureMapGenerator';
 import { FileDimensions, Texture, TextureMap } from '../containers/textureMap';
-import { DataURIEncoder } from './dataURIEncoder';
+import { encodeBuffer } from './dataURI';
 import { workers } from '../../texturer/workers';
 import { InternalConfig, InternalTextureMapTask } from '../../texturer/config';
 
@@ -119,7 +119,7 @@ export class TextureMapTaskRunner {
   private _createDataURI(textureMap: TextureMap, compressedImage: Buffer) {
     let dataURI: string | null = null;
     if (this._textureMapTask.dataURI.enable) {
-      dataURI = new DataURIEncoder().encodeBuffer(compressedImage, 'image/png');
+      dataURI = encodeBuffer(compressedImage, 'image/png');
       if (this._textureMapTask.dataURI.maxSize !== null) {
         if (dataURI.length >= this._textureMapTask.dataURI.maxSize) {
           dataURI = null;
