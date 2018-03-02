@@ -11,10 +11,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as util from 'util';
 import workerFarm from 'worker-farm';
+import { writeMeta } from '../shared/utils/texturePoolWriter';
 import { TextureMap } from '../shared/containers/textureMap';
 import { LoadedFile } from '../shared/containers/loadedFile';
 import { Rect, Margins } from '../shared/containers/rect';
-import { TexturePoolWriter } from '../shared/utils/texturePoolWriter';
 import { ImageHelper } from '../shared/utils/imageHelper';
 import { CopyTaskRunner } from '../shared/utils/copyTaskRunner';
 import { TextureMapTaskRunner } from '../shared/utils/textureMapTaskRunner';
@@ -137,7 +137,7 @@ export class Texturer {
 
     if (this._textureMapArray.length === this._totalTexturMapsRequiredCount) {
       logMemory('build time: ' + (Date.now() - startTime) + ' ms');
-      const duplicateFileNamesArray = new TexturePoolWriter().writeTexturePoolFile(this._config.folders.rootTo, this._config, this._loadedFiles, this._textureMapArray);
+      const duplicateFileNamesArray = writeMeta(this._config.folders.rootTo, this._config, this._loadedFiles, this._textureMapArray);
       this._shutdown(duplicateFileNamesArray.length > 0 ? new Error('Found duplicate file names:\n' + duplicateFileNamesArray.join('\n')) : null);
     }
   }
