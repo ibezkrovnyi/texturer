@@ -49,9 +49,9 @@ export class TextureMapTaskRunner {
 
       textureArray.push({
         ...texture,
-        realWidth: loadedFile.getRealWidth(),
-        realHeight: loadedFile.getRealHeight(),
-        bitmapSerialized: loadedFile.getBitmap(),
+        realWidth: loadedFile.realWidth,
+        realHeight: loadedFile.realHeight,
+        bitmapSerialized: loadedFile.bitmap,
       });
     });
 

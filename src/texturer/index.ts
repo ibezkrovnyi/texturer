@@ -91,7 +91,15 @@ export class Texturer {
             instance = trimResult.png;
             trim = trimResult.trim;
           }
-          this._loadedFiles[file] = new LoadedFile(instance.width, instance.height, realWidth, realHeight, ImageHelper.isOpaque(instance), trim, instance.data);
+          this._loadedFiles[file] = {
+            width: instance.width, 
+            height: instance.height, 
+            realWidth, 
+            realHeight, 
+            opaque: ImageHelper.isOpaque(instance),
+            trim,
+            bitmap: instance.data,
+          }
 
           this._loadedFilesCount++;
           if (this._totalFilesCount === this._loadedFilesCount) {

@@ -39,15 +39,16 @@ export class CopyTaskRunner {
         }
       }
 
-      const width = loadedFile.getWidth();
-      const height = loadedFile.getHeight();
+      const width = loadedFile.width;
+      const height = loadedFile.height;
 
+      // TODO: 
       const textureImage: TextureImage = {
-        realWidth: loadedFile.getRealWidth(), 
-        realHeight: loadedFile.getRealHeight(),
-        bitmap: loadedFile.getBitmap(),
-        trim: loadedFile.getTrim(),
-        opaque: loadedFile.isOpaque(),
+        realWidth: loadedFile.realWidth, 
+        realHeight: loadedFile.realHeight,
+        bitmap: loadedFile.bitmap,
+        trim: loadedFile.trim,
+        opaque: loadedFile.opaque,
       };
 
       const texture: Texture = {

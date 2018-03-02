@@ -72,7 +72,7 @@ export function writeMeta(folderRootTo: string, configParser: InternalConfig, lo
     textureIds.forEach((id: string, textureIndex) => {
       const texture = map.textures[id];
       const loadedFile = loadedFiles[id];
-      const trim = loadedFile.getTrim();
+      const trim = loadedFile.trim;
       const isLastTexture = textureIndex + 1 === textureIds.length;
 
       usedPixels += texture.width * texture.height;
@@ -89,10 +89,10 @@ export function writeMeta(folderRootTo: string, configParser: InternalConfig, lo
         y: texture.y,
         width: texture.width,
         height: texture.height,
-        'real-width': loadedFile.getRealWidth(),
-        'real-height': loadedFile.getRealHeight(),
+        'real-width': loadedFile.realWidth,
+        'real-height': loadedFile.realHeight,
         trim,
-        opaque: loadedFile.isOpaque(),
+        opaque: loadedFile.opaque,
         'repeat-x': map.repeatX,
         'repeat-y': map.repeatY,
         'is-last-item': isLastTexture && isLastTextureMap,

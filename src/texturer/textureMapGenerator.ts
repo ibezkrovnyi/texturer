@@ -26,7 +26,7 @@ export class TextureMapGenerator {
   generateTextureMap(loadedFiles: Record<string, LoadedFile>, textureMapTask: InternalTextureMapTask, callback: any) {
     const files: FileDimensions[] = textureMapTask.files.map(file => {
       const loadedFile = loadedFiles[file];
-      return { width: loadedFile.getWidth(), height: loadedFile.getHeight() };
+      return { width: loadedFile.width, height: loadedFile.height };
     });
 
     try {
@@ -88,7 +88,7 @@ export class TextureMapGenerator {
     const files = this._textureMapTask.files;
     const textures = files.reduce<TextureMap['textures']>((acc, file) => {
       const loadedFile = this._loadedFiles[file];
-      const index = rectangles.findIndex(rect => rect.width === loadedFile.getWidth() && rect.height === loadedFile.getHeight());
+      const index = rectangles.findIndex(rect => rect.width === loadedFile.width && rect.height === loadedFile.height);
       if (index === -1) throw new Error(`Error: no placement for file ${file}`);
       const rect = rectangles.splice(index, 1)[0];
       const texture: Texture = { ...rect };
