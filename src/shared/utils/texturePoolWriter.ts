@@ -49,7 +49,7 @@ export function writeMeta(folderRootTo: string, configParser: InternalConfig, lo
 
   // for each Texture Map
   textureMapImages.forEach(function (map: TextureMap, mapIndex) {
-    console.log('map file = ' + map.file);
+    console.log('map file = ' + map.file) ;
     const url = path.join(configParser.folders.wwwRoot, map.file).replace(/\\/g, '/');
     const dataURI = map.dataURI;
     const textureIds = Object.keys(map.textures);
