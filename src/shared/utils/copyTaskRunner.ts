@@ -1,124 +1,86 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { TextureMap, Texture, TextureImage } from '../containers/textureMap';
+import { TextureMap, Texture } from '../containers/textureMap';
 import { LoadedFile } from '../containers/loadedFile';
 import { encodeFile } from './dataURI';
 import { FSHelper } from './fsHelper';
 import { workers } from '../../texturer/workers';
 import { InternalConfig, InternalCopyTask } from '../../texturer/config';
 
-export class CopyTaskRunner {
-  private _globalConfig: InternalConfig;
-  private _copyTask: InternalCopyTask;
-  private _loadedFiles: { [fileName: string]: LoadedFile };
-  private _callback: (error: Error | null, result: any) => void;
-  private _textureMaps: TextureMap[];
+export async function copyTaskRunner(config: InternalConfig, task: InternalCopyTask, loadedFiles: { [fileName: string]: LoadedFile }) {
+  const promises = task.files.map(async (file: string) => {
+    const fromFile = path.join(config.folders.rootFrom, file);
+    const toFile = path.join(config.folders.rootToIndexHtml, file);
+    const loadedFile = loadedFiles[file];
 
-  constructor(globalConfig: InternalConfig, copyTask: InternalCopyTask, loadedFiles: { [fileName: string]: LoadedFile }, callback: (error: Error | null, result: any) => void) {
-    this._globalConfig = globalConfig;
-    this._copyTask = copyTask;
-    this._loadedFiles = loadedFiles;
-    this._textureMaps = [];
-    this._callback = callback;
-  }
-
-  run() {
-    this._copyTask.files.forEach((file: string) => {
-      const fromFile = path.join(this._globalConfig.folders.rootFrom, file);
-      const toFile = path.join(this._globalConfig.folders.rootToIndexHtml, file);
-      const loadedFile = this._loadedFiles[file];
-
-      // dataURI
-      let dataURI: string | null = null;
-      if (this._copyTask.dataURI.enable) {
-        dataURI = encodeFile(fromFile);
-        if (this._copyTask.dataURI.maxSize !== null) {
-          if (dataURI.length >= this._copyTask.dataURI.maxSize) {
-            dataURI = null;
-          }
+    // dataURI
+    let dataURI: string | null = null;
+    if (task.dataURI.enable) {
+      dataURI = encodeFile(fromFile);
+      if (task.dataURI.maxSize !== null) {
+        if (dataURI.length >= task.dataURI.maxSize) {
+          dataURI = null;
         }
       }
-
-      const width = loadedFile.width;
-      const height = loadedFile.height;
-
-      // TODO: 
-      const textureImage: TextureImage = {
-        realWidth: loadedFile.realWidth, 
-        realHeight: loadedFile.realHeight,
-        bitmap: loadedFile.bitmap,
-        trim: loadedFile.trim,
-        opaque: loadedFile.opaque,
-      };
-
-      const texture: Texture = {
-        x: 0,
-        y: 0,
-        width,
-        height,
-        image: textureImage,
-      }
-
-      const textureMap: TextureMap = {
-        file,
-        width,
-        height,
-        dataURI,
-        repeatX: false,
-        repeatY: false,
-        textures: { [file]: texture },
-      }
-
-      const skipFileWrite = dataURI && !this._copyTask.dataURI.createImageFileAnyway;
-      if (!skipFileWrite) {
-        // fs.link(fromFile, toFile, function (error) {
-        this._copyFile(fromFile, toFile, () => {
-          this._addTextureMap(textureMap);
-        });
-      } else {
-        this._addTextureMap(textureMap);
-      }
-    });
-  }
-
-  private _copyFile(fromFile: string, toFile: string, onCopyFinishedCallback: () => void) {
-    try {
-      fs.ensureDirSync(path.dirname(toFile));
-
-      // check if file exists
-      if (fs.existsSync(toFile)) {
-        // remove read-only and other attributes
-        fs.chmodSync(toFile, '0777');
-
-        // delete file
-        fs.unlinkSync(toFile);
-      }
-    } catch (e) {
-      this._callback(new Error('COPY PREPARATION: ' + e.toString()), null);
     }
 
-    const copyTask = workers.copyFileWorker({ source: fromFile, target: toFile }, (error: string) => {
-      if (error) {
-        this._callback(
-          new Error('' +
-            'COPY: \n' +
-            'src: ' + fromFile + '\n' +
-            'dst: ' + toFile + '\n' +
-            'error: ' + error,
-          ),
-          null,
-        );
-      }
+    const width = loadedFile.width;
+    const height = loadedFile.height;
 
-      onCopyFinishedCallback();
-    });
+    const textureMap: TextureMap = {
+      file,
+      width,
+      height,
+      dataURI,
+      repeatX: false,
+      repeatY: false,
+      textures: {
+        [file]: {
+          x: 0,
+          y: 0,
+          width,
+          height,
+        },
+      },
+    };
+
+    const skipFileWrite = dataURI && !task.dataURI.createImageFileAnyway;
+    if (!skipFileWrite) {
+      // fs.link(fromFile, toFile, function (error) {
+      await copyFile(fromFile, toFile);
+    }
+    return textureMap;
+  });
+
+  return Promise.all(promises);
+}
+
+async function copyFile(fromFile: string, toFile: string) {
+  try {
+    fs.ensureDirSync(path.dirname(toFile));
+
+    // check if file exists
+    if (fs.existsSync(toFile)) {
+      // remove read-only and other attributes
+      fs.chmodSync(toFile, '0777');
+
+      // delete file
+      fs.unlinkSync(toFile);
+    }
+  } catch (e) {
+    // TODO: wrap to some util function, preserve original callstack
+    throw new Error('COPY PREPARATION: ' + e.toString());
   }
 
-  private _addTextureMap(textureMapImage: TextureMap) {
-    this._textureMaps.push(textureMapImage);
-
-    if (this._copyTask.files.length === this._textureMaps.length) {
-      this._callback(null, this._textureMaps);
-    }
+  try {
+    await workers.copyFileWorker({ source: fromFile, target: toFile });
+  } catch (error) {
+    // TODO: wrap to some util function, preserve original callstack
+    throw new Error('' +
+      'COPY: \n' +
+      'src: ' + fromFile + '\n' +
+      'dst: ' + toFile + '\n' +
+      'error: ' + error,
+    );
   }
 }

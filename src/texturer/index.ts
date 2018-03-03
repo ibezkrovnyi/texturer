@@ -10,15 +10,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as util from 'util';
-import workerFarm from 'worker-farm';
 import { writeMeta } from '../shared/utils/texturePoolWriter';
 import { TextureMap } from '../shared/containers/textureMap';
 import { LoadedFile } from '../shared/containers/loadedFile';
 import { Rect, Margins } from '../shared/containers/rect';
 import { ImageHelper } from '../shared/utils/imageHelper';
-import { CopyTaskRunner } from '../shared/utils/copyTaskRunner';
-import { TextureMapTaskRunner } from '../shared/utils/textureMapTaskRunner';
-import { workers } from './workers';
+import { copyTaskRunner } from '../shared/utils/copyTaskRunner';
+import { textureMapTaskRunner } from '../shared/utils/textureMapTaskRunner';
+import { workerFarmEnd, workers } from './workers';
 import { validateConfig, InternalConfig, Trim, InternalTrim, InternalCopyTask, InternalTextureMapTask } from './config';
 
 const startTime = Date.now();
@@ -31,7 +30,6 @@ export class Texturer {
   private _totalFilesCount!: number;
   private _totalTexturMapsRequiredCount: any;
   private _loadedFiles!: { [fileName: string]: LoadedFile };
-  private _textureMapArray!: TextureMap[];
 
   generate(config: Object, callback: (error?: string | Error | null) => void) {
     this._callback = callback;
@@ -39,7 +37,6 @@ export class Texturer {
     try {
       // this._configParser = new GlobalConfig(config);
       this._config = validateConfig(JSON.stringify(config));
-      this._textureMapArray = [];
 
       this._loadedFiles = {};
 
@@ -49,7 +46,7 @@ export class Texturer {
 
       this._loadFiles();
     } catch (e) {
-      this._shutdown(e);
+      callback(e);
     }
   }
 
@@ -77,7 +74,8 @@ export class Texturer {
     files.forEach(file => {
       ImageHelper.readImageFile(path.join(this._config.folders.rootFrom, file), (error: Error, instance: { width: number; height: number; data: number[]; }) => {
         if (error) {
-          this._shutdown(error);
+          this._shutdown();
+          this._callback(error);
         } else {
           const realWidth = instance.width;
           const realHeight = instance.height;
@@ -111,52 +109,23 @@ export class Texturer {
     });
   }
 
-  private _generateTextureMaps() {
-    this._config.copyTasks.forEach(this._runCopyTask, this);
-    this._config.textureMapTasks.forEach(this._runTextureMapTask, this);
-  }
+  private async _generateTextureMaps() {
+    const arrayOfTextureMapArrays = await Promise.all([
+      ...this._config.copyTasks.map(task => copyTaskRunner(this._config, task, this._loadedFiles)),
+      ...this._config.textureMapTasks.map(task => textureMapTaskRunner(this._config, task, this._loadedFiles)),
+    ]);
+    const textureMapArray = ([] as TextureMap[]).concat(...arrayOfTextureMapArrays);
 
-  private _runCopyTask(copyTask: InternalCopyTask) {
-    const runner = new CopyTaskRunner(this._config, copyTask, this._loadedFiles, (error, textureMaps: TextureMap[]) => {
-      if (error) {
-        this._shutdown(error);
-      } else {
-        this._onTextureMapGenerated(textureMaps);
-      }
-    });
-    runner.run();
-  }
-
-  private _runTextureMapTask(textureMapTask: InternalTextureMapTask) {
-    const runner = new TextureMapTaskRunner(this._config, textureMapTask, this._loadedFiles, (error: any, textureMap: any) => {
-      if (error) {
-        this._shutdown(error);
-      } else {
-        this._onTextureMapGenerated([textureMap]);
-      }
-    });
-    runner.run();
-  }
-
-  private _onTextureMapGenerated(textureMaps: TextureMap[]) {
-    for (const textureMap of textureMaps) {
-      this._textureMapArray.push(textureMap);
+    logMemory('build time: ' + (Date.now() - startTime) + ' ms');
+    const duplicateFileNamesArray = writeMeta(this._config.folders.rootTo, this._config, this._loadedFiles, textureMapArray);
+    if (duplicateFileNamesArray.length > 0) {
+      throw new Error('Found duplicate file names:\n' + duplicateFileNamesArray.join('\n'));
     }
-
-    if (this._textureMapArray.length === this._totalTexturMapsRequiredCount) {
-      logMemory('build time: ' + (Date.now() - startTime) + ' ms');
-      const duplicateFileNamesArray = writeMeta(this._config.folders.rootTo, this._config, this._loadedFiles, this._textureMapArray);
-      this._shutdown(duplicateFileNamesArray.length > 0 ? new Error('Found duplicate file names:\n' + duplicateFileNamesArray.join('\n')) : null);
-    }
+    this._shutdown();
   }
 
-  private _shutdown(error: string | Error | null) {
-    workerFarm.end(workers as any);
-    if (error) {
-      this._callback(error);
-    } else {
-      this._callback(null);
-    }
+  private _shutdown() {
+    workerFarmEnd();
   }
 }
 

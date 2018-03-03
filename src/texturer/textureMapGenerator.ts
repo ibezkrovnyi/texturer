@@ -84,7 +84,7 @@ export class TextureMapGenerator {
 
   private _getTextureMap(layout: Layout): TextureMap {
     const rectangles = Array.from(layout.rects);
-    
+
     const files = this._textureMapTask.files;
     const textures = files.reduce<TextureMap['textures']>((acc, file) => {
       const loadedFile = this._loadedFiles[file];
@@ -97,10 +97,10 @@ export class TextureMapGenerator {
     }, {});
 
     return {
-      file: this._textureMapTask.textureMapFile, 
-      width: layout.width, 
-      height: layout.height, 
-      repeatX: this._textureMapTask.repeatX, 
+      file: this._textureMapTask.textureMapFile,
+      width: layout.width,
+      height: layout.height,
+      repeatX: this._textureMapTask.repeatX,
       repeatY: this._textureMapTask.repeatY,
       textures,
       dataURI: null,
@@ -126,38 +126,15 @@ export class TextureMapGenerator {
     sha1.update(JSON.stringify({ textureMapTask, targetRectangle, files }), 'binary' as any);
     const dig1 = sha1.digest('hex');
 
-    workers.binPackerWorker(data, (error: string, layout: Layout | null) => {
-      if (error) {
-        throw new Error(error);
+    // TODO: temporary Promise, use await
+    workers.binPackerWorker(data).then((layout: Layout | null) => {
+      if (!layout) {
+        // TODO: it is not good to call callback with null, think about convert it to specific Error
+        this._onRectsArranged(null, null);
       } else {
-        if (!layout) {
-          // TODO: it is not good to call callback with null, think about convert it to specific Error
-          this._onRectsArranged(null, null);
-        } else {
-          // const width = data.width;
-          // const height = data.height;
-          // // TODO: do we need to add stableSort for textureIds ?
-          // const textureIds = Object.keys(data.rectangles);
-
-          // const textureMap = new TextureMap();
-          // textureMap.setData(textureMapTask.textureMapFile, width, height, textureMapTask.repeatX, textureMapTask.repeatY);
-          // for (const id of textureIds) {
-          //   const texture = new Texture();
-          //   const textureContainer = data.rectangles[id];
-          //   // TODO: why next line in red??
-          //   texture.setData(textureContainer.x, textureContainer.y, textureContainer.width, textureContainer.height);
-          //   textureMap.setTexture(id, texture);
-          // }
-
-          // var sha1 = crypto.createHash('sha1');
-          // sha1.update(JSON.stringify(textureMap), 'binary' as any);
-          // const dig2 = sha1.digest('hex');
-          // console.error('tmp: ', dig1, dig2);
-
-          this._onRectsArranged(null, layout);
-        }
+        this._onRectsArranged(null, layout);
       }
-    });
+    }).catch((error: Error) => this._callback(error));
   }
 
   private _getShuffledArray<T>(arr: ReadonlyArray<T>) {
