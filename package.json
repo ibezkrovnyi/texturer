@@ -21,6 +21,7 @@
     "lint": "tslint --format verbose --config tslint.json --project ./src/workers/tsconfig.json && tslint --format verbose --config tslint.json --project ./src/texturer/tsconfig.json",
     "lint-fix": "tslint --fix --format verbose --config tslint.json --project ./src/workers/tsconfig.json && tslint --fix --format verbose --config tslint.json --project ./src/texturer/tsconfig.json",
     "test": "jest",
+    "test-watch": "jest --watchAll",
     "prepublish": "npm run build"
   },
   "bugs": {
@@ -39,12 +40,14 @@
     "@types/fs-extra": "5.0.1",
     "@types/handlebars": "4.0.29",
     "@types/node": "9.4.6",
+    "@types/pify": "^3.0.0",
     "ajv": "6.2.0",
     "bmp-js": "ibezkrovnyi/bmp-js",
-    "jpeg-js": "0.0.4",
     "fs-extra": "5.0.0",
     "jest": "22.4.2",
+    "jpeg-js": "0.0.4",
     "jsonc-parser": "1.0.1",
+    "pify": "^3.0.0",
     "rimraf": "latest",
     "ts-jest": "22.4.0",
     "ts-loader": "4.0.0",
@@ -72,6 +75,9 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(test|spec)\\.(jsx?|tsx?)$",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/tests/default/generated"
+    ],
     "moduleFileExtensions": [
       "ts",
       "tsx",

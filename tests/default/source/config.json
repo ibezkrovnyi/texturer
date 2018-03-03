@@ -38,7 +38,6 @@
 	],
 	"textureMapTasks" : [
 		{
-			"_disableShuffle": true,
 			"folder" : "creative-nerds-wooden-icons",
 			"textureMapFile" : "creative-nerds-wooden-icons.png",
 			"bruteForceTime" : 0,
@@ -61,14 +60,12 @@
 			}
 		},
 		{
-			"_disableShuffle": true,
 			"folder" : "recursive",
 			"compression" : {
 				"tinyPNG" : false
 			}
 		},
 		{
-			"_disableShuffle": true,
 			"folder" : "buttons",
 			"repeatX" : true
 		}

@@ -1,16 +1,23 @@
 import workerFarm from 'worker-farm';
+import pify from 'pify';
 import * as path from 'path';
-import { TextureMap, Texture, FileDimensions } from '../shared/containers/textureMap';
+import { TextureMap, Size } from '../shared/containers/textureMap';
 import { Rect } from '../shared/containers/rect';
-import { BinPackerResult } from '../shared/containers/binPackerResult';
+import { binPackerWorker } from '../workers/binPacker/binPackerWorker';
 
-export const workers = workerFarm(
+const exportNames = [
+  'copyFileWorker',
+  'compressImageWorker',
+  'writeFileWorker',
+  'tinyPngWorker',
+  'binPackerWorker',
+];
+
+const workerFarmWorkers = workerFarm(
   path.join(__dirname, 'workers.js'),
-  [
-    'copyFileWorker',
-    'compressImageWorker',
-    'writeFileWorker',
-    'tinyPngWorker',
-    'binPackerWorker',
-  ],
+  exportNames,
 ) as any;
+
+export const workers = pify(workerFarmWorkers);
+
+export const workerFarmEnd = () => workerFarm.end(workerFarmWorkers);
