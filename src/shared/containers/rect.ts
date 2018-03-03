@@ -6,7 +6,7 @@ export interface Rect {
 }
 
 /**
- * TODO: Margins, Trim, Insets, Offset
+ * TODO: Bounds, Margins, Trim, Insets, Offset
  */
 export interface Margins {
   /** The x-axis distance from the left bound. */

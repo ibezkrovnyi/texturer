@@ -2,8 +2,8 @@ import pify from 'pify';
 import * as crypto from 'crypto';
 import * as path from 'path';
 import { LoadedFile } from '../containers/loadedFile';
-import { TextureMapGenerator } from '../../texturer/textureMapGenerator';
-import { FileDimensions, Texture, TextureMap } from '../containers/textureMap';
+import { generateTextureMap } from '../../texturer/textureMapGenerator';
+import { Size, TextureMap } from '../containers/textureMap';
 import { encodeBuffer } from './dataURI';
 import { workers } from '../../texturer/workers';
 import { InternalConfig, InternalTextureMapTask } from '../../texturer/config';
@@ -15,29 +15,7 @@ interface Callback {
 
 // TODO: refactor
 export async function textureMapTaskRunner(config: InternalConfig, textureMapTask: InternalTextureMapTask, loadedFiles: { [fileName: string]: LoadedFile }) {
-  // private _textureMapTask: InternalTextureMapTask;
-  // private _loadedFiles: { [fileName: string]: LoadedFile };
-  // private _callback: Callback;
-  // private _globalConfig: InternalConfig;
-
-  // constructor(globalConfig: InternalConfig, textureMapTask: InternalTextureMapTask, loadedFiles: { [fileName: string]: LoadedFile }, callback: Callback) {
-  //   this._globalConfig = globalConfig;
-  //   this._textureMapTask = textureMapTask;
-  //   this._loadedFiles = loadedFiles;
-  //   this._callback = callback;
-  // }
-
-  // run() {
-
-  let textureMap;
-  try {
-    const textureMapGenerator = new TextureMapGenerator();
-    // TODO: temporary promisify
-    textureMap = await pify(textureMapGenerator.generateTextureMap.bind(textureMapGenerator))(loadedFiles, textureMapTask);
-  } catch (error) {
-    // TODO: do texture map size configurable!!
-    throw new Error('Texture Generator: Can\'t pack texture map for folder \'' + textureMapTask.folder + '\' - too large art. Split images into 2 or more folders!');
-  }
+  const textureMap = await generateTextureMap(textureMapTask, loadedFiles);
   return await compressTextureMapImage(textureMap, textureMapTask, loadedFiles, config);
 }
 

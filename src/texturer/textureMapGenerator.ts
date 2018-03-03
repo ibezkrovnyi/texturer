@@ -1,6 +1,6 @@
 import * as crypto from 'crypto';
 import * as path from 'path';
-import { TextureMap, Texture, FileDimensions } from '../shared/containers/textureMap';
+import { TextureMap, Size } from '../shared/containers/textureMap';
 import { Rect, Margins } from '../shared/containers/rect';
 import { workers } from './workers';
 import { InternalTextureMapTask } from './config';
@@ -8,180 +8,148 @@ import { stableSort, getHash } from '../shared/utils/fsHelper';
 import { Layout } from '../workers/binPacker/binPackerWorker';
 import { LoadedFile } from '../shared/containers/loadedFile';
 
-export class TextureMapGenerator {
-  private _loadedFiles!: Record<string, LoadedFile>;
-  private _arrangementAttemptsPlanned!: number;
-  private _arrangementAttemptsDone!: number;
-  private _bestLayout!: Layout | null;
-  private _callback!: any;
-  private _totalPixels!: number;
-  private _endTime!: number;
-  private _textureMapTask!: InternalTextureMapTask;
-  private _targetRectangle!: Margins;
-  private _files!: ReadonlyArray<FileDimensions>;
+// TODO: loadedFiles (Record<string, LoadedFile>) should have separate type
+export async function generateTextureMap(task: InternalTextureMapTask, loadedFiles: Record<string, LoadedFile>) {
+  const endTime = Date.now() + task.bruteForceTime;
 
-  constructor() {
+  const sizes: Size[] = task.files.map(file => {
+    const loadedFile = loadedFiles[file];
+    return { width: loadedFile.width, height: loadedFile.height };
+  });
+
+  const targetRect = checkFiles(task, sizes);
+
+  // calculate total pixels
+  const totalPixels = sizes.reduce((sum, size) => {
+    return sum + size.width * size.height;
+  }, 0);
+
+  // try different combinations
+  const layouts = await Promise.all([
+    arrangeRects(task, stableSort(Array.from(sizes), (a, b) => b.width * b.height - a.width * a.height), targetRect, totalPixels),
+    arrangeRects(task, stableSort(Array.from(sizes), (a, b) => b.width - a.width), targetRect, totalPixels),
+    arrangeRects(task, stableSort(Array.from(sizes), (a, b) => b.height - a.height), targetRect, totalPixels),
+  ]);
+
+  let bestLayout = findBestLayout(layouts);
+  while (Date.now() < endTime) {
+    const layout = await arrangeRects(task, getShuffledArray(sizes), targetRect, totalPixels);
+    bestLayout = findBestLayout([bestLayout, layout]);
   }
 
-  generateTextureMap(loadedFiles: Record<string, LoadedFile>, textureMapTask: InternalTextureMapTask, callback: any) {
-    const files: FileDimensions[] = textureMapTask.files.map(file => {
-      const loadedFile = loadedFiles[file];
-      return { width: loadedFile.width, height: loadedFile.height };
-    });
-
-    try {
-      this._loadedFiles = loadedFiles;
-      // calculate total pixels
-      let totalPixels = 0;
-      files.forEach(function (file: any) {
-        totalPixels += file.width * file.height;
-      });
-
-      this._arrangementAttemptsPlanned = 0;
-      this._arrangementAttemptsDone = 0;
-      this._bestLayout = null;
-      this._callback = callback;
-      this._totalPixels = totalPixels;
-      this._endTime = Date.now() + textureMapTask.bruteForceTime;
-
-      const targetRectangle = this._checkFiles(textureMapTask, files);
-
-      this._textureMapTask = textureMapTask;
-      this._targetRectangle = targetRectangle;
-      this._files = files;
-
-      // try different combinations
-      this._arrangeRects(textureMapTask, targetRectangle, stableSort(Array.from(files), (a, b) => b.width * b.height - a.width * a.height));
-      this._arrangeRects(textureMapTask, targetRectangle, stableSort(Array.from(files), (a, b) => b.width - a.width));
-      this._arrangeRects(textureMapTask, targetRectangle, stableSort(Array.from(files), (a, b) => b.height - a.height));
-    } catch (e) {
-      callback(e.stack, null);
-    }
+  if (!bestLayout) {
+    throw new Error('Texture Generator: Can\'t pack texture map for folder \'' + task.folder + '\' - too large art. Split images into 2 or more folders or increase maxX!');
   }
 
-  private _onRectsArranged(error: any, layout: Layout | null) {
-    if (!error && layout && getArea(layout) > 0) {
-      if (this._bestLayout) {
-        const layoutArea = getArea(layout);
-        const bestLayoutArea = getArea(this._bestLayout);
-        if (layoutArea < bestLayoutArea || (layoutArea === bestLayoutArea && getHash(layout) < getHash(this._bestLayout))) {
-          this._bestLayout = layout;
-        }
-      } else {
-        this._bestLayout = layout;
+  return getTextureMap(task, loadedFiles, bestLayout);
+}
+
+async function arrangeRects(task: InternalTextureMapTask, sizes: Size[], targetRect: Margins, totalPixels: number) {
+  var sha1 = crypto.createHash('sha1');
+  sha1.update(JSON.stringify({ task, targetRect, sizes }), 'binary' as any);
+  const dig1 = sha1.digest('hex');
+
+  return workers.binPackerWorker({
+    sizes,
+    totalPixels,
+    fromX: targetRect.left,
+    toX: targetRect.right,
+    fromY: targetRect.top,
+    toY: targetRect.bottom,
+    gridStep: task.gridStep,
+    paddingX: task.paddingX,
+    paddingY: task.paddingY,
+  });
+}
+
+function findBestLayout(layouts: (Layout | null)[]) {
+  // remove nulls and layouts with empty area (width = 0, height = 0) <-- TODO: how can we have that?
+  layouts = layouts.filter(layout => layout && getArea(layout) > 0);
+
+  let bestLayout: Layout | null = null;
+  for (const layout of layouts) {
+    if (bestLayout) {
+      const layoutArea = getArea(layout!);
+      const bestLayoutArea = getArea(bestLayout);
+      if (layoutArea < bestLayoutArea || (layoutArea === bestLayoutArea && getHash(layout) < getHash(bestLayout))) {
+        bestLayout = layout;
       }
-    }
-
-    this._arrangementAttemptsDone++;
-    if (this._arrangementAttemptsDone === this._arrangementAttemptsPlanned) {
-      if (Date.now() < this._endTime) {
-        this._arrangeRects(this._textureMapTask, this._targetRectangle, this._getShuffledArray(this._files));
-      } else {
-        this._callback(null, this._bestLayout ? this._getTextureMap(this._bestLayout) : null);
-      }
+    } else {
+      bestLayout = layout;
     }
   }
 
-  private _getTextureMap(layout: Layout): TextureMap {
-    const rectangles = Array.from(layout.rects);
+  return bestLayout;
+}
 
-    const files = this._textureMapTask.files;
-    const textures = files.reduce<TextureMap['textures']>((acc, file) => {
-      const loadedFile = this._loadedFiles[file];
-      const index = rectangles.findIndex(rect => rect.width === loadedFile.width && rect.height === loadedFile.height);
-      if (index === -1) throw new Error(`Error: no placement for file ${file}`);
-      const rect = rectangles.splice(index, 1)[0];
-      const texture: Texture = { ...rect };
-      acc[file] = texture;
-      return acc;
-    }, {});
+function getTextureMap(task: InternalTextureMapTask, loadedFiles: Record<string, LoadedFile>, layout: Layout): TextureMap {
+  const rects = Array.from(layout.rects);
 
-    return {
-      file: this._textureMapTask.textureMapFile,
-      width: layout.width,
-      height: layout.height,
-      repeatX: this._textureMapTask.repeatX,
-      repeatY: this._textureMapTask.repeatY,
-      textures,
-      dataURI: null,
-    }
-  }
+  const files = task.files;
+  const textures = files.reduce<TextureMap['textures']>((acc, file) => {
+    const loadedFile = loadedFiles[file];
+    const index = rects.findIndex(rect => rect.width === loadedFile.width && rect.height === loadedFile.height);
+    if (index === -1) throw new Error(`Error: no placement for file ${file}`);
+    acc[file] = rects.splice(index, 1)[0];
+    return acc;
+  }, {});
 
-  private _arrangeRects(textureMapTask: InternalTextureMapTask, targetRectangle: Margins, files: FileDimensions[]) {
-    this._arrangementAttemptsPlanned++;
-
-    const data = {
-      files,
-      fromX: targetRectangle.left,
-      toX: targetRectangle.right,
-      fromY: targetRectangle.top,
-      toY: targetRectangle.bottom,
-      totalPixels: this._totalPixels,
-      gridStep: textureMapTask.gridStep,
-      paddingX: textureMapTask.paddingX,
-      paddingY: textureMapTask.paddingY,
-    };
-
-    var sha1 = crypto.createHash('sha1');
-    sha1.update(JSON.stringify({ textureMapTask, targetRectangle, files }), 'binary' as any);
-    const dig1 = sha1.digest('hex');
-
-    // TODO: temporary Promise, use await
-    workers.binPackerWorker(data).then((layout: Layout | null) => {
-      if (!layout) {
-        // TODO: it is not good to call callback with null, think about convert it to specific Error
-        this._onRectsArranged(null, null);
-      } else {
-        this._onRectsArranged(null, layout);
-      }
-    }).catch((error: Error) => this._callback(error));
-  }
-
-  private _getShuffledArray<T>(arr: ReadonlyArray<T>) {
-    const shuffled = Array.from(arr);
-    for (let i = 0; i < shuffled.length - 1; i++) {
-      const l = shuffled.length;
-      const index = ((Math.random() * (l - i)) | 0) + i;
-
-      const tmp = shuffled[index];
-      shuffled[index] = shuffled[i];
-      shuffled[i] = tmp;
-    }
-
-    return shuffled;
-  }
-
-  private _checkFiles(textureMapTask: InternalTextureMapTask, files: FileDimensions[]): Margins {
-    if (textureMapTask.repeatX && textureMapTask.repeatY) {
-      throw new Error('TextureMapGenerator#_checkFiles: Sprite can\'t be repeat-x and repeat-y at the same time');
-    }
-
-    let left = 4;
-    let right = textureMapTask.dimensions.maxX;
-    let top = 4;
-    let bottom = textureMapTask.dimensions.maxY;
-
-    if (textureMapTask.repeatX) {
-      left = right = files[0].width;
-      files.forEach(file => {
-        if (file.width !== left) {
-          throw new Error(`TextureMapGenerator#_checkFiles: All images in folder ${textureMapTask.folder} should have the same width to repeat by X axis`);
-        }
-      });
-    }
-
-    if (textureMapTask.repeatY) {
-      top = bottom = files[0].height;
-      files.forEach(file => {
-        if (file.height !== top) {
-          throw new Error(`TextureMapGenerator#_checkFiles: All images in folder ${textureMapTask.folder} should have the same height to repeat by Y axis`);
-        }
-      });
-    }
-
-    return { left, right, top, bottom };
+  return {
+    file: task.textureMapFile,
+    width: layout.width,
+    height: layout.height,
+    repeatX: task.repeatX,
+    repeatY: task.repeatY,
+    textures,
+    dataURI: null,
   }
 }
+
+function getShuffledArray<T>(arr: ReadonlyArray<T>) {
+  const shuffled = Array.from(arr);
+  for (let i = 0; i < shuffled.length - 1; i++) {
+    const l = shuffled.length;
+    const index = ((Math.random() * (l - i)) | 0) + i;
+
+    const tmp = shuffled[index];
+    shuffled[index] = shuffled[i];
+    shuffled[i] = tmp;
+  }
+
+  return shuffled;
+}
+
+function checkFiles(task: InternalTextureMapTask, sizes: Size[]): Margins {
+  if (task.repeatX && task.repeatY) {
+    throw new Error('TextureMapGenerator#_checkFiles: Sprite can\'t be repeat-x and repeat-y at the same time');
+  }
+
+  let left = 4;
+  let right = task.dimensions.maxX;
+  let top = 4;
+  let bottom = task.dimensions.maxY;
+
+  if (task.repeatX) {
+    left = right = sizes[0].width;
+    sizes.forEach(file => {
+      if (file.width !== left) {
+        throw new Error(`TextureMapGenerator#_checkFiles: All images in folder ${task.folder} should have the same width to repeat by X axis`);
+      }
+    });
+  }
+
+  if (task.repeatY) {
+    top = bottom = sizes[0].height;
+    sizes.forEach(file => {
+      if (file.height !== top) {
+        throw new Error(`TextureMapGenerator#_checkFiles: All images in folder ${task.folder} should have the same height to repeat by Y axis`);
+      }
+    });
+  }
+
+  return { left, right, top, bottom };
+}
+
 
 function getArea(layout: Layout) {
   return layout.width * layout.height;

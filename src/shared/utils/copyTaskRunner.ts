@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { TextureMap, Texture } from '../containers/textureMap';
+import { TextureMap } from '../containers/textureMap';
 import { LoadedFile } from '../containers/loadedFile';
 import { encodeFile } from './dataURI';
 import { FSHelper } from './fsHelper';

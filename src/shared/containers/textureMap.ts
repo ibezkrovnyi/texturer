@@ -1,13 +1,6 @@
 import { Rect, Margins } from './rect';
 
-export interface FileDimensions {
-  readonly width: number;
-  readonly height: number;
-}
-
-export interface Texture {
-  readonly x: number;
-  readonly y: number;
+export interface Size {
   readonly width: number;
   readonly height: number;
 }
