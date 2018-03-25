@@ -54,7 +54,7 @@
     "tslint": "5.9.1",
     "tslint-config-airbnb": "5.7.0",
     "tslint-consistent-codestyle": "1.11.1",
-    "tslint-language-service": "0.9.8",
+    "tslint-language-service": "0.9.9",
     "typescript": "2.7.2",
     "webpack": "4.0.1",
     "webpack-cli": "2.0.10",
