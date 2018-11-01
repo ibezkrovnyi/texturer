@@ -3,9 +3,12 @@
     "tslint:recommended",
     "tslint-config-airbnb",
     "tslint-consistent-codestyle",
-    "@ibezkrovnyi/tslint-rules"
+    "@ibezkrovnyi/tslint-rules",
+    "tslint-config-prettier",
+    "tslint-plugin-prettier"
   ],
   "rules": {
+    "prettier": true,
     "no-inferrable-return-types": true,
     "no-unnecessary-type-annotation": [true, "check-return-type"],
     "no-inferrable-types": true,

@@ -4,9 +4,8 @@ import * as crypto from 'crypto';
 import { execSync } from 'child_process';
 
 // List all files in a directory in Node.js recursively in a synchronous fashion
-function walkSync(dir: string, filelist?: string[]) {
+function walkSync(dir: string, filelist: string[] = []) {
     const files = fs.readdirSync(dir);
-    filelist = filelist || [];
     files.forEach(function (file) {
         if (fs.statSync(path.join(dir, file)).isDirectory()) {
             filelist = walkSync(path.join(dir, file), filelist);
@@ -30,7 +29,7 @@ function expectFolderToMatchSnapshot(folder: string) {
 
 function getHashFromBuffer(data: Buffer) {
     const sha1 = crypto.createHash('sha1');
-    sha1.update(data, 'binary');
+    sha1.update(data);
     return sha1.digest('hex');
 }
 

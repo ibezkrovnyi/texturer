@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { FSHelper } from './fsHelper';
+import { getExtension } from './utils';
 
 // TODO: gif support?
 const extensionToMimeTypeMap = {
@@ -18,11 +18,11 @@ export function encodeFile(file: string) {
 }
 
 function getImageMimeTypeByFileName(file: string) {
-  const extension = FSHelper.getExtension(file).toLowerCase() as keyof typeof extensionToMimeTypeMap;
+  const extension = getExtension(file).toLowerCase() as keyof typeof extensionToMimeTypeMap;
 
   if (extension in extensionToMimeTypeMap) {
     return extensionToMimeTypeMap[extension];
   }
 
-  throw new Error(`DataURIEncoder#_getImageMimeTypeByFileName: extension .${extension} is unsupported`);
+  throw new Error(`DataURIEncoder#_getImageMimeTypeByFileName: extension .${extension} is not supported`);
 }

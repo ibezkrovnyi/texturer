@@ -29,7 +29,7 @@ export function compressImageWorker(taskData: any, callback: any) {
       fill: true,
     });
 
-    texturePng.data = new Buffer(texture.bitmapSerialized); // bitmap.getRGBABuffer();
+    texturePng.data = Buffer.from(texture.bitmapSerialized); // bitmap.getRGBABuffer();
     texturePng.bitblt(png, 0, 0, texture.width, texture.height, texture.x, texture.y);
   });
 

@@ -10,13 +10,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as util from 'util';
-import { writeMeta } from '../shared/utils/texturePoolWriter';
+import { writeMeta } from '../shared/utils/meta';
 import { TextureMap } from '../shared/containers/textureMap';
-import { LoadedFile } from '../shared/containers/loadedFile';
+import { LoadedFile, LoadedImage, LoadedFiles } from '../shared/containers/loadedFile';
 import { Rect, Margins } from '../shared/containers/rect';
 import { ImageHelper } from '../shared/utils/imageHelper';
-import { copyTaskRunner } from '../shared/utils/copyTaskRunner';
-import { textureMapTaskRunner } from '../shared/utils/textureMapTaskRunner';
+import { runCopyTask } from '../shared/utils/copyTaskRunner';
+import { runTextureMapTask } from '../shared/utils/textureMapTaskRunner';
 import { workerFarmEnd, workers } from './workers';
 import { validateConfig, InternalConfig, Trim, InternalTrim, InternalCopyTask, InternalTextureMapTask } from './config';
 
@@ -29,7 +29,7 @@ export class Texturer {
   private _loadedFilesCount!: number;
   private _totalFilesCount!: number;
   private _totalTexturMapsRequiredCount: any;
-  private _loadedFiles!: { [fileName: string]: LoadedFile };
+  private _loadedFiles!: LoadedFiles;
 
   generate(config: Object, callback: (error?: string | Error | null) => void) {
     this._callback = callback;
@@ -72,7 +72,7 @@ export class Texturer {
 
   private _loadFilesForTextureMap(files: string[], trim1?: InternalTrim) {
     files.forEach(file => {
-      ImageHelper.readImageFile(path.join(this._config.folders.rootFrom, file), (error: Error, instance: { width: number; height: number; data: number[]; }) => {
+      ImageHelper.readImageFile(path.join(this._config.folders.rootFrom, file), (error: Error, instance: LoadedImage) => {
         if (error) {
           this._shutdown();
           this._callback(error);
@@ -111,8 +111,8 @@ export class Texturer {
 
   private async _generateTextureMaps() {
     const arrayOfTextureMapArrays = await Promise.all([
-      ...this._config.copyTasks.map(task => copyTaskRunner(this._config, task, this._loadedFiles)),
-      ...this._config.textureMapTasks.map(task => textureMapTaskRunner(this._config, task, this._loadedFiles)),
+      ...this._config.copyTasks.map(task => runCopyTask(task, this._loadedFiles, this._config)),
+      ...this._config.textureMapTasks.map(task => runTextureMapTask(task, this._loadedFiles, this._config)),
     ]);
     const textureMapArray = ([] as TextureMap[]).concat(...arrayOfTextureMapArrays);
 

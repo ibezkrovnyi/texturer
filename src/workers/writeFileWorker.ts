@@ -10,7 +10,7 @@ export function writeFileWorker(data: any, callback: any) {
     fs.unlinkSync(data.file);
   }
 
-  const content = new Buffer(data.content);
+  const content = Buffer.from(data.content);
   fs.writeFileSync(data.file, content);
 
   callback();

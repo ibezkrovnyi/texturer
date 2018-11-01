@@ -39,26 +39,35 @@
     "@ibezkrovnyi/tslint-rules": "0.0.3",
     "@types/fs-extra": "5.0.1",
     "@types/handlebars": "4.0.29",
-    "@types/node": "9.4.6",
-    "@types/pify": "^3.0.0",
+    "@types/jest": "^23.3.9",
+    "@types/node": "^10.12.2",
+    "@types/pify": "3.0.2",
     "ajv": "6.2.0",
     "bmp-js": "ibezkrovnyi/bmp-js",
     "fs-extra": "5.0.0",
-    "jest": "22.4.2",
+    "jest": "23.6.0",
+    "jest-config": "^23.6.0",
     "jpeg-js": "0.0.4",
     "jsonc-parser": "1.0.1",
-    "pify": "^3.0.0",
+    "pify": "3.0.0",
+    "prettier": "^1.14.3",
     "rimraf": "latest",
-    "ts-jest": "22.4.0",
+    "ts-jest": "23.10.4",
     "ts-loader": "4.0.0",
     "tslint": "5.9.1",
     "tslint-config-airbnb": "5.7.0",
+    "tslint-config-prettier": "^1.15.0",
     "tslint-consistent-codestyle": "1.11.1",
     "tslint-language-service": "0.9.8",
-    "typescript": "2.7.2",
-    "webpack": "4.0.1",
-    "webpack-cli": "2.0.9",
+    "tslint-plugin-prettier": "^2.0.1",
+    "typescript": "^3.1.6",
+    "webpack": "4.23.1",
+    "webpack-cli": "3.1.2",
     "worker-farm": "1.5.2"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all"
   },
   "jest": {
     "roots": [
@@ -67,8 +76,7 @@
     ],
     "globals": {
       "ts-jest": {
-        "skipBabel": true,
-        "tsConfigFile": "./src/texturer/tsconfig.json"
+        "tsConfig": "./src/texturer/tsconfig.json"
       }
     },
     "transform": {

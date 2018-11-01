@@ -3,7 +3,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { parse } from 'jsonc-parser';
 import schema from './configSchema.json';
-import { FSHelper as fsHelper, stableSort } from '../shared/utils/fsHelper';
+import { stableSort, getFilesInFolder } from '../shared/utils/utils';
 
 export interface Config {
   folders: {
@@ -222,7 +222,7 @@ function getFiles(folder: string, config: InternalConfig) {
     };
   }
 
-  const files = fsHelper.getFilesInFolder(fullFolder, filter, true).map(file => {
+  const files = getFilesInFolder(fullFolder, filter, true).map(file => {
     return path.join(folder, file).replace(/\\/g, '/');
   });
 

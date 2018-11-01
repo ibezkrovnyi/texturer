@@ -1,28 +1,33 @@
 import pify from 'pify';
 import * as crypto from 'crypto';
 import * as path from 'path';
-import { LoadedFile } from '../containers/loadedFile';
+import { LoadedFiles } from '../containers/loadedFile';
 import { generateTextureMap } from '../../texturer/textureMapGenerator';
 import { Size, TextureMap } from '../containers/textureMap';
 import { encodeBuffer } from './dataURI';
 import { workers } from '../../texturer/workers';
 import { InternalConfig, InternalTextureMapTask } from '../../texturer/config';
 
-interface Callback {
-  (error: string | Error | null, result: null): void;
-  (error: null, result: TextureMap[] | null): void;
+export async function runTextureMapTask(task: InternalTextureMapTask, loadedFiles: LoadedFiles, config: InternalConfig) {
+  const textureMap = await generateTextureMap(task, loadedFiles);
+  let compressedImage = await compressTextureMapImage(task, loadedFiles, config, textureMap);
+
+  if (task.compression.tinyPNG) { 
+    const result = await workers.tinyPngWorker({
+      content: Array.prototype.slice.call(compressedImage, 0),
+      // TODO: create property configFileName
+      configFile: './config.json',
+    })
+
+    compressedImage = Buffer.from(result);
+  }
+  return createDataURI(task, config, textureMap, compressedImage);
 }
 
-// TODO: refactor
-export async function textureMapTaskRunner(config: InternalConfig, textureMapTask: InternalTextureMapTask, loadedFiles: { [fileName: string]: LoadedFile }) {
-  const textureMap = await generateTextureMap(textureMapTask, loadedFiles);
-  return await compressTextureMapImage(textureMap, textureMapTask, loadedFiles, config);
-}
+async function compressTextureMapImage(task: InternalTextureMapTask, loadedFiles: LoadedFiles, config: InternalConfig, textureMap: TextureMap) {
+  console.log(task.textureMapFile + ': w = ' + textureMap.width + ', h = ' + textureMap.height + ', area = ' + (textureMap.width * textureMap.height));
 
-async function compressTextureMapImage(textureMap: TextureMap, textureMapTask: InternalTextureMapTask, loadedFiles: { [fileName: string]: LoadedFile }, config: InternalConfig) {
-  console.log(textureMapTask.textureMapFile + ': w = ' + textureMap.width + ', h = ' + textureMap.height + ', area = ' + (textureMap.width * textureMap.height));
-
-  // TODO: what type here?
+  // TODO: what type is here?
   const textureArray: any[] = [];
   Object.keys(textureMap.textures).forEach(id => {
     const loadedFile = loadedFiles[id];
@@ -36,14 +41,11 @@ async function compressTextureMapImage(textureMap: TextureMap, textureMapTask: I
     });
   });
 
-  const filterTypes = [0, 1, 2, 3, 4];
-  let filterCount = 0;
-
-  const promises = filterTypes.map(async (filterType) => {
+  const promises = [0, 1, 2, 3, 4].map(async (filterType) => {
     const data = {
       // TODO: integrate with new compress object properties
       textureArray,
-      options: textureMapTask.compression,
+      options: task.compression,
       filterType,
       width: textureMap.width,
       height: textureMap.height,
@@ -52,33 +54,20 @@ async function compressTextureMapImage(textureMap: TextureMap, textureMapTask: I
     return workers.compressImageWorker(data);
   });
 
-  const results = await Promise.all(promises)
+  const results = await Promise.all(promises);
 
   // check which image is better compressed
-  const compressedImages = results.map(result => new Buffer(result.compressedPNG));
-  const bestCompressedImage = compressedImages.sort((a, b) => a.length - b.length)[0];
-  return await onTextureMapImageCompressed(textureMap, bestCompressedImage, textureMapTask, config);
+  const compressedImages = results.map(result => Buffer.from(result.compressedPNG));
+  const compressedImagesSortedByArea = compressedImages.sort((a, b) => a.length - b.length);
+  return compressedImagesSortedByArea[0];
 }
 
-async function onTextureMapImageCompressed(textureMapImage: TextureMap, compressedImage: Buffer, textureMapTask: InternalTextureMapTask, config: InternalConfig) {
-  if (textureMapTask.compression.tinyPNG) {
-    const result = await workers.tinyPngWorker({
-      content: Array.prototype.slice.call(compressedImage, 0),
-      // TODO: create property configFileName
-      configFile: './config.json',
-    })
-
-    compressedImage = new Buffer(result);
-  }
-  return await createDataURI(textureMapImage, compressedImage, textureMapTask, config);
-}
-
-async function createDataURI(textureMap: TextureMap, compressedImage: Buffer, textureMapTask: InternalTextureMapTask, config: InternalConfig) {
+async function createDataURI(task: InternalTextureMapTask, config: InternalConfig, textureMap: TextureMap, compressedImage: Buffer) {
   let dataURI: string | null = null;
-  if (textureMapTask.dataURI.enable) {
+  if (task.dataURI.enable) {
     dataURI = encodeBuffer(compressedImage, 'image/png');
-    if (textureMapTask.dataURI.maxSize !== null) {
-      if (dataURI.length >= textureMapTask.dataURI.maxSize) {
+    if (task.dataURI.maxSize !== null) {
+      if (dataURI.length >= task.dataURI.maxSize) {
         dataURI = null;
       }
     }
@@ -86,10 +75,10 @@ async function createDataURI(textureMap: TextureMap, compressedImage: Buffer, te
 
   textureMap.dataURI = dataURI;
 
-  const skipFileWrite = dataURI && !textureMapTask.dataURI.createImageFileAnyway;
+  const skipFileWrite = dataURI && !task.dataURI.createImageFileAnyway;
   if (!skipFileWrite) {
     // write png
-    const file = path.join(config.folders.rootToIndexHtml, textureMapTask.textureMapFile);
+    const file = path.join(config.folders.rootToIndexHtml, task.textureMapFile);
     const data = {
       file,
       content: Array.prototype.slice.call(compressedImage, 0),

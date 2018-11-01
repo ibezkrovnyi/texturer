@@ -1,19 +1,20 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { FSHelper } from './fsHelper';
+import { getExtension, getFileNameWithoutExtension } from './utils';
 import * as jpegEngine from 'jpeg-js';
 import * as bmpEngine from 'bmp-js';
 import { PNG as pngEngine } from '../../../extern/node-png';
+import { LoadedImage } from '../containers/loadedFile';
 const supportedImageExtensions = ['jpg', 'jpeg', 'png', 'bmp'];
 
 export class ImageHelper {
   static isImageFileSupported(fileName: string) {
     const isFile = fs.statSync(fileName).isFile();
-    return isFile && supportedImageExtensions.indexOf(FSHelper.getExtension(fileName).toLocaleLowerCase()) >= 0;
+    return isFile && supportedImageExtensions.indexOf(getExtension(fileName).toLocaleLowerCase()) >= 0;
   }
 
   static readImageFile(file: string, callback: any, thisArg?: any) {
-    const fileNameWithoutExt = FSHelper.getFileNameWithoutExtension(file);
+    const fileNameWithoutExt = getFileNameWithoutExtension(file);
     const testFileNameForJavaScriptIdentifier = /^[(\d+)`~\| !@#\$%\^&\*\(\)\-=\+\?\.,<>]+|[`~\|!@#\$%\^&\*\(\)\-=\+\? \.,<>]/g;
 
     if (testFileNameForJavaScriptIdentifier.test(fileNameWithoutExt)) {
@@ -24,7 +25,7 @@ export class ImageHelper {
       callback.call(thisArg, new Error('Supported files: *.' + supportedImageExtensions.join(', *.') + '. File ' + file + ' is not supported.'), null);
     }
 
-    switch (FSHelper.getExtension(file).toUpperCase()) {
+    switch (getExtension(file).toUpperCase()) {
       case 'JPEG':
       case 'JPG':
         fs.readFile(file, function (error: any, data: any) {
@@ -221,7 +222,7 @@ export class ImageHelper {
     };
   }
 
-  static isOpaque(png: any) {
+  static isOpaque(png: LoadedImage) {
     // from left
     for (let x = 0; x < png.width; x++) {
       // vertical test

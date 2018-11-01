@@ -4,12 +4,11 @@ import { TextureMap, Size } from '../shared/containers/textureMap';
 import { Rect, Margins } from '../shared/containers/rect';
 import { workers } from './workers';
 import { InternalTextureMapTask } from './config';
-import { stableSort, getHash } from '../shared/utils/fsHelper';
+import { stableSort, getHash, getShuffledArray } from '../shared/utils/utils';
 import { Layout } from '../workers/binPacker/binPackerWorker';
-import { LoadedFile } from '../shared/containers/loadedFile';
+import { LoadedFile, LoadedFiles } from '../shared/containers/loadedFile';
 
-// TODO: loadedFiles (Record<string, LoadedFile>) should have separate type
-export async function generateTextureMap(task: InternalTextureMapTask, loadedFiles: Record<string, LoadedFile>) {
+export async function generateTextureMap(task: InternalTextureMapTask, loadedFiles: LoadedFiles) {
   const endTime = Date.now() + task.bruteForceTime;
 
   const sizes: Size[] = task.files.map(file => {
@@ -45,8 +44,8 @@ export async function generateTextureMap(task: InternalTextureMapTask, loadedFil
 }
 
 async function arrangeRects(task: InternalTextureMapTask, sizes: Size[], targetRect: Margins, totalPixels: number) {
-  var sha1 = crypto.createHash('sha1');
-  sha1.update(JSON.stringify({ task, targetRect, sizes }), 'binary' as any);
+  const sha1 = crypto.createHash('sha1');
+  sha1.update(JSON.stringify({ task, targetRect, sizes }));
   const dig1 = sha1.digest('hex');
 
   return workers.binPackerWorker({
@@ -62,7 +61,7 @@ async function arrangeRects(task: InternalTextureMapTask, sizes: Size[], targetR
   });
 }
 
-function findBestLayout(layouts: (Layout | null)[]) {
+function findBestLayout(layouts: Array<Layout | null>) {
   // remove nulls and layouts with empty area (width = 0, height = 0) <-- TODO: how can we have that?
   layouts = layouts.filter(layout => layout && getArea(layout) > 0);
 
@@ -82,7 +81,7 @@ function findBestLayout(layouts: (Layout | null)[]) {
   return bestLayout;
 }
 
-function getTextureMap(task: InternalTextureMapTask, loadedFiles: Record<string, LoadedFile>, layout: Layout): TextureMap {
+function getTextureMap(task: InternalTextureMapTask, loadedFiles: LoadedFiles, layout: Layout): TextureMap {
   const rects = Array.from(layout.rects);
 
   const files = task.files;
@@ -103,20 +102,6 @@ function getTextureMap(task: InternalTextureMapTask, loadedFiles: Record<string,
     textures,
     dataURI: null,
   }
-}
-
-function getShuffledArray<T>(arr: ReadonlyArray<T>) {
-  const shuffled = Array.from(arr);
-  for (let i = 0; i < shuffled.length - 1; i++) {
-    const l = shuffled.length;
-    const index = ((Math.random() * (l - i)) | 0) + i;
-
-    const tmp = shuffled[index];
-    shuffled[index] = shuffled[i];
-    shuffled[i] = tmp;
-  }
-
-  return shuffled;
 }
 
 function checkFiles(task: InternalTextureMapTask, sizes: Size[]): Margins {

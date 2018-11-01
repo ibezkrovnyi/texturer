@@ -1,8 +1,8 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import handlebars from 'handlebars';
-import { FSHelper, stableSort } from './fsHelper';
-import { LoadedFile } from '../containers/loadedFile';
+import { stableSort, getFileNameWithoutExtension } from './utils';
+import { LoadedFile, LoadedFiles } from '../containers/loadedFile';
 import { TextureMap } from '../containers/textureMap';
 import { InternalConfig } from '../../texturer/config';
 
@@ -41,7 +41,7 @@ interface TemplateTexture {
   'is-last-item': boolean;
 }
 
-export function writeMeta(folderRootTo: string, configParser: InternalConfig, loadedFiles: { [fileName: string]: LoadedFile }, textureMapImages: TextureMap[]) {
+export function writeMeta(folderRootTo: string, configParser: InternalConfig, loadedFiles: LoadedFiles, textureMapImages: TextureMap[]) {
   const templateTexturesArray: TemplateTexture[] = [];
   const templateMapsArray: TemplateMap[] = [];
   let usedPixels = 0;
@@ -80,7 +80,7 @@ export function writeMeta(folderRootTo: string, configParser: InternalConfig, lo
 
       templateTexturesArray.push({
         // "css-id"    : this.getFileNameWithoutExtension(texture.id).replace(/^[(\d+)`~\| !@#\$%\^&\*\(\)\-=\+\?\.,<>]+|[`~\|!@#\$%\^&\*\(\)\-=\+\? \.,<>]/g, ""),
-        id: FSHelper.getFileNameWithoutExtension(id),
+        id: getFileNameWithoutExtension(id),
         file: id,
         'map-index': mapIndex,
         url,
