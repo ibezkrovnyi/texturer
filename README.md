@@ -1,5 +1,7 @@
 Texturer
 ========
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/ibezkrovnyi/texturer.svg)](https://greenkeeper.io/)
 Texture Map Generator in **TypeScript** _(MIT License)_
 
 [![Build Status](https://travis-ci.org/ibezkrovnyi/texturer.svg?branch=master)](https://travis-ci.org/ibezkrovnyi/texturer)
