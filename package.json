@@ -44,6 +44,8 @@
     "@types/pify": "3.0.2",
     "bmp-js": "ibezkrovnyi/bmp-js",
     "fs-extra": "7.0.0",
+    "jest": "23.6.0",
+    "jest-config": "23.6.0",
     "jpeg-js": "0.3.3",
     "jsonc-parser": "1.0.1",
     "pify": "3.0.0",
