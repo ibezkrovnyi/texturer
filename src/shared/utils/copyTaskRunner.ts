@@ -6,8 +6,12 @@ import { encodeFile } from './dataURI';
 import { workers } from '../../texturer/workers';
 import { InternalConfig, InternalCopyTask } from '../../texturer/config';
 
-export async function runCopyTask(task: InternalCopyTask, loadedFiles: LoadedFiles, config: InternalConfig) {
-  const promises = task.files.map(async (file) => {
+export async function runCopyTask(
+  task: InternalCopyTask,
+  loadedFiles: LoadedFiles,
+  config: InternalConfig,
+) {
+  const promises = task.files.map(async file => {
     const fromFile = path.join(config.folders.rootFrom, file);
     const toFile = path.join(config.folders.rootToIndexHtml, file);
 

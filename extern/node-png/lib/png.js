@@ -20,146 +20,161 @@
 
 'use strict';
 
-
 var util = require('util'),
-    Stream = require('stream'),
-    Parser = require('./parser'),
-    Packer = require('./packer');
+  Stream = require('stream'),
+  Parser = require('./parser'),
+  Packer = require('./packer');
 
+var PNG = (exports.PNG = function(options) {
+  Stream.call(this);
 
-var PNG = exports.PNG = function(options) {
-    Stream.call(this);
+  options = options || {};
 
-    options = options || {};
+  this.width = options.width || 0;
+  this.height = options.height || 0;
 
-    this.width = options.width || 0;
-    this.height = options.height || 0;
-		
-    this.data = this.width > 0 && this.height > 0
-            ? new Buffer(4 * this.width * this.height) : null;
+  this.data =
+    this.width > 0 && this.height > 0
+      ? new Buffer(4 * this.width * this.height)
+      : null;
 
-	  if(options.fill && this.data){this.data.fill(0)};
+  if (options.fill && this.data) {
+    this.data.fill(0);
+  }
 
-    this.gamma = 0;
-    this.readable = this.writable = true;
+  this.gamma = 0;
+  this.readable = this.writable = true;
 
-    this._parser = new Parser(options || {});
+  this._parser = new Parser(options || {});
 
-    this._parser.on('error', this.emit.bind(this, 'error'));
-    this._parser.on('close', this._handleClose.bind(this));
-    this._parser.on('metadata', this._metadata.bind(this));
-    this._parser.on('gamma', this._gamma.bind(this));
-    this._parser.on('parsed', function(data) {
-        this.data = data;
-        this.emit('parsed', data);
-    }.bind(this));
+  this._parser.on('error', this.emit.bind(this, 'error'));
+  this._parser.on('close', this._handleClose.bind(this));
+  this._parser.on('metadata', this._metadata.bind(this));
+  this._parser.on('gamma', this._gamma.bind(this));
+  this._parser.on(
+    'parsed',
+    function(data) {
+      this.data = data;
+      this.emit('parsed', data);
+    }.bind(this),
+  );
 
-    this._packer = new Packer(options);
-    this._packer.on('data', this.emit.bind(this, 'data'));
-    this._packer.on('end', this.emit.bind(this, 'end'));
-    this._parser.on('close', this._handleClose.bind(this));
-    this._packer.on('error', this.emit.bind(this, 'error'));
-
-};
+  this._packer = new Packer(options);
+  this._packer.on('data', this.emit.bind(this, 'data'));
+  this._packer.on('end', this.emit.bind(this, 'end'));
+  this._parser.on('close', this._handleClose.bind(this));
+  this._packer.on('error', this.emit.bind(this, 'error'));
+});
 util.inherits(PNG, Stream);
 
 PNG.prototype.ditheringMethods = {
-    FloydSteinberg     : "FloydSteinberg",
-    FalseFloydSteinberg: "FalseFloydSteinberg",
-    Stucki             : "Stucki",
-    Atkinson           : "Atkinson",
-    Jarvis             : "Jarvis",			// Jarvis, Judice, and Ninke / JJN?
-    Burkes             : "Burkes",
-    Sierra             : "Sierra",
-    TwoSierra          : "TwoSierra",
-    SierraLite         : "SierraLite"
+  FloydSteinberg: 'FloydSteinberg',
+  FalseFloydSteinberg: 'FalseFloydSteinberg',
+  Stucki: 'Stucki',
+  Atkinson: 'Atkinson',
+  Jarvis: 'Jarvis', // Jarvis, Judice, and Ninke / JJN?
+  Burkes: 'Burkes',
+  Sierra: 'Sierra',
+  TwoSierra: 'TwoSierra',
+  SierraLite: 'SierraLite',
 };
 
 PNG.prototype.quantizationMethods = {
-    q1D : 1,
-    q2D : 2
+  q1D: 1,
+  q2D: 2,
 };
 
 PNG.prototype.pack = function() {
+  process.nextTick(
+    function() {
+      this._packer.pack(this.data, this.width, this.height);
+    }.bind(this),
+  );
 
-    process.nextTick(function() {
-        this._packer.pack(this.data, this.width, this.height);
-    }.bind(this));
-
-    return this;
+  return this;
 };
 
-
 PNG.prototype.parse = function(data, callback) {
+  if (callback) {
+    var onParsed = null,
+      onError = null;
 
-    if (callback) {
-        var onParsed = null, onError = null;
+    this.once(
+      'parsed',
+      (onParsed = function(data) {
+        this.removeListener('error', onError);
 
-        this.once('parsed', onParsed = function(data) {
-            this.removeListener('error', onError);
+        this.data = data;
+        callback(null, this);
+      }.bind(this)),
+    );
 
-            this.data = data;
-            callback(null, this);
+    this.once(
+      'error',
+      (onError = function(err) {
+        this.removeListener('parsed', onParsed);
 
-        }.bind(this));
+        callback(err, null);
+      }.bind(this)),
+    );
+  }
 
-        this.once('error', onError = function(err) {
-            this.removeListener('parsed', onParsed);
-
-            callback(err, null);
-        }.bind(this));
-    }
-
-    this.end(data);
-    return this;
+  this.end(data);
+  return this;
 };
 
 PNG.prototype.write = function(data) {
-    this._parser.write(data);
-    return true;
+  this._parser.write(data);
+  return true;
 };
 
 PNG.prototype.end = function(data) {
-    this._parser.end(data);
+  this._parser.end(data);
 };
 
 PNG.prototype._metadata = function(metadata) {
-    this.width = metadata.width;
-    this.height = metadata.height;
-    this.data = metadata.data;
+  this.width = metadata.width;
+  this.height = metadata.height;
+  this.data = metadata.data;
 
-    delete metadata.data;
-    this.emit('metadata', metadata);
+  delete metadata.data;
+  this.emit('metadata', metadata);
 };
 
 PNG.prototype._gamma = function(gamma) {
-    this.gamma = gamma;
+  this.gamma = gamma;
 };
 
 PNG.prototype._handleClose = function() {
-    if (!this._parser.writable && !this._packer.readable)
-        this.emit('close');
+  if (!this._parser.writable && !this._packer.readable) this.emit('close');
 };
 
-
 PNG.prototype.bitblt = function(dst, sx, sy, w, h, dx, dy) {
+  var src = this;
 
-    var src = this;
+  if (
+    sx > src.width ||
+    sy > src.height ||
+    sx + w > src.width ||
+    sy + h > src.height
+  )
+    throw new Error('bitblt reading outside image');
+  if (
+    dx > dst.width ||
+    dy > dst.height ||
+    dx + w > dst.width ||
+    dy + h > dst.height
+  )
+    throw new Error('bitblt writing outside image');
 
-    if (sx > src.width || sy > src.height
-            || sx + w > src.width || sy + h > src.height)
-        throw new Error('bitblt reading outside image');
-    if (dx > dst.width || dy > dst.height
-            || dx + w > dst.width || dy + h > dst.height)
-        throw new Error('bitblt writing outside image');
+  for (var y = 0; y < h; y++) {
+    src.data.copy(
+      dst.data,
+      ((dy + y) * dst.width + dx) << 2,
+      ((sy + y) * src.width + sx) << 2,
+      ((sy + y) * src.width + sx + w) << 2,
+    );
+  }
 
-    for (var y = 0; y < h; y++) {
-        src.data.copy(dst.data,
-            ((dy + y) * dst.width + dx) << 2,
-            ((sy + y) * src.width + sx) << 2,
-            ((sy + y) * src.width + sx + w) << 2
-        );
-    }
-
-    return this;
+  return this;
 };

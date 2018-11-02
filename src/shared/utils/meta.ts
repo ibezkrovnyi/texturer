@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import handlebars from 'handlebars';
 import { stableSort, getFileNameWithoutExtension } from './utils';
-import { LoadedFile, LoadedFiles } from '../containers/loadedFile';
+import { LoadedFiles } from '../containers/loadedFile';
 import { TextureMap } from '../containers/textureMap';
 import { InternalConfig } from '../../texturer/config';
 
@@ -41,32 +41,37 @@ interface TemplateTexture {
   'is-last-item': boolean;
 }
 
-export function writeMeta(folderRootTo: string, configParser: InternalConfig, loadedFiles: LoadedFiles, textureMapImages: TextureMap[]) {
+export function writeMeta(
+  folderRootTo: string,
+  configParser: InternalConfig,
+  loadedFiles: LoadedFiles,
+  textureMapImages: TextureMap[],
+) {
   const templateTexturesArray: TemplateTexture[] = [];
   const templateMapsArray: TemplateMap[] = [];
   let usedPixels = 0;
   let trimmedPixels = 0;
 
   // for each Texture Map
-  textureMapImages.forEach(function (map: TextureMap, mapIndex) {
-    console.log('map file = ' + map.file) ;
-    const url = path.join(configParser.folders.wwwRoot, map.file).replace(/\\/g, '/');
+  textureMapImages.forEach(function(map: TextureMap, mapIndex) {
+    console.log('map file = ' + map.file);
+    const url = path
+      .join(configParser.folders.wwwRoot, map.file)
+      .replace(/\\/g, '/');
     const dataURI = map.dataURI;
     const textureIds = Object.keys(map.textures);
     const isLastTextureMap = mapIndex + 1 === textureMapImages.length;
 
     // console.log("map.textureMapImages = " + map.textureMapImages);
-    templateMapsArray.push(
-      {
-        url,
-        'data-uri': dataURI,
-        'is-last-item': isLastTextureMap,
-        width: map.width,
-        height: map.height,
-        'repeat-x': map.repeatX,
-        'repeat-y': map.repeatY,
-      },
-    );
+    templateMapsArray.push({
+      url,
+      'data-uri': dataURI,
+      'is-last-item': isLastTextureMap,
+      width: map.width,
+      height: map.height,
+      'repeat-x': map.repeatX,
+      'repeat-y': map.repeatY,
+    });
 
     // for each Texture
     textureIds.forEach((id: string, textureIndex) => {
@@ -96,11 +101,9 @@ export function writeMeta(folderRootTo: string, configParser: InternalConfig, lo
         'repeat-x': map.repeatX,
         'repeat-y': map.repeatY,
         'is-last-item': isLastTexture && isLastTextureMap,
-      },
-      );
+      });
     });
-  },
-  );
+  });
 
   stableSort(templateMapsArray, (a, b) => {
     return a.url > b.url ? 1 : a.url < b.url ? -1 : 0;
@@ -108,17 +111,19 @@ export function writeMeta(folderRootTo: string, configParser: InternalConfig, lo
   stableSort(templateTexturesArray, (a, b) => {
     return a.id > b.id ? 1 : a.id < b.id ? -1 : 0;
   });
-  templateTexturesArray.forEach(texture => templateMapsArray.some((map, mapIndex) => {
-    if (map.url === texture.url) {
-      texture['map-index'] = mapIndex;
-      return true;
-    }
-    return false;
-  }));
+  templateTexturesArray.forEach(texture =>
+    templateMapsArray.some((map, mapIndex) => {
+      if (map.url === texture.url) {
+        texture['map-index'] = mapIndex;
+        return true;
+      }
+      return false;
+    }),
+  );
 
   const duplicateFileNamesArray: string[] = [];
-  templateTexturesArray.forEach(function (d1, i1) {
-    templateTexturesArray.forEach(function (d2, i2) {
+  templateTexturesArray.forEach(function(d1, i1) {
+    templateTexturesArray.forEach(function(d2, i2) {
       if (d1.id === d2.id && i1 !== i2) {
         duplicateFileNamesArray.push(d1.file);
       }
@@ -139,25 +144,39 @@ export function writeMeta(folderRootTo: string, configParser: InternalConfig, lo
   const templatesFolder = path.join(__dirname, '..', 'templates');
   configParser.templates.forEach(templateFile => {
     // check if template file exists relatively to config.json root folder
-    let templateFolderAndFile = path.resolve(configParser.folders.root, templateFile);
+    let templateFolderAndFile = path.resolve(
+      configParser.folders.root,
+      templateFile,
+    );
     if (!fs.existsSync(templateFolderAndFile)) {
-
       // check if template file exists relatively texturer/templates
       templateFolderAndFile = path.resolve(templatesFolder, templateFile);
       if (!fs.existsSync(templateFolderAndFile)) {
-        console.log(`WARNING: Template ${templateFile} not found in ${configParser.folders.root} nor in ${templatesFolder}`);
+        console.log(
+          `WARNING: Template ${templateFile} not found in ${
+            configParser.folders.root
+          } nor in ${templatesFolder}`,
+        );
         return;
       }
     }
 
     // if template file is found, use it
-    exportTexturePoolViaHandlebarsTemplate(folderRootTo, templateFolderAndFile, data);
+    exportTexturePoolViaHandlebarsTemplate(
+      folderRootTo,
+      templateFolderAndFile,
+      data,
+    );
   });
 
   return duplicateFileNamesArray;
 }
 
-function exportTexturePoolViaHandlebarsTemplate(folderRootTo: string, templateFolderAndFile: string, data: any) {
+function exportTexturePoolViaHandlebarsTemplate(
+  folderRootTo: string,
+  templateFolderAndFile: string,
+  data: any,
+) {
   let text = fs.readFileSync(templateFolderAndFile, 'utf8');
   if (text && text.length > 0) {
     text = text.replace(/\r/g, '');

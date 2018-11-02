@@ -18,11 +18,15 @@ export function encodeFile(file: string) {
 }
 
 function getImageMimeTypeByFileName(file: string) {
-  const extension = getExtension(file).toLowerCase() as keyof typeof extensionToMimeTypeMap;
+  const extension = getExtension(
+    file,
+  ).toLowerCase() as keyof typeof extensionToMimeTypeMap;
 
   if (extension in extensionToMimeTypeMap) {
     return extensionToMimeTypeMap[extension];
   }
 
-  throw new Error(`DataURIEncoder#_getImageMimeTypeByFileName: extension .${extension} is not supported`);
+  throw new Error(
+    `DataURIEncoder#_getImageMimeTypeByFileName: extension .${extension} is not supported`,
+  );
 }

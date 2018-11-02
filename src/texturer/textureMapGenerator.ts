@@ -1,14 +1,15 @@
-import * as crypto from 'crypto';
-import * as path from 'path';
 import { TextureMap, Size } from '../shared/containers/textureMap';
-import { Rect, Margins } from '../shared/containers/rect';
+import { Margins } from '../shared/containers/rect';
 import { workers } from './workers';
 import { InternalTextureMapTask } from './config';
 import { stableSort, getHash, getShuffledArray } from '../shared/utils/utils';
 import { Layout } from '../workers/binPacker/binPackerWorker';
-import { LoadedFile, LoadedFiles } from '../shared/containers/loadedFile';
+import { LoadedFiles } from '../shared/containers/loadedFile';
 
-export async function generateTextureMap(task: InternalTextureMapTask, loadedFiles: LoadedFiles) {
+export async function generateTextureMap(
+  task: InternalTextureMapTask,
+  loadedFiles: LoadedFiles,
+) {
   const endTime = Date.now() + task.bruteForceTime;
 
   const sizes: Size[] = task.files.map(file => {
@@ -25,29 +26,57 @@ export async function generateTextureMap(task: InternalTextureMapTask, loadedFil
 
   // try different combinations
   const layouts = await Promise.all([
-    arrangeRects(task, stableSort(Array.from(sizes), (a, b) => b.width * b.height - a.width * a.height), targetRect, totalPixels),
-    arrangeRects(task, stableSort(Array.from(sizes), (a, b) => b.width - a.width), targetRect, totalPixels),
-    arrangeRects(task, stableSort(Array.from(sizes), (a, b) => b.height - a.height), targetRect, totalPixels),
+    arrangeRects(
+      task,
+      stableSort(
+        Array.from(sizes),
+        (a, b) => b.width * b.height - a.width * a.height,
+      ),
+      targetRect,
+      totalPixels,
+    ),
+    arrangeRects(
+      task,
+      stableSort(Array.from(sizes), (a, b) => b.width - a.width),
+      targetRect,
+      totalPixels,
+    ),
+    arrangeRects(
+      task,
+      stableSort(Array.from(sizes), (a, b) => b.height - a.height),
+      targetRect,
+      totalPixels,
+    ),
   ]);
 
   let bestLayout = findBestLayout(layouts);
   while (Date.now() < endTime) {
-    const layout = await arrangeRects(task, getShuffledArray(sizes), targetRect, totalPixels);
+    const layout = await arrangeRects(
+      task,
+      getShuffledArray(sizes),
+      targetRect,
+      totalPixels,
+    );
     bestLayout = findBestLayout([bestLayout, layout]);
   }
 
   if (!bestLayout) {
-    throw new Error('Texture Generator: Can\'t pack texture map for folder \'' + task.folder + '\' - too large art. Split images into 2 or more folders or increase maxX!');
+    throw new Error(
+      "Texture Generator: Can't pack texture map for folder '" +
+        task.folder +
+        "' - too large art. Split images into 2 or more folders or increase maxX!",
+    );
   }
 
   return getTextureMap(task, loadedFiles, bestLayout);
 }
 
-async function arrangeRects(task: InternalTextureMapTask, sizes: Size[], targetRect: Margins, totalPixels: number) {
-  const sha1 = crypto.createHash('sha1');
-  sha1.update(JSON.stringify({ task, targetRect, sizes }));
-  const dig1 = sha1.digest('hex');
-
+async function arrangeRects(
+  task: InternalTextureMapTask,
+  sizes: Size[],
+  targetRect: Margins,
+  totalPixels: number,
+) {
   return workers.binPackerWorker({
     sizes,
     totalPixels,
@@ -70,7 +99,10 @@ function findBestLayout(layouts: Array<Layout | null>) {
     if (bestLayout) {
       const layoutArea = getArea(layout!);
       const bestLayoutArea = getArea(bestLayout);
-      if (layoutArea < bestLayoutArea || (layoutArea === bestLayoutArea && getHash(layout) < getHash(bestLayout))) {
+      if (
+        layoutArea < bestLayoutArea ||
+        (layoutArea === bestLayoutArea && getHash(layout) < getHash(bestLayout))
+      ) {
         bestLayout = layout;
       }
     } else {
@@ -81,13 +113,20 @@ function findBestLayout(layouts: Array<Layout | null>) {
   return bestLayout;
 }
 
-function getTextureMap(task: InternalTextureMapTask, loadedFiles: LoadedFiles, layout: Layout): TextureMap {
+function getTextureMap(
+  task: InternalTextureMapTask,
+  loadedFiles: LoadedFiles,
+  layout: Layout,
+): TextureMap {
   const rects = Array.from(layout.rects);
 
   const files = task.files;
   const textures = files.reduce<TextureMap['textures']>((acc, file) => {
     const loadedFile = loadedFiles[file];
-    const index = rects.findIndex(rect => rect.width === loadedFile.width && rect.height === loadedFile.height);
+    const index = rects.findIndex(
+      rect =>
+        rect.width === loadedFile.width && rect.height === loadedFile.height,
+    );
     if (index === -1) throw new Error(`Error: no placement for file ${file}`);
     acc[file] = rects.splice(index, 1)[0];
     return acc;
@@ -101,12 +140,14 @@ function getTextureMap(task: InternalTextureMapTask, loadedFiles: LoadedFiles, l
     repeatY: task.repeatY,
     textures,
     dataURI: null,
-  }
+  };
 }
 
 function checkFiles(task: InternalTextureMapTask, sizes: Size[]): Margins {
   if (task.repeatX && task.repeatY) {
-    throw new Error('TextureMapGenerator#_checkFiles: Sprite can\'t be repeat-x and repeat-y at the same time');
+    throw new Error(
+      "TextureMapGenerator#_checkFiles: Sprite can't be repeat-x and repeat-y at the same time",
+    );
   }
 
   let left = 4;
@@ -118,7 +159,11 @@ function checkFiles(task: InternalTextureMapTask, sizes: Size[]): Margins {
     left = right = sizes[0].width;
     sizes.forEach(file => {
       if (file.width !== left) {
-        throw new Error(`TextureMapGenerator#_checkFiles: All images in folder ${task.folder} should have the same width to repeat by X axis`);
+        throw new Error(
+          `TextureMapGenerator#_checkFiles: All images in folder ${
+            task.folder
+          } should have the same width to repeat by X axis`,
+        );
       }
     });
   }
@@ -127,14 +172,17 @@ function checkFiles(task: InternalTextureMapTask, sizes: Size[]): Margins {
     top = bottom = sizes[0].height;
     sizes.forEach(file => {
       if (file.height !== top) {
-        throw new Error(`TextureMapGenerator#_checkFiles: All images in folder ${task.folder} should have the same height to repeat by Y axis`);
+        throw new Error(
+          `TextureMapGenerator#_checkFiles: All images in folder ${
+            task.folder
+          } should have the same height to repeat by Y axis`,
+        );
       }
     });
   }
 
   return { left, right, top, bottom };
 }
-
 
 function getArea(layout: Layout) {
   return layout.width * layout.height;

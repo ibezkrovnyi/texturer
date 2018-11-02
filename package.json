@@ -14,15 +14,27 @@
     "type": "git",
     "url": "https://github.com/ibezkrovnyi/texturer"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "scripts": {
-    "clean": "rimraf dist",
+    "prepublish": "npm run build",
     "build": "webpack-cli --display-modules",
-    "build1": "tsc -p src/texturer & tsc -p src/workers",
-    "lint": "tslint --format verbose --config tslint.json --project ./src/workers/tsconfig.json && tslint --format verbose --config tslint.json --project ./src/texturer/tsconfig.json",
-    "lint-fix": "tslint --fix --format verbose --config tslint.json --project ./src/workers/tsconfig.json && tslint --fix --format verbose --config tslint.json --project ./src/texturer/tsconfig.json",
-    "test": "jest",
+    "test": "tsc --types jest && jest",
     "test-watch": "jest --watchAll",
-    "prepublish": "npm run build"
+    "clean": "rimraf dist"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "tslint -p tsconfig.json -t verbose --fix",
+      "git add"
+    ],
+    "*.{js,jsx,ts,tsx,json,css,less,md}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "bugs": {
     "url": "https://github.com/ibezkrovnyi/texturer/issues"
@@ -36,18 +48,30 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@babel/core": "7.1.2",
+    "@babel/plugin-proposal-class-properties": "7.1.0",
+    "@babel/plugin-proposal-object-rest-spread": "7.0.0",
+    "@babel/plugin-transform-runtime": "7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-typescript": "^7.1.0",
+    "@babel/runtime": "^7.1.2",
     "@ibezkrovnyi/tslint-rules": "0.0.3",
     "@types/fs-extra": "5.0.1",
     "@types/handlebars": "4.0.36",
     "@types/jest": "23.3.9",
     "@types/node": "10.12.2",
     "@types/pify": "3.0.2",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^23.6.0",
+    "babel-loader": "^8.0.4",
     "bmp-js": "ibezkrovnyi/bmp-js",
     "fs-extra": "7.0.0",
+    "husky": "^1.1.3",
     "jest": "23.6.0",
     "jest-config": "23.6.0",
     "jpeg-js": "0.3.3",
     "jsonc-parser": "1.0.1",
+    "lint-staged": "^8.0.4",
     "pify": "3.0.0",
     "prettier": "1.14.3",
     "rimraf": "latest",
@@ -59,7 +83,7 @@
     "tslint-consistent-codestyle": "1.11.1",
     "tslint-language-service": "0.9.8",
     "tslint-plugin-prettier": "2.0.1",
-    "typescript": "3.1.6",
+    "typescript": "^3.2.0-dev.20181102",
     "webpack": "4.23.1",
     "webpack-cli": "3.1.2",
     "worker-farm": "1.5.4"
@@ -68,18 +92,49 @@
     "singleQuote": true,
     "trailingComma": "all"
   },
+  "babel": {
+    "sourceMaps": "both",
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "modules": false
+        }
+      ],
+      "@babel/preset-typescript"
+    ],
+    "plugins": [
+      [
+        "@babel/plugin-transform-runtime",
+        {
+          "regenerator": true
+        }
+      ],
+      "@babel/plugin-proposal-class-properties",
+      "@babel/plugin-proposal-object-rest-spread"
+    ],
+    "env": {
+      "test": {
+        "presets": [
+          [
+            "@babel/preset-env",
+            {
+              "modules": "commonjs"
+            }
+          ]
+        ]
+      }
+    }
+  },
   "jest": {
+    "verbose": true,
     "roots": [
       "<rootDir>/src",
       "<rootDir>/tests"
     ],
-    "globals": {
-      "ts-jest": {
-        "tsConfig": "./src/texturer/tsconfig.json"
-      }
-    },
+    "globals": {},
     "transform": {
-      "^.+\\.tsx?$": "ts-jest"
+      "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
     },
     "testRegex": "(test|spec)\\.(jsx?|tsx?)$",
     "modulePathIgnorePatterns": [

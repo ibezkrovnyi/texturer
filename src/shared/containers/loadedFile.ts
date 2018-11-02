@@ -1,4 +1,4 @@
-import { Rect, Margins } from './rect';
+import { Margins } from './rect';
 
 // TODO: what is the difference to TextureImage ?
 export interface LoadedFile {

@@ -1,81 +1,79 @@
 {
-	"folders" : {
-		"source" : "./",
-		"target" : "../generated",
-		"wwwRoot" : "images"
-	},
-	"excludePattern" : ".*wl.*",
-	"templates" : [
-		"../test.hbs", "OO"
-	],
-	"taskDefaults" : {
-		"bruteForceTime" : 0,
-		"trim" : {
-			"enable" : true,
-			"alpha" : 0
-		},
-		"dataURI" : {
-			"enable" : true,
-			"maxSize" : 32512,
-			"createImageFileAnyway" : false
-		},
-		"gridStep" : 1,
-		"paddingX" : 0,
-		"paddingY" : 0,
-		"compression" : {
-			"tinyPNG" : false
-		}
-	},
-	"copyTasks" : [
-		{
-			"folder" : "lviv-ukraine-backgrounds",
-			"dataURI" : {
-				"enable" : true,
-				"maxSize" : 32512,
-				"createImageFileAnyway" : false
-			}
-		}
-	],
-	"textureMapTasks" : [
-		{
-			"folder" : "creative-nerds-wooden-icons",
-			"textureMapFile" : "creative-nerds-wooden-icons.png",
-			"bruteForceTime" : 0,
-			"gridStep" : 1,
-			"paddingX" : 0,
-			"paddingY" : 0,
-			"repeatX" : false,
-			"repeatY" : false,
-			"compression" : {
-				"tinyPNG" : false
-			},
-			"dataURI" : {
-				"enable" : true,
-				"maxSize" : 32768,
-				"createImageFileAnyway" : false
-			},
-			"trim" : {
-				"enable" : true,
-				"alpha" : 0
-			}
-		},
-		{
-			"folder" : "recursive",
-			"compression" : {
-				"tinyPNG" : false
-			}
-		},
-		{
-			"folder" : "buttons",
-			"repeatX" : true
-		}
-	],
-	"tinypngApiKeys" : [
-		{
-			"used" : 22,
-			"month" : 8,
-			"year" : 2015,
-			"key" : "fjhdsajkfjdsahjfkhdsajfhjdsakhfjkdshajkh-"
-		}
-	]
+  "folders": {
+    "source": "./",
+    "target": "../generated",
+    "wwwRoot": "images"
+  },
+  "excludePattern": ".*wl.*",
+  "templates": ["../test.hbs", "OO"],
+  "taskDefaults": {
+    "bruteForceTime": 0,
+    "trim": {
+      "enable": true,
+      "alpha": 0
+    },
+    "dataURI": {
+      "enable": true,
+      "maxSize": 32512,
+      "createImageFileAnyway": false
+    },
+    "gridStep": 1,
+    "paddingX": 0,
+    "paddingY": 0,
+    "compression": {
+      "tinyPNG": false
+    }
+  },
+  "copyTasks": [
+    {
+      "folder": "lviv-ukraine-backgrounds",
+      "dataURI": {
+        "enable": true,
+        "maxSize": 32512,
+        "createImageFileAnyway": false
+      }
+    }
+  ],
+  "textureMapTasks": [
+    {
+      "folder": "creative-nerds-wooden-icons",
+      "textureMapFile": "creative-nerds-wooden-icons.png",
+      "bruteForceTime": 0,
+      "gridStep": 1,
+      "paddingX": 0,
+      "paddingY": 0,
+      "repeatX": false,
+      "repeatY": false,
+      "compression": {
+        "tinyPNG": false
+      },
+      "dataURI": {
+        "enable": true,
+        "maxSize": 32768,
+        "createImageFileAnyway": false
+      },
+      "trim": {
+        "enable": true,
+        "alpha": 0
+      }
+    },
+    {
+      "folder": "recursive",
+      "compression": {
+        "tinyPNG": false
+      }
+    },
+    {
+      "folder": "buttons",
+      "repeatX": true
+    }
+  ],
+  "tinypngApiKeys": [
+    {
+      "used": 22,
+      "month": 8,
+      "year": 2015,
+      "key": "fjhdsajkfjdsahjfkhdsajfhjdsakhfjkdshajkh-"
+    }
+  ]
 }
