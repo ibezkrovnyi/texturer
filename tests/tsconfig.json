@@ -15,19 +15,14 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
-    "lib": [
-      "dom",
-      "esnext"
-    ],
+    "lib": ["dom", "esnext"],
     "plugins": [
       {
         "name": "tslint-language-service",
         "supressWhileTypeErrorsPresent": false,
         "ignoreDefinitionFiles": true
-      } 
+      }
     ]
   },
-  "files": [
-    "./index.ts"
-  ]
+  "files": ["./index.ts"]
 }

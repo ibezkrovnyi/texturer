@@ -1,9 +1,6 @@
 import workerFarm from 'worker-farm';
 import pify from 'pify';
-import * as path from 'path';
-import { TextureMap, Size } from '../shared/containers/textureMap';
-import { Rect } from '../shared/containers/rect';
-import { binPackerWorker } from '../workers/binPacker/binPackerWorker';
+import path from 'path';
 
 const exportNames = [
   'copyFileWorker',

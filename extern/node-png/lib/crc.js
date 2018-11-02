@@ -21,59 +21,52 @@
 'use strict';
 
 var util = require('util'),
-    Stream = require('stream');
+  Stream = require('stream');
 
+var CrcStream = (module.exports = function() {
+  Stream.call(this);
 
-var CrcStream = module.exports = function() {
-    Stream.call(this);
+  this._crc = -1;
 
-    this._crc = -1;
-
-    this.writable = true;
-};
+  this.writable = true;
+});
 util.inherits(CrcStream, Stream);
 
-
 CrcStream.prototype.write = function(data) {
-
-    for (var i = 0; i < data.length; i++) {
-        this._crc = crcTable[(this._crc ^ data[i]) & 0xff] ^ (this._crc >>> 8);
-    }
-    return true;
+  for (var i = 0; i < data.length; i++) {
+    this._crc = crcTable[(this._crc ^ data[i]) & 0xff] ^ (this._crc >>> 8);
+  }
+  return true;
 };
 
 CrcStream.prototype.end = function(data) {
-    if (data) this.write(data);
+  if (data) this.write(data);
 
-    this.emit('crc', this.crc32());
+  this.emit('crc', this.crc32());
 };
 
 CrcStream.prototype.crc32 = function() {
-    return this._crc ^ -1;
+  return this._crc ^ -1;
 };
-
 
 CrcStream.crc32 = function(buf) {
-
-    var crc = -1;
-    for (var i = 0; i < buf.length; i++) {
-        crc = crcTable[(crc ^ buf[i]) & 0xff] ^ (crc >>> 8);
-    }
-    return crc ^ -1;
+  var crc = -1;
+  for (var i = 0; i < buf.length; i++) {
+    crc = crcTable[(crc ^ buf[i]) & 0xff] ^ (crc >>> 8);
+  }
+  return crc ^ -1;
 };
-
-
 
 var crcTable = [];
 
 for (var i = 0; i < 256; i++) {
-    var c = i;
-    for (var j = 0; j < 8; j++) {
-        if (c & 1) {
-            c = 0xedb88320 ^ (c >>> 1);
-        } else {
-            c = c >>> 1;
-        }
+  var c = i;
+  for (var j = 0; j < 8; j++) {
+    if (c & 1) {
+      c = 0xedb88320 ^ (c >>> 1);
+    } else {
+      c = c >>> 1;
     }
-    crcTable[i] = c;
+  }
+  crcTable[i] = c;
 }

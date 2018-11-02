@@ -1,9 +1,8 @@
 import Ajv from 'ajv';
-import * as fs from 'fs-extra';
 import * as path from 'path';
 import { parse } from 'jsonc-parser';
 import schema from './configSchema.json';
-import { FSHelper as fsHelper, stableSort } from '../shared/utils/fsHelper';
+import { stableSort, getFilesInFolder } from '../shared/utils/utils';
 
 export interface Config {
   folders: {
@@ -166,46 +165,71 @@ export function validateConfig(config: Config | string) {
   return internalConfig;
 }
 
-function getInternalConfig(validatedConfig: InternalConfig, originalConfig: Config) {
+function getInternalConfig(
+  validatedConfig: InternalConfig,
+  originalConfig: Config,
+) {
   // set default textureMap filenames manually
   let id = 0;
-  validatedConfig.textureMapTasks.forEach(task => task.textureMapFile = task.textureMapFile || `textureMap${id++}.png`);
+  validatedConfig.textureMapTasks.forEach(
+    task =>
+      (task.textureMapFile = task.textureMapFile || `textureMap${id++}.png`),
+  );
 
   // apply task-defaults to each copy and textureMap task
   const originalTaskDefaults = originalConfig.taskDefaults || {};
   const originalTextureMapTasks = originalConfig.textureMapTasks;
   if (originalTextureMapTasks) {
-    validatedConfig.textureMapTasks.forEach((task, index) => Object.keys(task).forEach(key => {
-      const originalTextureMapTask = originalTextureMapTasks[index];
-      const useDefaults = !(key in originalTextureMapTask) && key in originalTaskDefaults;
-      if (useDefaults) {
-        (task as any)[key] = (originalTaskDefaults as any)[key];
-      }
-    }));
+    validatedConfig.textureMapTasks.forEach((task, index) =>
+      Object.keys(task).forEach(key => {
+        const originalTextureMapTask = originalTextureMapTasks[index];
+        const useDefaults =
+          !(key in originalTextureMapTask) && key in originalTaskDefaults;
+        if (useDefaults) {
+          (task as any)[key] = (originalTaskDefaults as any)[key];
+        }
+      }),
+    );
   }
 
   const originalCopyTasks = originalConfig.copyTasks;
   if (originalCopyTasks) {
-    validatedConfig.copyTasks.forEach((task, index) => Object.keys(task).forEach(key => {
-      const originalCopyTask = originalCopyTasks[index];
-      const useDefaults = !(key in originalCopyTask) && key in originalTaskDefaults;
-      if (useDefaults) {
-        (task as any)[key] = (originalTaskDefaults as any)[key];
-      }
-    }));
+    validatedConfig.copyTasks.forEach((task, index) =>
+      Object.keys(task).forEach(key => {
+        const originalCopyTask = originalCopyTasks[index];
+        const useDefaults =
+          !(key in originalCopyTask) && key in originalTaskDefaults;
+        if (useDefaults) {
+          (task as any)[key] = (originalTaskDefaults as any)[key];
+        }
+      }),
+    );
   }
 
   // add files
-  for (const task of [...validatedConfig.copyTasks, ...validatedConfig.textureMapTasks]) {
+  for (const task of [
+    ...validatedConfig.copyTasks,
+    ...validatedConfig.textureMapTasks,
+  ]) {
     task.files = getFiles(task.folder, validatedConfig);
   }
 
   // add some folders
   const rootFolder = process.cwd();
   validatedConfig.folders.root = rootFolder;
-  validatedConfig.folders.rootFrom = path.join(rootFolder, validatedConfig.folders.source);
-  validatedConfig.folders.rootTo = path.join(rootFolder, validatedConfig.folders.target);
-  validatedConfig.folders.rootToIndexHtml = path.join(rootFolder, validatedConfig.folders.target, validatedConfig.folders.wwwRoot);
+  validatedConfig.folders.rootFrom = path.join(
+    rootFolder,
+    validatedConfig.folders.source,
+  );
+  validatedConfig.folders.rootTo = path.join(
+    rootFolder,
+    validatedConfig.folders.target,
+  );
+  validatedConfig.folders.rootToIndexHtml = path.join(
+    rootFolder,
+    validatedConfig.folders.target,
+    validatedConfig.folders.wwwRoot,
+  );
 
   return validatedConfig;
 }
@@ -216,20 +240,20 @@ function getFiles(folder: string, config: InternalConfig) {
   let filter = null;
   if (config.excludePattern) {
     const regex = new RegExp(config.excludePattern, 'gi');
-    filter = function (name: string) {
+    filter = function(name: string) {
       regex.lastIndex = 0;
       return regex.test(name);
     };
   }
 
-  const files = fsHelper.getFilesInFolder(fullFolder, filter, true).map(file => {
+  const files = getFilesInFolder(fullFolder, filter, true).map(file => {
     return path.join(folder, file).replace(/\\/g, '/');
   });
 
   if (files.length <= 0) {
     throw new Error('no files in fullfolder ' + folder);
   }
-  
+
   return stableSort(files, (a, b) => {
     return a > b ? 1 : a < b ? -1 : 0;
   });
