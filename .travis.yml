@@ -2,6 +2,14 @@ language: node_js
 node_js:
   - "lts/*"
 
+before_install:
+  - npm i -g npm
+  - npm i -g greenkeeper-lockfile@2
+
+before_script: greenkeeper-lockfile-update
+
+after_script: greenkeeper-lockfile-upload
+
 deploy:
   provider: npm
   email: "igor.bezkrovny@gmail.com"
