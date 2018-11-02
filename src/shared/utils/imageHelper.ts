@@ -1,35 +1,60 @@
 import * as fs from 'fs';
-import * as path from 'path';
-import { FSHelper } from './fsHelper';
+import { getExtension, getFileNameWithoutExtension } from './utils';
 import * as jpegEngine from 'jpeg-js';
 import * as bmpEngine from 'bmp-js';
 import { PNG as pngEngine } from '../../../extern/node-png';
+import { LoadedImage } from '../containers/loadedFile';
 const supportedImageExtensions = ['jpg', 'jpeg', 'png', 'bmp'];
 
 export class ImageHelper {
   static isImageFileSupported(fileName: string) {
     const isFile = fs.statSync(fileName).isFile();
-    return isFile && supportedImageExtensions.indexOf(FSHelper.getExtension(fileName).toLocaleLowerCase()) >= 0;
+    return (
+      isFile &&
+      supportedImageExtensions.indexOf(
+        getExtension(fileName).toLocaleLowerCase(),
+      ) >= 0
+    );
   }
 
   static readImageFile(file: string, callback: any, thisArg?: any) {
-    const fileNameWithoutExt = FSHelper.getFileNameWithoutExtension(file);
+    const fileNameWithoutExt = getFileNameWithoutExtension(file);
     const testFileNameForJavaScriptIdentifier = /^[(\d+)`~\| !@#\$%\^&\*\(\)\-=\+\?\.,<>]+|[`~\|!@#\$%\^&\*\(\)\-=\+\? \.,<>]/g;
 
     if (testFileNameForJavaScriptIdentifier.test(fileNameWithoutExt)) {
-      callback.call(thisArg, new Error('Incorrect file name ' + fileNameWithoutExt + ' (file: ' + file + ')'), null);
+      callback.call(
+        thisArg,
+        new Error(
+          'Incorrect file name ' + fileNameWithoutExt + ' (file: ' + file + ')',
+        ),
+        null,
+      );
     }
 
     if (!ImageHelper.isImageFileSupported(file)) {
-      callback.call(thisArg, new Error('Supported files: *.' + supportedImageExtensions.join(', *.') + '. File ' + file + ' is not supported.'), null);
+      callback.call(
+        thisArg,
+        new Error(
+          'Supported files: *.' +
+            supportedImageExtensions.join(', *.') +
+            '. File ' +
+            file +
+            ' is not supported.',
+        ),
+        null,
+      );
     }
 
-    switch (FSHelper.getExtension(file).toUpperCase()) {
+    switch (getExtension(file).toUpperCase()) {
       case 'JPEG':
       case 'JPG':
-        fs.readFile(file, function (error: any, data: any) {
+        fs.readFile(file, function(error: any, data: any) {
           if (error) {
-            callback.call(thisArg, new Error('FS: Can\'t read file ' + file + ', error: ' + error), null);
+            callback.call(
+              thisArg,
+              new Error("FS: Can't read file " + file + ', error: ' + error),
+              null,
+            );
             return;
           }
 
@@ -38,18 +63,20 @@ export class ImageHelper {
           try {
             textureJpeg = jpegEngine.decode(data);
           } catch (e) {
-            callback.call(thisArg, new Error('JPG: Can\'t decode file ' + file + ', error: ' + e), null);
+            callback.call(
+              thisArg,
+              new Error("JPG: Can't decode file " + file + ', error: ' + e),
+              null,
+            );
             return;
           }
 
           // create png
-          const texturePng = new pngEngine(
-            {
-              filterType: 0,
-              width: textureJpeg.width,
-              height: textureJpeg.height,
-            },
-          );
+          const texturePng = new pngEngine({
+            filterType: 0,
+            width: textureJpeg.width,
+            height: textureJpeg.height,
+          });
 
           // convert data from jpg_plugin (rgb) to png_plugin (rgb)
           for (let i = 0; i < textureJpeg.data.length; i += 4) {
@@ -64,21 +91,36 @@ export class ImageHelper {
 
       case 'PNG':
         fs.createReadStream(file)
-          .pipe(new pngEngine({
-            filterType: 0,
-          }))
-          .on('parsed', function (this: any) {
+          .pipe(
+            new pngEngine({
+              filterType: 0,
+            }),
+          )
+          .on('parsed', function(this: any) {
             callback.call(thisArg, null, this);
           })
-          .on('error', function (error: any) {
-            callback.call(thisArg, new Error('PNG: Can\'t decode file ' + file + ', error: ' + error), null);
+          .on('error', function(error: any) {
+            callback.call(
+              thisArg,
+              new Error("PNG: Can't decode file " + file + ', error: ' + error),
+              null,
+            );
           });
         break;
 
       case 'BMP':
-        fs.readFile(file, function (error: any, data: any) {
+        fs.readFile(file, function(error: any, data: any) {
           if (error) {
-            callback.call(thisArg, new Error('File system error: Can\'t read file ' + file + ', error: ' + error), null);
+            callback.call(
+              thisArg,
+              new Error(
+                "File system error: Can't read file " +
+                  file +
+                  ', error: ' +
+                  error,
+              ),
+              null,
+            );
             return;
           }
 
@@ -87,18 +129,20 @@ export class ImageHelper {
           try {
             textureBmp = bmpEngine.decode(data);
           } catch (e) {
-            callback.call(thisArg, new Error('BMP: Can\'t decode file ' + file + ', error: ' + e), null);
+            callback.call(
+              thisArg,
+              new Error("BMP: Can't decode file " + file + ', error: ' + e),
+              null,
+            );
             return;
           }
 
           // create png
-          const texturePng = new pngEngine(
-            {
-              filterType: 0,
-              width: textureBmp.width,
-              height: textureBmp.height,
-            },
-          );
+          const texturePng = new pngEngine({
+            filterType: 0,
+            width: textureBmp.width,
+            height: textureBmp.height,
+          });
 
           // convert data from bmp_plugin (bgr) to png_plugin (rgb)
           for (let i = 0; i < textureBmp.data.length; i += 4) {
@@ -124,7 +168,7 @@ export class ImageHelper {
     let bottom = 0;
 
     // from left
-    for (let x = 0, foundNonTransparentPixel = false; x < width; x++ , left++) {
+    for (let x = 0, foundNonTransparentPixel = false; x < width; x++, left++) {
       // vertical test
       for (let y = 0; y < height; y++) {
         const base = (width * y + x) << 2;
@@ -139,7 +183,11 @@ export class ImageHelper {
     }
 
     // from right
-    for (let x = width - 1, foundNonTransparentPixel = false; x >= left; x-- , right++) {
+    for (
+      let x = width - 1, foundNonTransparentPixel = false;
+      x >= left;
+      x--, right++
+    ) {
       // vertical test
       for (let y = 0; y < height; y++) {
         const base = (width * y + x) << 2;
@@ -154,7 +202,7 @@ export class ImageHelper {
     }
 
     // from top
-    for (let y = 0, foundNonTransparentPixel = false; y < height; y++ , top++) {
+    for (let y = 0, foundNonTransparentPixel = false; y < height; y++, top++) {
       // vertical test
       for (let x = 0; x < width; x++) {
         const base = (width * y + x) << 2;
@@ -169,7 +217,11 @@ export class ImageHelper {
     }
 
     // from bottom
-    for (let y = height - 1, foundNonTransparentPixel = false; y >= top; y-- , bottom++) {
+    for (
+      let y = height - 1, foundNonTransparentPixel = false;
+      y >= top;
+      y--, bottom++
+    ) {
       // vertical test
       for (let x = 0; x < width; x++) {
         const base = (width * y + x) << 2;
@@ -221,7 +273,7 @@ export class ImageHelper {
     };
   }
 
-  static isOpaque(png: any) {
+  static isOpaque(png: LoadedImage) {
     // from left
     for (let x = 0; x < png.width; x++) {
       // vertical test
@@ -234,5 +286,4 @@ export class ImageHelper {
     }
     return true;
   }
-
 }

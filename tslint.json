@@ -3,61 +3,82 @@
     "tslint:recommended",
     "tslint-config-airbnb",
     "tslint-consistent-codestyle",
-    "@ibezkrovnyi/tslint-rules"
+    "@ibezkrovnyi/tslint-rules",
+    "tslint-config-prettier",
+    "tslint-plugin-prettier"
   ],
   "rules": {
+    "prettier": true,
     "no-inferrable-return-types": true,
     "no-unnecessary-type-annotation": [true, "check-return-type"],
     "no-inferrable-types": true,
     "naming-convention": [
       true,
       // forbid leading and trailing underscores and enforce camelCase on EVERY name. will be overridden by subtypes if needed
-      {"type": "default", "format": "camelCase", "leadingUnderscore": "forbid", "trailingUnderscore": "forbid"},
+      {
+        "type": "default",
+        "format": "camelCase",
+        "leadingUnderscore": "forbid",
+        "trailingUnderscore": "forbid"
+      },
       // require all global constants to be camelCase or UPPER_CASE
       // all other variables and functions still need to be camelCase
-      {"type": "variable", "modifiers": ["const"], "format": "camelCase"},
+      { "type": "variable", "modifiers": ["const"], "format": "camelCase" },
       // require exported constant variables that are initialized with functions to be camelCase
-      {"type": "functionVariable", "modifiers": ["const"], "format": "camelCase"},
+      {
+        "type": "functionVariable",
+        "modifiers": ["const"],
+        "format": "camelCase"
+      },
       // allow leading underscores for unused parameters, because `tsc --noUnusedParameters` will not flag underscore prefixed parameters
       // all other rules (trailingUnderscore: forbid, format: camelCase) still apply
-      {"type": "parameter", "modifiers": "unused", "leadingUnderscore": "allow"},
+      {
+        "type": "parameter",
+        "modifiers": "unused",
+        "leadingUnderscore": "allow"
+      },
       // require leading underscores for private properties and methods, all other rules still apply
-      {"type": "member", "modifiers": "private", "leadingUnderscore": "require"},
+      {
+        "type": "member",
+        "modifiers": "private",
+        "leadingUnderscore": "require"
+      },
       // same for protected
-      {"type": "member", "modifiers": "protected", "leadingUnderscore": "require"},
+      {
+        "type": "member",
+        "modifiers": "protected",
+        "leadingUnderscore": "require"
+      },
       // exclicitly disable the format check only for method toJSON
-      {"type": "method", "filter": "^toJSON$", "format": null},
+      { "type": "method", "filter": "^toJSON$", "format": null },
       // enforce camelCase for all public static readonly(!) properties
-      {"type": "property", "modifiers": ["public", "static", "const"], "format": "camelCase"},
+      {
+        "type": "property",
+        "modifiers": ["public", "static", "const"],
+        "format": "camelCase"
+      },
       // enforce PascalCase for classes, interfaces, enums, etc. Remember, there are still no underscores allowed.
-      {"type": "type", "format": "PascalCase"},
+      { "type": "type", "format": "PascalCase" },
       // abstract classes must have the prefix "Abstract". The following part of the name must be valid PascalCase
-      {"type": "class", "modifiers": "abstract", "prefix": "Abstract"},
+      { "type": "class", "modifiers": "abstract", "prefix": "Abstract" },
       // generic type parameters must start with "T"
       // most of the time it will only be T, which is totally valid, because an empty string conforms to the PascalCase check
       // By convention T, U and V are used for generics. You could enforce that with "regex": "^[TUV]$" and if you are care that much for performance, you could disable every other check by setting a falsy value
-      {"type": "genericTypeParameter", "prefix": "T"},
+      { "type": "genericTypeParameter", "prefix": "T" },
       // enum members must be in PascalCase. Without this config, enumMember would inherit UPPER_CASE from public static const property
-      {"type": "enumMember", "format": "PascalCase"}
+      { "type": "enumMember", "format": "PascalCase" }
     ],
     "no-angle-bracket-type-assertion": true,
-    "curly": [
-      true,
-      "ignore-same-line"
-    ],
-    "member-access": [
-      true,
-      "no-public"
-    ],
+    "curly": [true, "ignore-same-line"],
+    "member-access": [true, "no-public"],
     "prefer-for-of": true,
     "one-variable-per-declaration": [true, "ignore-for-loop"],
     "no-non-null-assertion": true,
-    "no-null-keyword": true,
     // "no-any": true,
     "no-inferred-empty-object-type": true,
     "ban-types": [true, ["Object", "Use {} instead."], ["String"]],
     "no-shadowed-variable": false,
-    
+
     "no-var-self": false,
 
     "no-relative-imports": false,
@@ -93,11 +114,12 @@
     "no-empty": false,
     "prefer-array-literal": false,
     "strict-boolean-expressions": false,
-    "no-unused-expression": [
-      true,
-      "allow-new"
-    ],
-
+    "no-unused-expression": [true, "allow-new"],
+    "import-name": false,
+    "no-null-keyword": false,
+    "object-shorthand-properties-first": false,
+    "no-non-null-assertion": false,
+    "ban-types": false,
 
     "no-reference": false,
     "no-console": false

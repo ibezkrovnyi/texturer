@@ -15,11 +15,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "wwwRoot",
-        "source",
-        "target"
-      ],
+      "required": ["wwwRoot", "source", "target"],
       "title": "folders"
     },
     "Trim": {
@@ -126,9 +122,7 @@
           "default": {}
         }
       },
-      "required": [
-        "folder"
-      ],
+      "required": ["folder"],
       "title": "copy-task"
     },
     "TextureMapTask": {
@@ -182,9 +176,7 @@
           "default": {}
         }
       },
-      "required": [
-        "folder"
-      ],
+      "required": ["folder"],
       "title": "texture-map-task"
     },
     "TinypngAPIKey": {
@@ -204,12 +196,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "key",
-        "month",
-        "used",
-        "year"
-      ],
+      "required": ["key", "month", "used", "year"],
       "title": "tinypng-api-key"
     },
     "Texturer": {
@@ -257,10 +244,7 @@
           "default": []
         }
       },
-      "required": [
-        "folders",
-        "templates"
-      ]
+      "required": ["folders", "templates"]
     }
   }
 }

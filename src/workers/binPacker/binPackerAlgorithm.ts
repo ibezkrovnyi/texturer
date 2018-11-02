@@ -22,9 +22,16 @@ export class BinPacker {
   private _paddingX: number;
   private _paddingY: number;
 
-  private static _recursiveFindPlace(node: BinPackerNode, width: number, height: number): { x: number; y: number; } | null {
+  private static _recursiveFindPlace(
+    node: BinPackerNode,
+    width: number,
+    height: number,
+  ): { x: number; y: number } | null {
     if (node.leftChild && node.rightChild) {
-      return BinPacker._recursiveFindPlace(node.leftChild, width, height) || BinPacker._recursiveFindPlace(node.rightChild, width, height);
+      return (
+        BinPacker._recursiveFindPlace(node.leftChild, width, height) ||
+        BinPacker._recursiveFindPlace(node.rightChild, width, height)
+      );
     }
 
     if (node.used || width > node.width || height > node.height) {
@@ -40,10 +47,20 @@ export class BinPacker {
     // checks if we partition in vertical or horizontal
     if (node.width - width > node.height - height) {
       node.leftChild = new BinPackerNode(node.x, node.y, width, node.height);
-      node.rightChild = new BinPackerNode(node.x + width, node.y, node.width - width, node.height);
+      node.rightChild = new BinPackerNode(
+        node.x + width,
+        node.y,
+        node.width - width,
+        node.height,
+      );
     } else {
       node.leftChild = new BinPackerNode(node.x, node.y, node.width, height);
-      node.rightChild = new BinPackerNode(node.x, node.y + height, node.width, node.height - height);
+      node.rightChild = new BinPackerNode(
+        node.x,
+        node.y + height,
+        node.width,
+        node.height - height,
+      );
     }
     return BinPacker._recursiveFindPlace(node.leftChild, width, height);
   }
@@ -57,19 +74,29 @@ export class BinPacker {
     return coordinate;
   }
 
-  constructor(binWidth: number, binHeight: number, makeCoordinatesDivisibleBy = 0, minimalDistanceBetweenPackedRectanglesByX = 0, minimalDistanceBetweenPackedRectanglesByY = 0) {
+  constructor(
+    binWidth: number,
+    binHeight: number,
+    makeCoordinatesDivisibleBy = 0,
+    minimalDistanceBetweenPackedRectanglesByX = 0,
+    minimalDistanceBetweenPackedRectanglesByY = 0,
+  ) {
     this._divisibleBy = makeCoordinatesDivisibleBy;
     this._paddingX = minimalDistanceBetweenPackedRectanglesByX;
     this._paddingY = minimalDistanceBetweenPackedRectanglesByY;
 
-    binWidth = BinPacker._makeDivisibleBy(binWidth, this._divisibleBy) + this._paddingX;
-    binHeight = BinPacker._makeDivisibleBy(binHeight, this._divisibleBy) + this._paddingY;
+    binWidth =
+      BinPacker._makeDivisibleBy(binWidth, this._divisibleBy) + this._paddingX;
+    binHeight =
+      BinPacker._makeDivisibleBy(binHeight, this._divisibleBy) + this._paddingY;
     this._rootNode = new BinPackerNode(0, 0, binWidth, binHeight);
   }
 
   placeNextRectangle(width: number, height: number) {
-    width = BinPacker._makeDivisibleBy(width, this._divisibleBy) + this._paddingX;
-    height = BinPacker._makeDivisibleBy(height, this._divisibleBy) + this._paddingY;
+    width =
+      BinPacker._makeDivisibleBy(width, this._divisibleBy) + this._paddingX;
+    height =
+      BinPacker._makeDivisibleBy(height, this._divisibleBy) + this._paddingY;
     return BinPacker._recursiveFindPlace(this._rootNode, width, height);
   }
 }

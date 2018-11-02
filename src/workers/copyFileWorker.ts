@@ -21,7 +21,7 @@ export function copyFileWorker(data: any, callback: any) {
 
   const wr = fs.createWriteStream(target);
   wr.on('error', done);
-  wr.on('close', function () {
+  wr.on('close', function() {
     // restore original file's modified date/time
     const stat = fs.statSync(source);
     fs.utimesSync(target, stat.atime, stat.mtime);

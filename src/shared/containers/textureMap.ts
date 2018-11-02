@@ -1,4 +1,4 @@
-import { Rect, Margins } from './rect';
+import { Rect } from './rect';
 
 export interface Size {
   readonly width: number;
