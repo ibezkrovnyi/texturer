@@ -52,7 +52,7 @@
     "@babel/plugin-proposal-class-properties": "7.4.0",
     "@babel/plugin-proposal-object-rest-spread": "7.4.0",
     "@babel/plugin-transform-runtime": "7.4.0",
-    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-env": "^7.4.1",
     "@babel/preset-typescript": "^7.1.0",
     "@babel/runtime": "^7.1.2",
     "@ibezkrovnyi/tslint-rules": "0.0.3",
