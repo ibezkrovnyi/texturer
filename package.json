@@ -58,7 +58,7 @@
     "@ibezkrovnyi/tslint-rules": "0.0.3",
     "@types/fs-extra": "5.0.1",
     "@types/handlebars": "4.0.36",
-    "@types/jest": "23.3.9",
+    "@types/jest": "24.0.12",
     "@types/node": "10.12.2",
     "@types/pify": "3.0.2",
     "babel-core": "^7.0.0-bridge.0",
