@@ -84,7 +84,7 @@
     "tslint-language-service": "0.9.8",
     "tslint-plugin-prettier": "2.0.1",
     "typescript": "^3.2.0-dev.20181102",
-    "webpack": "4.23.1",
+    "webpack": "4.36.1",
     "webpack-cli": "3.1.2",
     "worker-farm": "1.5.4"
   },
