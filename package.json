@@ -70,7 +70,7 @@
     "jest": "23.6.0",
     "jest-config": "23.6.0",
     "jpeg-js": "0.3.3",
-    "jsonc-parser": "1.0.1",
+    "jsonc-parser": "2.1.1",
     "lint-staged": "^8.0.4",
     "pify": "3.0.0",
     "prettier": "1.14.3",
