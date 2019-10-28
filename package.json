@@ -40,7 +40,7 @@
     "url": "https://github.com/ibezkrovnyi/texturer/issues"
   },
   "dependencies": {
-    "handlebars": "4.0.11"
+    "handlebars": "4.5.0"
   },
   "preferGlobal": true,
   "bin": {
