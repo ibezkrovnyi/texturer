@@ -71,7 +71,7 @@
     "jest-config": "23.6.0",
     "jpeg-js": "0.3.3",
     "jsonc-parser": "1.0.1",
-    "lint-staged": "^8.0.4",
+    "lint-staged": "^9.4.3",
     "pify": "3.0.0",
     "prettier": "1.14.3",
     "rimraf": "latest",
