@@ -73,7 +73,7 @@
     "jsonc-parser": "1.0.1",
     "lint-staged": "^8.0.4",
     "pify": "3.0.0",
-    "prettier": "1.14.3",
+    "prettier": "2.0.2",
     "rimraf": "latest",
     "ts-jest": "23.10.4",
     "ts-loader": "4.0.1",
